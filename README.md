@@ -6,7 +6,7 @@
     New Plugin for SourceMod
 </h1>
 
-### [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat-square)] [![GitHub forks](https://img.shields.io/github/forks/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/network) [![GitHub stars](https://img.shields.io/github/stars/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/stargazers) [![GitHub issues](https://img.shields.io/github/issues/SB-MaterialAdmin/NewServer.svg?style=flat-square)]
+### [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/blob/master/LICENSE) [![GitHub forks](https://img.shields.io/github/forks/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/network) [![GitHub stars](https://img.shields.io/github/stars/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/stargazers) [![GitHub issues](https://img.shields.io/github/issues/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/issues)
 
 ### Ссылки
 - [Скачать плагин](https://github.com/SB-MaterialAdmin/NewServer/archive/master.zip)
