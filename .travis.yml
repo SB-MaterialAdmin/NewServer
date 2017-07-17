@@ -10,8 +10,6 @@ matrix:
     fast_finish: true
     allow_failures:
     - env: SMVERSION=1.7
-    - env: SMVERSION=1.8
-    - env: SMVERSION=1.9
 
 before_install:
     - sudo apt-get update
@@ -22,7 +20,8 @@ before_script:
     - wget -q "http://www.sourcemod.net/latest.php?version=$SMVERSION&os=linux" -O sourcemod.tar.gz
     - tar -xzf sourcemod.tar.gz
     - cd addons/sourcemod/scripting/
-    - wget "https://raw.githubusercontent.com/KyleSanderson/SteamWorks/master/Pawn/includes/SteamWorks.inc" -o include/SteamWorks.inc
+    - wget -q "https://raw.githubusercontent.com/KyleSanderson/SteamWorks/master/Pawn/includes/SteamWorks.inc" -o include/SteamWorks.inc
+    - cat include/SteamWorks.inc
     - chmod +x spcomp
     - chmod +x compile.sh
 
