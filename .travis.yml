@@ -22,7 +22,7 @@ before_script:
     - wget -q "http://www.sourcemod.net/latest.php?version=$SMVERSION&os=linux" -O sourcemod.tar.gz
     - tar -xzf sourcemod.tar.gz
     - cd addons/sourcemod/scripting/
-    - wget -q "https://github.com/KyleSanderson/SteamWorks/blob/master/Pawn/includes/SteamWorks.inc" -o include/SteamWorks.inc
+    - wget "https://raw.githubusercontent.com/KyleSanderson/SteamWorks/master/Pawn/includes/SteamWorks.inc" -o include/SteamWorks.inc
     - chmod +x spcomp
     - chmod +x compile.sh
 
