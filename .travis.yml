@@ -21,7 +21,6 @@ before_script:
     - tar -xzf sourcemod.tar.gz
     - cd addons/sourcemod/scripting/
     - curl "https://raw.githubusercontent.com/KyleSanderson/SteamWorks/master/Pawn/includes/SteamWorks.inc" -o include/SteamWorks.inc
-    - cat include/SteamWorks.inc
     - chmod +x spcomp
     - chmod +x compile.sh
 
