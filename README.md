@@ -6,11 +6,13 @@
     New Plugin for SourceMod
 </h1>
 
-### [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/blob/master/LICENSE) [![GitHub forks](https://img.shields.io/github/forks/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/network) [![GitHub stars](https://img.shields.io/github/stars/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/stargazers) [![GitHub issues](https://img.shields.io/github/issues/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/issues)
+### [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/blob/master/LICENSE) [![GitHub forks](https://img.shields.io/github/forks/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/network) [![GitHub stars](https://img.shields.io/github/stars/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/stargazers) [![GitHub issues](https://img.shields.io/github/issues/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/issues) [![Travis Build](https://travis-ci.org/SB-MaterialAdmin/NewServer.svg?branch=master)](https://travis-ci.org/SB-MaterialAdmin/NewServer)
 
 ### Ссылки
-- [Скачать плагин](https://github.com/SB-MaterialAdmin/NewServer/archive/master.zip)
+- [Скачать этот плагин](https://github.com/SB-MaterialAdmin/NewServer/archive/master.zip)
+- [Ищете старый?](https://github.com/SB-MaterialAdmin/OldServer)
 - [Веб-панель](https://github.com/SB-MaterialAdmin/Web)
+- [FAQ](https://github.com/SB-MaterialAdmin/Web/wiki/FAQ)
 
 ### Описание
 В один плагин **materialadmin** включено:
@@ -21,8 +23,11 @@
 - Массбан
 
 ### Установка
-- Удалить старые плагины рефорка.
-- Изменить название секции в _/addons/sourcemod/configs/databases.cfg_ с **sourcebans** на **materialadmin**. Если в файле есть секция **sourcecomms**, можете её удалить.
+- Если использовались старые плагины:
+  - Удалить старые плагины рефорка.
+  - Изменить название секции в _/addons/sourcemod/configs/databases.cfg_ с **sourcebans** на **materialadmin**. Если в файле есть секция **sourcecomms**, можете её удалить.
+- Если не использовались старые плагины:
+  - Создать секцию в _/addons/sourcemod/configs/databases.cfg_ с данными от БД, и с именем **materialadmin**.
 - Настроить конфиг в _/addons/sourcemod/configs/materialadmin/materialadmin.cfg_. **Не используйте старый конфиг**, в старом нет некоторых настроек.
 - Если используется SourceMod версии 1.7, желательна перекомпиляция плагинов.
 
@@ -44,7 +49,7 @@
 |**sm\_ban**|<#userid\|#all\|#ct\|#t\|#blue\|#red> \<time\> [reason]|**ADMFLAG\_BAN**|Бан по SteamID|
 |**sm\_banip**|<#userid\|#all\|#ct\|#t\|#blue\|#red> \<time\> [reason]|**ADMFLAG\_BAN**|Бан по IP|
 |**sm\_addban**|<steamid\|ip> \<time\> [reason]|**ADMFLAG\_RCON**|Добавление бана по IP / SteamID|
-|**sm\_unban**|<steamid\|ip> \<time\> [reason]|**ADMFLAG\_UNBAN**|Разбан игрока по IP / SteamID|
+|**sm\_unban**|<steamid\|ip> [reason]|**ADMFLAG\_UNBAN**|Разбан игрока по IP / SteamID|
 |**sm\_gag**|<#userid\|#all\|#ct\|#t\|#blue\|#red> \<time\> [reason]|**ADMFLAG\_CHAT**|Отключение текстового чата|
 |**sm\_mute**|<#userid\|#all\|#ct\|#t\|#blue\|#red> \<time\> [reason]|**ADMFLAG\_CHAT**|Отключение голосового чата|
 |**sm\_silence**|<#userid\|#all\|#ct\|#t\|#blue\|#red> \<time\> [reason]|**ADMFLAG\_CHAT**|Отключение всего чата|
