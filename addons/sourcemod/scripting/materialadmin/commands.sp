@@ -2,6 +2,7 @@ void RegComands()
 {
 	RegAdminCmd("ma_off_clear", 	CommandClear, 		ADMFLAG_ROOT, 	"Clear history");
 	RegAdminCmd("ma_reload", 		CommandReload, 		ADMFLAG_RCON, 	"Reload config and ban reason menu options"); // перезагрузка меню и конфгов
+	RegAdminCmd("ma_rehashadm", 	CommandRehashAdm,	ADMFLAG_ROOT, 	"Reload SQL admins");
 	RegAdminCmd("ma_bd_connect",	CommandConnectBd, 	ADMFLAG_RCON, 	"Reload connect bd");
 	RegAdminCmd("sm_ban", 			CommandBan, 		ADMFLAG_BAN, 	"Ban client steam");
 	RegAdminCmd("sm_banip", 		CommandBanIp, 		ADMFLAG_BAN, 	"Ban client ip");
@@ -726,7 +727,7 @@ public Action CommandUnBan(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[4096];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	SBGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
 	
@@ -741,6 +742,7 @@ public Action CommandUnBan(int iClient, int iArgc)
 		{
 			if (sArg[0] == '[')
 				ConvecterSteam3ToSteam2(sArg, sizeof(sArg));
+			ServerCommandEx(sBuffer, sizeof(sBuffer), "removeid %s", sArg);
 		}
 	}
 	else
@@ -750,7 +752,11 @@ public Action CommandUnBan(int iClient, int iArgc)
 			ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed ip", iClient);
 			return Plugin_Handled;
 		}
+		else
+			ServerCommandEx(sBuffer, sizeof(sBuffer), "removeip %s", sArg);
 	}
+	
+	ReplyToCommand(iClient, "Server push: %s", sBuffer);
 	
 	g_iTargetType[iClient] = TYPE_UNBAN;
 
@@ -759,6 +765,17 @@ public Action CommandUnBan(int iClient, int iArgc)
 #endif
 	CheckBanInBd(iClient, 0, 0, sArg);
 
+	return Plugin_Handled;
+}
+
+public Action CommandRehashAdm(int iClient, int iArgc)
+{
+	g_bReshashAdmin = true;
+#if MADEBUG
+	LogToFile(g_sLogAction, "Rehash Admin cl com.");
+#endif
+	AdminHash();
+	ReplyToCommand(iClient, "Rehash Admin");
 	return Plugin_Handled;
 }
 //------------------------------------------------------------------------------------------------------------------------

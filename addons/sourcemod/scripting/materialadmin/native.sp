@@ -85,20 +85,6 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("IgnoreBanServer", sSetting, false))
-	{
-		if(g_bIgnoreBanServer)
-			sValue = "1";
-		else
-			sValue = "0";
-	}
-	else if(StrEqual("IgnoreMuteServer", sSetting, false))
-	{
-		if(g_bIgnoreMuteServer)
-			sValue = "1";
-		else
-			sValue = "0";
-	}
 	else if(StrEqual("ServerBanTyp", sSetting, false))
 	{
 		if(g_bServerBanTyp)
@@ -106,6 +92,10 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		else
 			sValue = "0";
 	}
+	else if(StrEqual("IgnoreBanServer", sSetting, false))
+		IntToString(g_iIgnoreBanServer, sValue, sizeof(sValue));
+	else if(StrEqual("IgnoreMuteServer", sSetting, false))
+		IntToString(g_iIgnoreMuteServer, sValue, sizeof(sValue));
 	else if(StrEqual("MassBan", sSetting, false))
 		IntToString(g_iMassBan, sValue, sizeof(sValue));
 	else if(StrEqual("ServerBanTime", sSetting, false))

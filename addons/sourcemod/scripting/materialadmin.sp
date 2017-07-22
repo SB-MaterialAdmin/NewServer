@@ -99,6 +99,8 @@ int	g_iServerID = -1,
 	g_iServerImmune,
 	g_iMassBan,
 	g_iBanTypMenu,
+	g_iIgnoreBanServer,
+	g_iIgnoreMuteServer,
 	g_iTargetReport[MAXPLAYERS+1]; // репорт юзер
 
 Database g_dSQLite = null,
@@ -154,8 +156,6 @@ bool g_bSayReason[MAXPLAYERS+1],
 	g_bLalod,
 	g_bLalodAdmin,
 	g_bReshashAdmin,
-	g_bIgnoreBanServer,
-	g_bIgnoreMuteServer,
 	g_bServerBanTyp,
 	g_bNewConnect[MAXPLAYERS+1],
 	g_bOnileTarget[MAXPLAYERS+1],
@@ -549,20 +549,6 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 				else
 					g_bActionOnTheMy = true;
 			}
-			else if(strcmp("IgnoreBanServer", sKey, false) == 0)
-			{
-				if(StringToInt(sValue) == 0)
-					g_bIgnoreBanServer = false;
-				else
-					g_bIgnoreBanServer = true;
-			}
-			else if(strcmp("IgnoreMuteServer", sKey, false) == 0)
-			{
-				if(StringToInt(sValue) == 0)
-					g_bIgnoreMuteServer = false;
-				else
-					g_bIgnoreMuteServer = true;
-			}
 			else if(strcmp("ServerBanTyp", sKey, false) == 0)
 			{
 				if(StringToInt(sValue) == 0)
@@ -590,6 +576,10 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 				g_iServerImmune = StringToInt(sValue);
 			else if(strcmp("BanTypMenu", sKey, false) == 0)
 				g_iBanTypMenu = StringToInt(sValue);
+			else if(strcmp("IgnoreBanServer", sKey, false) == 0)
+				g_iIgnoreBanServer = StringToInt(sValue);
+			else if(strcmp("IgnoreMuteServer", sKey, false) == 0)
+				g_iIgnoreMuteServer = StringToInt(sValue);
 		#if MADEBUG
 			LogToFile(g_sLogConfig,"Loaded config. key \"%s\", value \"%s\"", sKey, sValue);
 		#endif

@@ -55,7 +55,7 @@ void ShowAdminAction(int iClient, const char[] sMesag, any ...)
  
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i))
+		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
 			switch(g_iShowAdminAction)
 			{

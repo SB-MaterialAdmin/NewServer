@@ -14,7 +14,8 @@ basecomm выгружается и вместо него встаёт мой у�
 
 Команды админа:
 
-    ma_off_clear - ADMFLAG_ROOT - очистка истории.
+    ma_off_clear - ADMFLAG_ROOT - очистка истории
+	ma_rehashadm - ADMFLAG_ROOT - обновить список админов
     ma_reload  - ADMFLAG_RCON - перезагрузка меню и конфгов
     ma_bd_connect  - ADMFLAG_RCON - переподключение к бд
     sm_ban <#userid|#all|#ct|#t|#blue|#red> <time> [reason]  - ADMFLAG_BAN - бан по стиму

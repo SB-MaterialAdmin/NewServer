@@ -289,7 +289,7 @@ void GetFormatVrema(int iClient, char[] sLength, int iLens)
 		int iTime = GetTime();
 		if (iTime > iExpire)
 		{
-			CancelClientMenu(iClient, true, hAdminMenu);
+			CancelClientMenu(iClient, true);
 		#if MADEBUG
 			MALog("Menu RemoveAdmin expire: admin id %d, name %N", idAdmin, iClient);
 		#endif
