@@ -606,7 +606,7 @@ public int MenuHandler_MenuTypeMute(Menu Mmenu, MenuAction mAction, int iClient,
 	}
 }
 
-//меню выбора времени бана
+//меню выбора времени
 void ShowTimeMenu(int iClient)
 {
 	char sTitle[128],
@@ -630,9 +630,14 @@ void ShowTimeMenu(int iClient)
 		iTime = StringToInt(sValue);
 
 		if (g_iTargetType[iClient] < TYPE_ADDBAN && iTime == -1 || g_iTargetType[iClient] < TYPE_ADDBAN && !iTime && !CheckAdminFlags(iClient, ADMFLAG_UNBAN) || iMaxTime > -1 && !iTime)
+		{
+		#if MADEBUG
+			LogToFile(g_sLogAction,"Menu Time: no time %d", iTime);
+		#endif
 			continue;
+		}
 		
-		if (iTime <= iMaxTime || iMaxTime == -1)
+		if ((!iMaxTime && iMaxTime < iTime) || (!iMaxTime && iTime == -1) || (iTime <= iMaxTime || iMaxTime == -1))
 		{
 		#if MADEBUG
 			LogToFile(g_sLogAction,"Menu Time: yes time %d", iTime);

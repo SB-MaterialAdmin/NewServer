@@ -334,12 +334,12 @@ bool ValidTime(int iClient)
 		*/
 		if (iMaxTime > -1)
 		{
-			if (!g_iTarget[iClient][TTIME])
+			if (!iMaxTime && !g_iTarget[iClient][TTIME])
 			{
 				ReplyToCommand(iClient, "%s%T", MAPREFIX, "No Access time 0", iClient);
 				return false;
 			}
-			else if (g_iTarget[iClient][TTIME] > iMaxTime)
+			else if (iMaxTime && g_iTarget[iClient][TTIME] > iMaxTime)
 			{
 				ReplyToCommand(iClient, "%s%T", MAPREFIX, "No Access max time", iClient, iMaxTime);
 				return false;

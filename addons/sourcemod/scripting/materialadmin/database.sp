@@ -887,7 +887,7 @@ void CheckClientBan(int iClient)
 	else
 		IntToString(g_iServerID, sServer, sizeof(sServer));
 	
-	switch(g_iIgnoreBanServer) // поменять на инт
+	switch(g_iIgnoreBanServer)
 	{
 		case 0: sServer[0] = '\0';
 		case 1:	Format(sServer, sizeof(sServer), " AND a.`sid` = %s", sServer);
