@@ -164,7 +164,7 @@ public Action CommandConnectBd(int iClient, int iArgc)
 // добавление и удаление админа
 public Action CommandAddAdmin(int iClient, int iArgc)
 {
-	int iFlag = GetAdminWebFlag(iClient);
+	int iFlag = GetAdminWebFlag(iClient, 1);
 	if (!iFlag || iFlag == 4)
 	{
 		if (iClient)
@@ -253,7 +253,7 @@ public Action CommandAddAdmin(int iClient, int iArgc)
 
 public Action CommandAddAdminOff(int iClient, int iArgc)
 {
-	int iFlag = GetAdminWebFlag(iClient);
+	int iFlag = GetAdminWebFlag(iClient, 1);
 	if (!iFlag || iFlag == 4)
 	{
 		if (iClient)
@@ -347,7 +347,7 @@ public Action CommandAddAdminOff(int iClient, int iArgc)
 
 public Action CommandDelAdmin(int iClient, int iArgc)
 {
-	int iFlag = GetAdminWebFlag(iClient);
+	int iFlag = GetAdminWebFlag(iClient, 1);
 	if (!iFlag || iFlag == 3)
 	{
 		if (iClient)

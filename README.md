@@ -45,6 +45,7 @@
 |**ma\_off\_clear**|-|**ADMFLAG\_ROOT**|Очистка истории|
 |**ma\_reload**|-|**ADMFLAG\_RCON**|Перезагрузка меню и конфигов|
 |**ma\_bd\_connect**|-|**ADMFLAG\_RCON**|Переподключение к БД|
+|**ma\_rehashadm**|-|**ADMFLAG\_ROOT**|Обновить список админов|
 |-|-|-|-|
 |**sm\_ban**|<#userid\|#all\|#ct\|#t\|#blue\|#red> \<time\> [reason]|**ADMFLAG\_BAN**|Бан по SteamID|
 |**sm\_banip**|<#userid\|#all\|#ct\|#t\|#blue\|#red> \<time\> [reason]|**ADMFLAG\_BAN**|Бан по IP|

@@ -31,7 +31,7 @@ public __pl_materialadmin_SetNTVOptional()
 #endif
 
 #define MAPREFIX 		"[MA] "
-#define MAVERSION 		"0.5.8 beta"
+#define MAVERSION 		"0.6.0"
 #define MADEBUG 		1 	//тестовый режим
 
 /*********************************************************
@@ -126,6 +126,16 @@ native bool MAOffSetClientMuteType(int iClient, char[] sSteamID, char[] sIp, cha
 native int MAGetClientMuteType(int iClient);
 
 /*********************************************************
+ * Событие получния мута при подключение игрока
+ * 
+ * @param iClient	Клиент ид админа
+ * @param iType		Тип (1 - голосовой чат, 2 - текстовый чат, 3 - всё вместе)
+ * @param iTime		Время
+ * @param sReason	Причина 
+ *********************************************************/
+forward void MAOnClientConnectGetMute(int iClient, int iType, int iTime, char[] sReason);
+
+/*********************************************************
  * Событие отключение голосовго или текстового чата
  * 
  * @param iClient	Клиент ид админа
@@ -208,6 +218,14 @@ native bool MAGetConfigSetting(char[] sKey, char[] sValue);
 * Событие чтение конфига
 *********************************************************/
 forward void MAOnConfigSetting();
+
+/*********************************************************
+* Событие полной загрузки админов и групп в кеш
+* AdminCache_Overrides	Global overrides 
+* AdminCache_Groups		All groups (automatically invalidates admins too)
+* AdminCache_Admins		All admins
+*********************************************************/
+forward void MAOnFindLoadingAdmin(AdminCachePart acPart);
  
 /*********************************************************
 * Логи

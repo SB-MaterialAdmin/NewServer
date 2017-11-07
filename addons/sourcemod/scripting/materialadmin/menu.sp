@@ -445,7 +445,7 @@ public int MenuHandler_MenuType(Menu Mmenu, MenuAction mAction, int iClient, int
 					if(g_bOnileTarget[iClient])
 						ShowTypeMuteMenu(iClient);
 					else
-						BdGetMuteType(iClient, 0, 0);
+						BdGetMuteType(iClient, 0);
 				}
 			}
 		}
@@ -537,7 +537,7 @@ void MenuTypeAdd(int iClient, int iTarget, Menu Mmenu)
 {
 	bool bMut;
 	if (g_iTargetMuteType[iTarget] > 0)
-		bMut = CheckUnMuteImun(iClient, iTarget);
+		bMut = IsUnMuteUnBan(iClient, g_sTargetMuteSteamAdmin[iTarget]);
 	
 	
 	char sTitle[192];
@@ -621,13 +621,10 @@ void ShowTimeMenu(int iClient)
 	#if MADEBUG
 		LogToFile(g_sLogAction,"Menu Time: max time %d", iMaxTime);
 	#endif
-
-	StringMapSnapshot tTrieSnapshot = g_tMenuTime.Snapshot();
 	
-	for (int i = 0; i < tTrieSnapshot.Length; i++)
+	for (int i = 0; i < g_aTimeMenuSorting.Length; i++)
 	{
-		tTrieSnapshot.GetKey(i, sValue, sizeof(sValue));
-		iTime = StringToInt(sValue);
+		iTime = g_aTimeMenuSorting.Get(i);
 
 		if (g_iTargetType[iClient] < TYPE_ADDBAN && iTime == -1 || g_iTargetType[iClient] < TYPE_ADDBAN && !iTime && !CheckAdminFlags(iClient, ADMFLAG_UNBAN) || iMaxTime > -1 && !iTime)
 		{
@@ -642,6 +639,7 @@ void ShowTimeMenu(int iClient)
 		#if MADEBUG
 			LogToFile(g_sLogAction,"Menu Time: yes time %d", iTime);
 		#endif
+			IntToString(iTime, sValue, sizeof(sValue));
 			if(g_tMenuTime.GetString(sValue, sTitle, sizeof(sTitle)))
 			{
 			#if MADEBUG
@@ -651,8 +649,6 @@ void ShowTimeMenu(int iClient)
 			}
 		}
 	}
-	
-	delete tTrieSnapshot;
 	
 	if (!Mmenu.ItemCount)
 	{
@@ -977,19 +973,25 @@ void ShowSettingAdmin(int iClient)
 	Menu Mmenu = new Menu(MenuHandler_SettingAdminMenu);
 	Mmenu.SetTitle("%T:", "SettingAdminTitle", iClient);
 	
-	int iFlag = GetAdminWebFlag(iClient);
+	int iFlag = GetAdminWebFlag(iClient, 1);
 	
 	if (iFlag)
 	{
 		if (iFlag < 4)
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%T", "add admin", iClient);
-			Mmenu.AddItem("", sTitle);
+			if (g_dDatabase)
+				Mmenu.AddItem("", sTitle);
+			else
+				Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 		}
 		if (iFlag != 3)
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%T", "del admin", iClient);
-			Mmenu.AddItem("", sTitle);
+			if (g_dDatabase)
+				Mmenu.AddItem("", sTitle);
+			else
+				Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 		}
 	}
 	else

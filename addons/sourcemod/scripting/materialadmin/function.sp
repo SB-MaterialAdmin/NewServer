@@ -113,7 +113,7 @@ bool IsImune(int iAdminImun, int iTargetImun)
 int GetImmuneAdmin(int iClient)
 {
 	if (!iClient || !IsClientInGame(iClient))
-		return g_iServerImmune;
+		return 0;
 
 	AdminId idAdmin = GetUserAdmin(iClient);
 	if (idAdmin == INVALID_ADMIN_ID)
@@ -174,10 +174,18 @@ bool CheckAdminImune(int iAdminClient, int iAdminTarget)
 	AdminId idAdminTarget = GetUserAdmin(iAdminTarget);
 	if (idAdminTarget != INVALID_ADMIN_ID && g_iCvar_ImmunityMode != 0)
 	{
+		int iAdminFlags = GetUserFlagBits(iAdminClient);
+		int iTargetFlags = GetUserFlagBits(iAdminTarget);
+		if (iAdminFlags & ADMFLAG_ROOT && iTargetFlags & ADMFLAG_ROOT)
+			return false;
+		
 		int iTargetImun = GetImmuneAdmin(iAdminTarget);
 		int iAdminImun = GetImmuneAdmin(iAdminClient);
 	#if MADEBUG
-		LogToFile(g_sLogAction, "CheckAdminImune: (admin %N - %d)  (target %N - %d)", iAdminClient, iAdminImun, iAdminTarget, iTargetImun);
+		if (IsClientInGame(iAdminClient) && IsClientInGame(iAdminTarget))
+			LogToFile(g_sLogAction, "CheckAdminImune: (admin %N - %d)  (target %N - %d)", iAdminClient, iAdminImun, iAdminTarget, iTargetImun);
+		else
+			LogToFile(g_sLogAction, "CheckAdminImune: (admin %d - %d)  (target %d - %d)", iAdminClient, iAdminImun, iAdminTarget, iTargetImun);
 	#endif
 	
 		if (!IsImune(iAdminImun, iTargetImun))
@@ -186,23 +194,32 @@ bool CheckAdminImune(int iAdminClient, int iAdminTarget)
 	return true;
 }
 
-bool CheckUnMuteImun(int iAdmin, int iTarget)
+bool IsUnMuteUnBan(int iAdmin, char[] sSteamID)
 {
 	char sAdmin_SteamID[MAX_STEAMID_LENGTH];
 	if (iAdmin && IsClientInGame(iAdmin))
 		GetClientAuthId(iAdmin, TYPE_STEAM, sAdmin_SteamID, sizeof(sAdmin_SteamID));
-	else
-		strcopy(sAdmin_SteamID, sizeof(sAdmin_SteamID), "STEAM_ID_SERVER");
-	
-	if (StrEqual(sAdmin_SteamID, g_sTargetMuteSteamAdmin[iTarget]))
+	else // от сервера
+	{
+	#if MADEBUG
+		LogToFile(g_sLogAction, "IsUnMuteUnBan: (admin server)  (target %s)", sSteamID);
+	#endif
 		return true;
+	}
 
-	int iImun = GetImmuneAdmin(iAdmin);
+	int iFlag = GetAdminWebFlag(iAdmin, 0);
+	
 #if MADEBUG
-	LogToFile(g_sLogAction, "CheckUnMuteImun: (admin %N - %d)  (target %N - %d)", iAdmin, iImun, iTarget, g_iTargenMuteImun[iTarget]);
+	LogToFile(g_sLogAction, "IsUnMuteUnBan: (admin %s flag %d)  (target %s)", sAdmin_SteamID, iFlag, sSteamID);
 #endif
-	if (IsImune(iImun, g_iTargenMuteImun[iTarget]))
+	
+	if (iFlag == 1 || iFlag == 5)
 		return true;
+	else if (iFlag == 6)
+	{
+		if (StrEqual(sAdmin_SteamID[8], sSteamID[8]))
+			return true;
+	}
 	
 	return false;
 }
@@ -228,8 +245,8 @@ int GetAdminMaxTime(int iClient)
 	return -1;
 }
 //----------------------------------------------------------------------------------------------
-// управлене админами
-int GetAdminWebFlag(int iClient)
+// Веб флаги
+int GetAdminWebFlag(int iClient, int iTipe)
 {
 	if (!iClient)
 		return 0;
@@ -239,23 +256,106 @@ int GetAdminWebFlag(int iClient)
 	AdminId idAdmin = GetUserAdmin(iClient);
 	FormatEx(sAdminID, sizeof(sAdminID), "%d", idAdmin);
 	
-	if (g_tAdminWebFlag.GetValue(sAdminID, iFlag))
+	if (iTipe)
 	{
-		if (iFlag)
+		if (g_tWebFlagSetingsAdmin.GetValue(sAdminID, iFlag))
+			return iFlag;
+	}
+	else
+	{
+		if (g_tWebFlagUnBanMute.GetValue(sAdminID, iFlag))
+			return iFlag;
+	}
+
+	return 0; // нет прав
+}
+
+int GetAdminWebAcces(int iFlag, int iTipe)
+{
+	if (iFlag)
+	{
+		if (iFlag & (1<<24))
+			return 1; // полные права
+			
+		if (iTipe) // управление админами 1
 		{
-			if (iFlag & (1<<24))
-				return 1; // полные права
-			else if (iFlag & (1<<1) && iFlag & (1<<3))
+			if (iFlag & (1<<1) && iFlag & (1<<3))
 				return 2; // есть на добавление и на удаление
 			else if (iFlag & (1<<1))
 				return 3; // добавление
 			else if (iFlag & (1<<3))
 				return 4; // удаление
 		}
-		else
-			return 0; // нет прав
+		else // снатия мута и разбан 0
+		{
+			if (iFlag & (1<<26))
+				return 5; // разбан всех
+			else if (iFlag & (1<<30))
+				return 6; // разбан своих
+		}
 	}
+	else
+		return 0; // нет прав
 	return 0; // нет прав
+}
+
+int[] GetWebFlag(int iFlag, int iFlagGoup)
+{
+	int iFlags[2];
+	if (!iFlag && !iFlagGoup)
+	{
+		iFlags[0] = 0;
+		iFlags[1] = 0;
+	#if MADEBUG
+		LogToFile(g_sLogAction,"GetWebFlag: unbanmute %d, setingsadmin %d.", iFlags[0], iFlags[1]);
+	#endif
+		return iFlags;
+	}
+	else if (!iFlag && iFlagGoup)
+	{
+		iFlags[0] = GetAdminWebAcces(iFlagGoup, 0);
+		iFlags[1] = GetAdminWebAcces(iFlagGoup, 1);
+	#if MADEBUG
+		LogToFile(g_sLogAction,"GetWebFlag: unbanmute %d, setingsadmin %d.", iFlags[0], iFlags[1]);
+	#endif
+		return iFlags;
+	}
+	else if (iFlag && !iFlagGoup)
+	{
+		iFlags[0] = GetAdminWebAcces(iFlag, 0);
+		iFlags[1] = GetAdminWebAcces(iFlag, 1);
+	#if MADEBUG
+		LogToFile(g_sLogAction,"GetWebFlag: unbanmute %d, setingsadmin %d.", iFlags[0], iFlags[1]);
+	#endif
+		return iFlags;
+	}
+	else
+	{
+		int iFlagAdmin[2],
+			iFlagUnBanMute[2];
+			
+		iFlagUnBanMute[0] = GetAdminWebAcces(iFlagGoup, 0);
+		iFlagAdmin[0] = GetAdminWebAcces(iFlagGoup, 1);
+		iFlagUnBanMute[1] = GetAdminWebAcces(iFlag, 0);
+		iFlagAdmin[1] = GetAdminWebAcces(iFlag, 1);
+		
+		if (iFlagUnBanMute[1] >= iFlagUnBanMute[0])
+			iFlags[0] = iFlagUnBanMute[1];
+		else
+			iFlags[0] = iFlagUnBanMute[0];
+		
+		if (iFlagAdmin[1] >= iFlagAdmin[0])
+			iFlags[1] = iFlagAdmin[1];
+		else
+			iFlags[1] = iFlagAdmin[0];
+		
+	#if MADEBUG
+		LogToFile(g_sLogAction,"GetWebFlag: unbanmute %d, setingsadmin %d, FlagUnBanMuteG %d, FlagUnBanMute %d, FlagAdminG %d, FlagAdmin %d.", 
+					iFlags[0], iFlags[1], iFlagUnBanMute[0], iFlagUnBanMute[1], iFlagAdmin[0], iFlagAdmin[1]);
+	#endif
+		
+		return iFlags;
+	}
 }
 
 void ResetFlagAddAdmin(int iClient)
@@ -415,24 +515,41 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 		case 0:
 		{
 			int iTarget;
-			for (int i = 0; i < g_aUserId[iClient].Length; i++)
+			int iMaxTarget = g_aUserId[iClient].Length;
+			Transaction hTxn = new Transaction();
+
+			for (int i = 0; i < iMaxTarget; i++)
 			{
 				iTarget = GetClientOfUserId(g_aUserId[iClient].Get(i));
 				if(iTarget)
-					DoCreateDB(iClient, iTarget);
+				{
+					if (iMaxTarget > 1)
+						DoCreateDB(iClient, iTarget, 1, hTxn);
+					else
+						DoCreateDB(iClient, iTarget);
+				}
 				else
 					PrintToChat2(iClient, "%T", "No Client Game", iClient);
 			}
+			
+			if (iMaxTarget > 1)
+				CreateDB(0, 0, _, 2, hTxn);
+			else
+				delete hTxn;
 		}
 		case -1:
 		{
 			if (CheckAdminFlags(iClient, ADMFLAG_ROOT))
 			{
+				Transaction hTxn = new Transaction();
+
 				for (int i = 1; i <= MaxClients; i++)
 				{
 					if(IsClientInGame(i) && !IsFakeClient(i) && CheckAdminImune(iClient, i))
-						DoCreateDB(iClient, i);
+						DoCreateDB(iClient, i, 1, hTxn);
 				}
+				
+				CreateDB(0, 0, _, 2, hTxn);
 			}
 			else
 			{
@@ -444,19 +561,27 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 		}
 		case -2:
 		{
+			Transaction hTxn = new Transaction();
+
 			for (int i = 1; i <= MaxClients; i++)
 			{
 				if (IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_CT && !IsFakeClient(i) && CheckAdminImune(iClient, i))
-					DoCreateDB(iClient, i);
+					DoCreateDB(iClient, i, 1, hTxn);
 			}
+			
+			CreateDB(0, 0, _, 2, hTxn);
 		}
 		case -3:
 		{
+			Transaction hTxn = new Transaction();
+
 			for (int i = 1; i <= MaxClients; i++)
 			{
 				if (IsClientInGame(i) && GetClientTeam(i) == CS_TEAM_T && !IsFakeClient(i) && CheckAdminImune(iClient, i))
-					DoCreateDB(iClient, i);
+					DoCreateDB(iClient, i, 1, hTxn);
 			}
+			
+			CreateDB(0, 0, _, 2, hTxn);
 		}
 		case -4:
 		{
@@ -507,10 +632,12 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 
 			if (bTnIsMl)
 			{
+				Transaction hTxn = new Transaction();
+
 				for (int i = 0; i < iTargetCount; i++)
 				{
 					if (CheckAdminImune(iClient, iTargetList[i]))
-						DoCreateDB(iClient, iTargetList[i]);
+						DoCreateDB(iClient, iTargetList[i], 1, hTxn);
 					else
 					{
 						if (iClient)
@@ -519,6 +646,8 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 							ReplyToCommand(iClient, "%sThis Admin immunity.", MAPREFIX);
 					}
 				}
+				
+				CreateDB(0, 0, _, 2, hTxn);
 			}
 			else
 			{
@@ -815,7 +944,10 @@ void FormatVrema(int iClient, int iLength, char[] sLength, int iLens)
 		int iSec = (iLength - (iDays * (60 * 60 * 24)) - (iHours * (60 * 60)) - (iMinutes * 60));
 		int iLen = 0;
 	#if MADEBUG
-		LogToFile(g_sLogAction, "format vrema %d: days %d, hours %d, minutes %d, sec %d", iLength, iDays, iHours, iMinutes, iSec);
+		if (iClient && IsClientInGame(iClient))
+			LogToFile(g_sLogAction, "format time (%N)  %d: days %d, hours %d, minutes %d, sec %d", iClient, iLength, iDays, iHours, iMinutes, iSec);
+		else
+			LogToFile(g_sLogAction, "format time (%d)  %d: days %d, hours %d, minutes %d, sec %d", iClient, iLength, iDays, iHours, iMinutes, iSec);
 	#endif
 		if(iDays) iLen += Format(sLength[iLen], iLens - iLen, "%d %T", iDays, "Days", iClient);
 		if(iHours) iLen += Format(sLength[iLen], iLens - iLen, "%s%d %T", iDays ? " " : "", iHours, "Hours", iClient);
@@ -836,7 +968,10 @@ void UnMute(int iClient)
 	KillTimerMute(iClient);
 
 #if MADEBUG
-	LogToFile(g_sLogAction, "un mute: %N type %d", iClient, g_iTargetMuteType[iClient]);
+	if (IsClientInGame(iClient))
+		LogToFile(g_sLogAction, "un mute: %N type %d", iClient, g_iTargetMuteType[iClient]);
+	else
+		LogToFile(g_sLogAction, "un mute: %d type %d", iClient, g_iTargetMuteType[iClient]);
 #endif
 }
 
@@ -852,7 +987,10 @@ void KillTimerMute(int iClient)
 public Action TimerMute(Handle timer, any iClient)
 {
 #if MADEBUG
-	LogToFile(g_sLogAction, "timer mute end: %N", iClient);
+	if (IsClientInGame(iClient))
+		LogToFile(g_sLogAction, "timer mute end: %N", iClient);
+	else
+		LogToFile(g_sLogAction, "timer mute end: %d", iClient);
 #endif
 	g_hTimerMute[iClient] = null;
 	if (IsClientInGame(iClient))
@@ -869,7 +1007,10 @@ void UnGag(int iClient)
 	KillTimerGag(iClient);
 
 #if MADEBUG
-	LogToFile(g_sLogAction, "un gag: %N type %d", iClient, g_iTargetMuteType[iClient]);
+	if (IsClientInGame(iClient))
+		LogToFile(g_sLogAction, "un gag: %N type %d", iClient, g_iTargetMuteType[iClient]);
+	else
+		LogToFile(g_sLogAction, "un gag: %d type %d", iClient, g_iTargetMuteType[iClient]);
 #endif
 }
 
@@ -885,7 +1026,10 @@ void KillTimerGag(int iClient)
 public Action TimerGag(Handle timer, any iClient)
 {
 #if MADEBUG
-	LogToFile(g_sLogAction, "timer gag end: %N", iClient);
+	if (IsClientInGame(iClient))
+		LogToFile(g_sLogAction, "timer gag end: %N", iClient);
+	else
+		LogToFile(g_sLogAction, "timer gag end: %d", iClient);
 #endif
 	g_hTimerGag[iClient] = null;
 	if (IsClientInGame(iClient))
@@ -899,7 +1043,10 @@ void UnSilence(int iClient)
 	KillTimerMute(iClient);
 	FunMute(iClient);
 #if MADEBUG
-	LogToFile(g_sLogAction, "un silence: %N type %d", iClient, g_iTargetMuteType[iClient]);
+	if (IsClientInGame(iClient))
+		LogToFile(g_sLogAction, "un silence: %N type %d", iClient, g_iTargetMuteType[iClient]);
+	else
+		LogToFile(g_sLogAction, "un silence: %d type %d", iClient, g_iTargetMuteType[iClient]);
 #endif
 }
 
@@ -921,7 +1068,10 @@ void AddGag(int iClient, int iTime)
 	}
 	
 #if MADEBUG
-	LogToFile(g_sLogAction, "add gag: %N type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
+	if (IsClientInGame(iClient))
+		LogToFile(g_sLogAction, "add gag: %N type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
+	else
+		LogToFile(g_sLogAction, "add gag: %d type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
 #endif
 }
 
@@ -944,7 +1094,10 @@ void AddMute(int iClient, int iTime)
 	}
 
 #if MADEBUG
-	LogToFile(g_sLogAction, "add mute: %N type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
+	if (IsClientInGame(iClient))
+		LogToFile(g_sLogAction, "add mute: %N type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
+	else
+		LogToFile(g_sLogAction, "add mute: %d type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
 #endif
 }
 
@@ -978,7 +1131,10 @@ void AddSilence(int iClient, int iTime)
 	}
 
 #if MADEBUG
-	LogToFile(g_sLogAction, "add silence: %N type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
+	if (IsClientInGame(iClient))
+		LogToFile(g_sLogAction, "add silence: %N type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
+	else
+		LogToFile(g_sLogAction, "add silence: %d type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
 #endif
 }
 //----------------------------------------------------------------------------------------------
@@ -1102,9 +1258,9 @@ void LogOn()
 	BuildPath(Path_SM, g_sLogAction, sizeof(g_sLogAction), sBuffer);
 	
 #if MADEBUG
-	LogToFile(g_sLogAdmin, "plugin version %s", MAVERSION);
-	LogToFile(g_sLogConfig, "plugin version %s", MAVERSION);
-	LogToFile(g_sLogDateBase, "plugin version %s", MAVERSION);
-	LogToFile(g_sLogAction, "plugin version %s", MAVERSION);
+	LogToFile(g_sLogAdmin, "plugin version %s game %i", MAVERSION, g_iGameTyp);
+	LogToFile(g_sLogConfig, "plugin version %s game %i", MAVERSION, g_iGameTyp);
+	LogToFile(g_sLogDateBase, "plugin version %s game %i", MAVERSION, g_iGameTyp);
+	LogToFile(g_sLogAction, "plugin version %s game %i", MAVERSION, g_iGameTyp);
 #endif
 }

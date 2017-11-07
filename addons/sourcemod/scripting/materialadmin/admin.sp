@@ -1,5 +1,3 @@
-int g_iIgnoreLevel = 0;               /* Nested ignored section count, so users can screw up files safely */
-
 enum GroupState
 {
 	GroupState_None,
@@ -21,15 +19,8 @@ static GroupState g_iGroupState = GroupState_None;
 static GroupPass g_iGroupPass = GroupPass_Invalid;
 static bool g_bNeedReparse = false;
 
-enum UserState
-{
-	UserState_None,
-	UserState_Admins,
-	UserState_InAdmin,
-}
 
 static SMCParser g_smcUserParser;
-static UserState g_iUserState = UserState_None;
 static char g_sCurAuth[64],
 	g_sCurIdent[64],
 	g_sCurName[64],
@@ -37,7 +28,8 @@ static char g_sCurAuth[64],
 static int g_iCurFlags,
 	g_iCurImmunity,
 	g_iCurExpire,
-	g_iWebFlag;
+	g_iWebFlagSetingsAdmin,
+	g_iWebFlagUnBanMute;
 
 static SMCParser g_smcOverrideParser;
 
@@ -47,31 +39,20 @@ public int OnRebuildAdminCache(AdminCachePart acPart)
 public void OnRebuildAdminCache(AdminCachePart acPart)
 #endif
 {
-	if (g_bLalodAdmin)
+	switch(acPart)
 	{
-		if (acPart == AdminCache_Overrides)
-			ReadOverrides();
-		else if (acPart == AdminCache_Groups)
-			ReadGroups();
-		else if (acPart == AdminCache_Admins)
-			ReadUsers();
+		case AdminCache_Overrides: 	ReadOverrides();
+		case AdminCache_Groups: 	ReadGroups();
+		case AdminCache_Admins: 	ReadUsers();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
 public SMCResult ReadGroups_NewSection(SMCParser smc, const char[] sName, bool opt_quotes)
 {
-	if (g_iIgnoreLevel)
-	{
-		//g_iIgnoreLevel++;
-		return SMCParse_Continue;
-	}
-	
 	if (g_iGroupState == GroupState_None)
 	{
 		if (StrEqual(sName, "groups", false))
 			g_iGroupState = GroupState_Groups;
-		else
-			g_iIgnoreLevel++;
 	} 
 	else if (g_iGroupState == GroupState_Groups)
 	{
@@ -95,18 +76,14 @@ public SMCResult ReadGroups_NewSection(SMCParser smc, const char[] sName, bool o
 	{
 		if (StrEqual(sName, "overrides", false))
 			g_iGroupState = GroupState_Overrides;
-		else
-			g_iIgnoreLevel++;
 	} 
-	else
-		g_iIgnoreLevel++;
 	
 	return SMCParse_Continue;
 }
 
 public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const char[] sValue, bool key_quotes, bool value_quotes)
 {
-	if (g_idGroup == INVALID_GROUP_ID || g_iIgnoreLevel)
+	if (g_idGroup == INVALID_GROUP_ID)
 		return SMCParse_Continue;
 
 	AdminFlag admFlag;
@@ -224,13 +201,6 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 
 public SMCResult ReadGroups_EndSection(SMCParser smc)
 {
-	/* If we're ignoring, skip out */
-	if (g_iIgnoreLevel)
-	{
-		g_iIgnoreLevel--;
-		return SMCParse_Continue;
-	}
-	
 	if (g_iGroupState == GroupState_Overrides)
 		g_iGroupState = GroupState_InGroup;
 	else if (g_iGroupState == GroupState_InGroup)
@@ -247,23 +217,19 @@ public SMCResult ReadGroups_EndSection(SMCParser smc)
 static void InternalReadGroups(const char[] sPath, GroupPass grPass)
 {
 	/* Set states */
-	g_iIgnoreLevel = 0;
 	g_iGroupState = GroupState_None;
 	g_idGroup = INVALID_GROUP_ID;
 	g_iGroupPass = grPass;
 	g_bNeedReparse = false;
 
-	if(FileExists(sPath))
+	int iLine;
+	SMCError err = g_smcGroupParser.ParseFile(sPath, iLine);
+	if (err != SMCError_Okay)
 	{
-		int iLine;
-		SMCError err = g_smcGroupParser.ParseFile(sPath, iLine);
-		if (err != SMCError_Okay)
-		{
-			char sError[256];
-			g_smcGroupParser.GetErrorString(err, sError, sizeof(sError));
-			LogToFile(g_sLogAdmin, "Could not parse file (line %d, file \"%s\"):", iLine, sPath);
-			LogToFile(g_sLogAdmin, "Parser encountered error: %s", sError);
-		}
+		char sError[256];
+		g_smcGroupParser.GetErrorString(err, sError, sizeof(sError));
+		LogToFile(g_sLogAdmin, "Could not parse file (line %d, file \"%s\"):", iLine, sPath);
+		LogToFile(g_sLogAdmin, "Parser encountered error: %s", sError);
 	}
 }
 
@@ -276,51 +242,37 @@ void ReadGroups()
 		g_smcGroupParser.OnKeyValue = ReadGroups_KeyValue;
 		g_smcGroupParser.OnLeaveSection = ReadGroups_EndSection;
 	}
+		
+	if(FileExists(g_sGroupsLoc))
+	{
+		InternalReadGroups(g_sGroupsLoc, GroupPass_First);
+		if (g_bNeedReparse)
+			InternalReadGroups(g_sGroupsLoc, GroupPass_Second);
 	
-	InternalReadGroups(g_sGroupsLoc, GroupPass_First);
-	if (g_bNeedReparse)
-		InternalReadGroups(g_sGroupsLoc, GroupPass_Second);
+		FireOnFindLoadingAdmin(AdminCache_Groups);
+	}
 }
 //----------------------------------------------------------------------------------------------------
 public SMCResult ReadUsers_NewSection(SMCParser smc, const char[] sName, bool opt_quotes)
 {
-	if (g_iIgnoreLevel)
-	{
-		//g_iIgnoreLevel++;
-		return SMCParse_Continue;
-	}
-	
-	if (g_iUserState == UserState_None)
-	{
-		if (StrEqual(sName, "admins", false))
-			g_iUserState = UserState_Admins;
-		else
-			g_iIgnoreLevel++;
-	}
-	else if (g_iUserState == UserState_Admins)
-	{
-		g_iUserState = UserState_InAdmin;
-		strcopy(g_sCurName, sizeof(g_sCurName), sName);
-		g_sCurAuth[0] = '\0';
-		g_sCurIdent[0] = '\0';
-		g_sCurPass[0] = '\0';
-		g_aGroupArray.Clear();
-		g_iCurFlags = 0;
-		g_iCurImmunity = 0;
-		g_iCurExpire = 0;
-		g_iWebFlag = 0;
-	}
-	else
-		g_iIgnoreLevel++;
+	//if (!StrEqual(sName, "admins", false))
+
+	strcopy(g_sCurName, sizeof(g_sCurName), sName);
+	g_sCurAuth[0] = '\0';
+	g_sCurIdent[0] = '\0';
+	g_sCurPass[0] = '\0';
+	g_aGroupArray.Clear();
+	g_iCurFlags = 0;
+	g_iCurImmunity = 0;
+	g_iCurExpire = 0;
+	g_iWebFlagSetingsAdmin = 0;
+	g_iWebFlagUnBanMute = 0;
 	
 	return SMCParse_Continue;
 }
 
 public SMCResult ReadUsers_KeyValue(SMCParser smc, const char[] sKey, const char[] sValue, bool key_quotes, bool value_quotes)
 {
-	if (g_iUserState != UserState_InAdmin || g_iIgnoreLevel)
-		return SMCParse_Continue;
-	
 	if (StrEqual(sKey, "auth"))
 		strcopy(g_sCurAuth, sizeof(g_sCurAuth), sValue);
 	else if (StrEqual(sKey, "identity"))
@@ -366,12 +318,19 @@ public SMCResult ReadUsers_KeyValue(SMCParser smc, const char[] sKey, const char
 		else
 			g_iCurExpire = 0;
 	}
-	else if (StrEqual(sKey, "webflag"))
+	else if (StrEqual(sKey, "setingsadmin"))
 	{
 		if(sValue[0])
-			g_iWebFlag = StringToInt(sValue);
+			g_iWebFlagSetingsAdmin = StringToInt(sValue);
 		else
-			g_iWebFlag = 0;
+			g_iWebFlagSetingsAdmin = 0;
+	}
+	else if (StrEqual(sKey, "unbanmute"))
+	{
+		if(sValue[0])
+			g_iWebFlagUnBanMute = StringToInt(sValue);
+		else
+			g_iWebFlagUnBanMute = 0;
 	}
 	
 	return SMCParse_Continue;
@@ -379,37 +338,16 @@ public SMCResult ReadUsers_KeyValue(SMCParser smc, const char[] sKey, const char
 
 public SMCResult ReadUsers_EndSection(SMCParser smc)
 {
-	if (g_iIgnoreLevel)
+	if (g_sCurIdent[0] && g_sCurAuth[0])
 	{
-		g_iIgnoreLevel--;
-		return SMCParse_Continue;
-	}
-	
-	if (g_iUserState == UserState_InAdmin)
-	{
-		/* Dump this user to memory */
-		if (g_sCurIdent[0] && g_sCurAuth[0])
+		if (!g_iCurExpire || g_iCurExpire > GetTime())
 		{
+		
 			AdminFlag admFlags[26];
 			AdminId idAdmin;
 			
 			if ((idAdmin = FindAdminByIdentity(g_sCurAuth, g_sCurIdent)) != INVALID_ADMIN_ID)
 			{
-				if (g_iCurExpire == 0 || g_iCurExpire > GetTime())
-				{
-				#if MADEBUG
-					LogToFile(g_sLogAdmin, "Add admin %s expire %d", g_sCurName, g_iCurExpire);
-				#endif
-					AddAdminExpire(idAdmin, g_iCurExpire);
-				}
-				else
-				{
-				#if MADEBUG
-					LogToFile(g_sLogAdmin, "Admin %s expire end %d", g_sCurName, g_iCurExpire);
-				#endif
-					RemoveAdmin(idAdmin);
-					return SMCParse_Continue;
-				}
 			#if MADEBUG
 				LogToFile(g_sLogAdmin, "Find admin %s yes (%d, auth %s, %s)", g_sCurName, idAdmin, g_sCurAuth, g_sCurIdent);
 			#endif
@@ -427,27 +365,15 @@ public SMCResult ReadUsers_EndSection(SMCParser smc)
 			#endif
 				{
 					RemoveAdmin(idAdmin);
-
 					LogToFile(g_sLogAdmin, "Failed to bind auth \"%s\" to identity \"%s\"", g_sCurAuth, g_sCurIdent);
 					return SMCParse_Continue;
 				}
-				
-				if (g_iCurExpire == 0 || g_iCurExpire > GetTime())
-				{
-				#if MADEBUG
-					LogToFile(g_sLogAdmin, "Add admin %s expire %d", g_sCurName, g_iCurExpire);
-				#endif
-					AddAdminExpire(idAdmin, g_iCurExpire);
-				}
-				else
-				{
-				#if MADEBUG
-					LogToFile(g_sLogAdmin, "Admin %s expire end %d", g_sCurName, g_iCurExpire);
-				#endif
-					RemoveAdmin(idAdmin);
-					return SMCParse_Continue;
-				}
 			}
+			
+		#if MADEBUG
+			LogToFile(g_sLogAdmin, "Add admin %s expire %d", g_sCurName, g_iCurExpire);
+		#endif
+			AddAdminExpire(idAdmin, g_iCurExpire);
 			
 			
 			GroupId idGroup;
@@ -511,8 +437,9 @@ public SMCResult ReadUsers_EndSection(SMCParser smc)
 			}
 			g_tAdminBanTimeMax.SetValue(sAdminID, iMaxBanTime, false);
 			g_tAdminMuteTimeMax.SetValue(sAdminID, iMaxMuteTime, false);
-			
-			g_tAdminWebFlag.SetValue(sAdminID, g_iWebFlag, false);
+
+			g_tWebFlagSetingsAdmin.SetValue(sAdminID, g_iWebFlagSetingsAdmin, false);
+			g_tWebFlagUnBanMute.SetValue(sAdminID, g_iWebFlagUnBanMute, false);
 
 			if(g_sCurPass[0])
 			#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
@@ -538,22 +465,19 @@ public SMCResult ReadUsers_EndSection(SMCParser smc)
 			#endif
 			
 		#if MADEBUG
-			LogToFile(g_sLogAdmin, "Load yes admin (name %s, auth %s, ident %s, flag %d, imuni %d, expire %d, max ban time %d, max mute time %d, web flag %d)", g_sCurName, g_sCurAuth, g_sCurIdent, 
-						g_iCurFlags, g_iCurImmunity, g_iCurExpire, iMaxBanTime, iMaxMuteTime, g_iWebFlag);
+			LogToFile(g_sLogAdmin, "Load yes admin (name %s, auth %s, ident %s, flag %d, imuni %d, expire %d, max ban time %d, max mute time %d, web flag setings %d, web flag un ban mute %d)", 
+						g_sCurName, g_sCurAuth, g_sCurIdent, g_iCurFlags, g_iCurImmunity, g_iCurExpire, iMaxBanTime, iMaxMuteTime, g_iWebFlagSetingsAdmin, g_iWebFlagUnBanMute);
 		#endif
 		}
 		else
 		{
 		#if MADEBUG
-			LogToFile(g_sLogAdmin, "Load no admin (name %s, auth %s, ident %s, flag %d, imuni %d, expire %d, web flag %d)", g_sCurName, g_sCurAuth, g_sCurIdent, g_iCurFlags, g_iCurImmunity, g_iCurExpire, g_iWebFlag);
+			LogToFile(g_sLogAdmin, "Load no admin (name %s, auth %s, ident %s, flag %d, imuni %d, expire %d, web flag setings %d, web flag un ban mute %d)", 
+						g_sCurName, g_sCurAuth, g_sCurIdent, g_iCurFlags, g_iCurImmunity, g_iCurExpire, g_iWebFlagSetingsAdmin, g_iWebFlagUnBanMute);
 		#endif
-			LogToFile(g_sLogAdmin, "Failed to create admin: did you forget either the auth or identity properties?");
+			LogToFile(g_sLogAdmin, "Failed to create admin %s", g_sCurName);
 		}
-		
-		g_iUserState = UserState_Admins;
 	}
-	else if (g_iUserState == UserState_Admins)
-		g_iUserState = UserState_None;
 	
 	return SMCParse_Continue;
 }
@@ -568,14 +492,12 @@ void ReadUsers()
 		g_smcUserParser.OnLeaveSection = ReadUsers_EndSection;
 	}
 
-	g_iIgnoreLevel = 0;
-	g_iUserState = UserState_None;
-		
 	if(FileExists(g_sAdminsLoc))
 	{
 		g_tAdminBanTimeMax.Clear();
 		g_tAdminMuteTimeMax.Clear();
-		g_tAdminWebFlag.Clear();
+		g_tWebFlagSetingsAdmin.Clear();
+		g_tWebFlagUnBanMute.Clear();
 		g_tAdminsExpired.Clear();
 		int iLine;
 		SMCError err = g_smcUserParser.ParseFile(g_sAdminsLoc, iLine);
@@ -602,6 +524,8 @@ void ReadUsers()
 			}
 			g_bReshashAdmin = false;
 		}
+		
+		FireOnFindLoadingAdmin(AdminCache_Admins);
 	}
 }
 //-------------------------------------------------------------------------------------------
@@ -656,5 +580,7 @@ void ReadOverrides()
 			LogToFile(g_sLogAdmin, "Could not parse file (line %d, file \"%s\"):", iLine, g_sOverridesLoc);
 			LogToFile(g_sLogAdmin, "Parser encountered error: %s", sError);
 		}
+		
+		FireOnFindLoadingAdmin(AdminCache_Overrides);
 	}
 }

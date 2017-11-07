@@ -92,6 +92,13 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		else
 			sValue = "0";
 	}
+	else if(StrEqual("SourceSleuth", sSetting, false))
+	{
+		if(g_bSourceSleuth)
+			sValue = "1";
+		else
+			sValue = "0";
+	}
 	else if(StrEqual("IgnoreBanServer", sSetting, false))
 		IntToString(g_iIgnoreBanServer, sValue, sizeof(sValue));
 	else if(StrEqual("IgnoreMuteServer", sSetting, false))
@@ -112,8 +119,6 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		IntToString(g_iShowAdminAction, sValue, sizeof(sValue));
 	else if(StrEqual("BasecommTime", sSetting, false))
 		IntToString(g_iBasecommTime, sValue, sizeof(sValue));
-	else if(StrEqual("ServerImmune", sSetting, false))
-		IntToString(g_iServerImmune, sValue, sizeof(sValue));
 	else if(StrEqual("BanTypMenu", sSetting, false))
 		IntToString(g_iBanTypMenu, sValue, sizeof(sValue));
 	else
@@ -268,6 +273,21 @@ public int Native_GetClientMuteType(Handle plugin, int numParams)
 	return g_iTargetMuteType[iClient];
 }
 
+void FireOnClientConnectGetMute(int iClient, int iType, int iTime, const char[] sReason)
+{
+ 	static Handle hForward;
+	
+	if(hForward == null)
+		hForward = CreateGlobalForward("MAOnClientConnectGetMute", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_String);
+	
+	Call_StartForward(hForward);
+	Call_PushCell(iClient);
+	Call_PushCell(iType);
+	Call_PushCell(iTime);
+	Call_PushString(sReason);
+	Call_Finish();
+}
+
 void FireOnClientMuted(int iClient, int iTarget, const char[] sIp, const char[] sSteamID, const char[] sName, int iType, int iTime, const char[] sReason)
 {
  	static Handle hForward;
@@ -394,10 +414,27 @@ void FireOnConnectDatabase(Database db)
 	Call_Finish();
 }
 
-public Action TimerOnConfigSettingForward(Handle timer, any data)
+void FireOnConfigSetting()
 {
-	Call_StartForward(g_hOnConfigSettingForward);
-	Call_Finish();	
+	static Handle hForward;
+	
+	if(hForward == null)
+		hForward = CreateGlobalForward("MAOnConfigSetting", ET_Ignore);
+
+	Call_StartForward(hForward);
+	Call_Finish();
+}
+
+void FireOnFindLoadingAdmin(AdminCachePart acPart)
+{
+ 	static Handle hForward;
+	
+	if(hForward == null)
+		hForward = CreateGlobalForward("MAOnFindLoadingAdmin", ET_Ignore, Param_Cell);
+	
+	Call_StartForward(hForward);
+	Call_PushCell(acPart);
+	Call_Finish();
 }
 
 public void BaseComm_OnClientMute(int iClient, bool bState)

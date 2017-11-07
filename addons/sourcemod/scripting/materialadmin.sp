@@ -45,8 +45,7 @@ int g_iTargetType[MAXPLAYERS+1];
 #define TYPE_UNMUTE		9
 #define TYPE_UNSILENCE	10
 
-int g_iTargenMuteTime[MAXPLAYERS+1],
-	g_iTargenMuteImun[MAXPLAYERS+1];
+int g_iTargenMuteTime[MAXPLAYERS+1];
 char g_sTargetMuteReason[MAXPLAYERS+1][125],
 	g_sTargetMuteSteamAdmin[MAXPLAYERS+1][MAX_STEAMID_LENGTH],
 	g_sNameReples[2][MAX_NAME_LENGTH];
@@ -96,7 +95,6 @@ int	g_iServerID = -1,
 	g_iShowAdminAction,
 	g_iServerBanTime,
 	g_iBasecommTime,
-	g_iServerImmune,
 	g_iMassBan,
 	g_iBanTypMenu,
 	g_iIgnoreBanServer,
@@ -107,13 +105,15 @@ Database g_dSQLite = null,
 	g_dDatabase = null;
 	
 ArrayList g_aUserId[MAXPLAYERS+1],
-	g_aGroupArray;
+	g_aGroupArray,
+	g_aTimeMenuSorting;
 StringMap g_tAdminsExpired,
 	g_tGroupBanTimeMax,
 	g_tGroupMuteTimeMax,
 	g_tAdminBanTimeMax,
 	g_tAdminMuteTimeMax,
-	g_tAdminWebFlag,
+	g_tWebFlagSetingsAdmin,
+	g_tWebFlagUnBanMute,
 	g_tMenuTime;
 
 bool g_bCvar_Alltalk;
@@ -122,8 +122,7 @@ int g_iCvar_ImmunityMode,
 	
 Handle g_hTimerMute[MAXPLAYERS+1] = null,
 	g_hTimerGag[MAXPLAYERS+1] = null,
-	g_hTimerBekap = null,
-	g_hOnConfigSettingForward;
+	g_hTimerBekap = null;
 	
 float g_fRetryTime = 60.0;
 
@@ -154,9 +153,9 @@ bool g_bSayReason[MAXPLAYERS+1],
 	g_bActionOnTheMy,
 	g_bHooked,
 	g_bLalod,
-	g_bLalodAdmin,
 	g_bReshashAdmin,
 	g_bServerBanTyp,
+	g_bSourceSleuth,
 	g_bNewConnect[MAXPLAYERS+1],
 	g_bOnileTarget[MAXPLAYERS+1],
 	g_bReportReason[MAXPLAYERS+1],
@@ -237,18 +236,18 @@ public void OnPluginStart()
 
 	LogOn();
 	
-	g_hOnConfigSettingForward = CreateGlobalForward("MAOnConfigSetting", ET_Ignore);
-	
 	for (int i = 1; i <= MAXPLAYERS; i++)
 		g_aUserId[i] = new ArrayList(ByteCountToCells(12));
 	
 	g_aGroupArray = new ArrayList(ByteCountToCells(12));
+	g_aTimeMenuSorting = new ArrayList(ByteCountToCells(12));
 	g_tAdminsExpired = new StringMap();
 	g_tGroupBanTimeMax = new StringMap();
 	g_tGroupMuteTimeMax = new StringMap();
 	g_tAdminBanTimeMax = new StringMap();
 	g_tAdminMuteTimeMax = new StringMap();
-	g_tAdminWebFlag = new StringMap();
+	g_tWebFlagSetingsAdmin = new StringMap();
+	g_tWebFlagUnBanMute = new StringMap();
 	g_tMenuTime = new StringMap();
 	
 	TopMenu topmenu;
@@ -261,6 +260,11 @@ public void OnPluginStart()
 	ReadConfig();
 	MAConnectDB();
 }
+
+/*public void OnPluginEnd()
+{
+	
+}*/
 
 public void OnConfigsExecuted()
 {
@@ -444,6 +448,7 @@ void ReadConfig()
 	if (g_mHackingMenu)
 		g_mHackingMenu.RemoveAllItems();
 	g_tMenuTime.Clear();
+	g_aTimeMenuSorting.Clear();
 
 	if(FileExists(sConfigFile))
 	{
@@ -458,14 +463,14 @@ void ReadConfig()
 			LogToFile(g_sLogConfig, "Could not parse file (line %d, file \"%s\"):", iLine, sConfigFile);
 			LogToFile(g_sLogConfig, "Parser encountered error: %s", sError);
 		}
+		else
+			FireOnConfigSetting();
 	}
 	else 
 	{
 		LogToFile(g_sLogConfig, "FATAL *** ERROR *** can not find %s", sConfigFile);
 		SetFailState("%sFATAL *** ERROR *** can not find %s", MAPREFIX, sConfigFile);
 	}
-
-	CreateTimer(2.0, TimerOnConfigSettingForward);
 }
 
 public SMCResult NewSection(SMCParser Smc, const char[] sName, bool bOpt_quotes)
@@ -556,6 +561,13 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 				else
 					g_bServerBanTyp = true;
 			}
+			else if(strcmp("SourceSleuth", sKey, false) == 0)
+			{
+				if(StringToInt(sValue) == 0)
+					g_bSourceSleuth = false;
+				else
+					g_bSourceSleuth = true;
+			}
 			else if(strcmp("MassBan", sKey, false) == 0)
 				g_iMassBan = StringToInt(sValue);
 			else if(strcmp("ServerBanTime", sKey, false) == 0)
@@ -572,8 +584,6 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 				g_iShowAdminAction = StringToInt(sValue);
 			else if(strcmp("BasecommTime", sKey, false) == 0)
 				g_iBasecommTime = StringToInt(sValue);
-			else if(strcmp("ServerImmune", sKey, false) == 0)
-				g_iServerImmune = StringToInt(sValue);
 			else if(strcmp("BanTypMenu", sKey, false) == 0)
 				g_iBanTypMenu = StringToInt(sValue);
 			else if(strcmp("IgnoreBanServer", sKey, false) == 0)
@@ -607,6 +617,7 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 		}
 		case ConfigState_Time:
 		{
+			g_aTimeMenuSorting.Push(StringToInt(sKey));
 			g_tMenuTime.SetString(sKey, sValue, false);
 		#if MADEBUG
 			LogToFile(g_sLogConfig,"Loaded time. key \"%s\", display_text \"%s\"", sKey, sValue);
