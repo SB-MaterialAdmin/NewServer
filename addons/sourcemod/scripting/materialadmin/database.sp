@@ -825,7 +825,11 @@ public void CreateBdCallback(Database db, DBResultSet dbRs, const char[] sError,
 	delete dPack;
 }
 
+#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
+public void SQL_TxnCallback_Success(Database db, any data, int iNumQueries, Handle[] dbRs, any[] QueryData)
+#else
 public void SQL_TxnCallback_Success(Database db, any data, int iNumQueries, DBResultSet[] dbRs, any[] QueryData)
+#endif
 {
 	DataPack dPack;
 	int iClient;
