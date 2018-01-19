@@ -19,7 +19,7 @@ public void OnAdminMenuReady(Handle aTopMenu)
 
 	g_tmAdminMenu = aTopMenus;
 	
-	TopMenuObject CategoryId = g_tmAdminMenu.AddCategory("materialadmin", Handle_Sourcebans, "materialadmin", ADMFLAG_GENERIC);
+	TopMenuObject CategoryId = g_tmAdminMenu.AddCategory("materialadmin", Handle_materialadmin, "materialadmin", ADMFLAG_GENERIC);
 
 	if (CategoryId == INVALID_TOPMENUOBJECT)
 		return;
@@ -31,7 +31,7 @@ public void OnAdminMenuReady(Handle aTopMenu)
 	g_tmAdminMenu.AddItem("ma_setting_admin", Handle_MenuSettingAdmin, CategoryId, "ma_setting_admin", ADMFLAG_ROOT);
 }
 
-public void Handle_Sourcebans(Handle topmenu, TopMenuAction action, TopMenuObject topobj_id, int iClient, char[] buffer, int maxlength)
+public void Handle_materialadmin(Handle topmenu, TopMenuAction action, TopMenuObject topobj_id, int iClient, char[] buffer, int maxlength)
 {
 	switch(action)
 	{

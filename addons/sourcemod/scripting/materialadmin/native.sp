@@ -99,6 +99,15 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		else
 			sValue = "0";
 	}
+	else if(StrEqual("UnMuteUnBan", sSetting, false))
+	{
+		if(g_bUnMuteUnBan)
+			sValue = "1";
+		else
+			sValue = "0";
+	}
+	else if(StrEqual("AdminUpdateCache", sSetting, false))
+		IntToString(g_iAdminUpdateCache, sValue, sizeof(sValue));
 	else if(StrEqual("IgnoreBanServer", sSetting, false))
 		IntToString(g_iIgnoreBanServer, sValue, sizeof(sValue));
 	else if(StrEqual("IgnoreMuteServer", sSetting, false))
@@ -435,6 +444,22 @@ void FireOnFindLoadingAdmin(AdminCachePart acPart)
 	Call_StartForward(hForward);
 	Call_PushCell(acPart);
 	Call_Finish();
+}
+
+Action FireOnClientConnectBan(int iClient)
+{
+	Action aResult = Plugin_Continue;
+	
+	static Handle hForward;
+	
+	if(hForward == null)
+		hForward = CreateGlobalForward("MAOnClientConnectBan", ET_Ignore, Param_Cell);
+	
+	Call_StartForward(hForward);
+	Call_PushCell(iClient);
+	Call_Finish(aResult);
+	
+	return aResult;
 }
 
 public void BaseComm_OnClientMute(int iClient, bool bState)

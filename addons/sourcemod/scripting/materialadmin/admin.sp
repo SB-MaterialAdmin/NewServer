@@ -39,11 +39,16 @@ public int OnRebuildAdminCache(AdminCachePart acPart)
 public void OnRebuildAdminCache(AdminCachePart acPart)
 #endif
 {
-	switch(acPart)
+	if (g_iAdminUpdateCache == 3)
+		AdminHash();
+	else
 	{
-		case AdminCache_Overrides: 	ReadOverrides();
-		case AdminCache_Groups: 	ReadGroups();
-		case AdminCache_Admins: 	ReadUsers();
+		switch(acPart)
+		{
+			case AdminCache_Overrides: 	ReadOverrides();
+			case AdminCache_Groups: 	ReadGroups();
+			case AdminCache_Admins: 	ReadUsers();
+		}
 	}
 }
 //-----------------------------------------------------------------------------------------------------

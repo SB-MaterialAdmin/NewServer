@@ -294,7 +294,7 @@ public Action CommandAddAdminOff(int iClient, int iArgc)
 	}
 	
 	if (sSteamID[0] == '[')
-		ConvecterSteam3ToSteam2(sSteamID, sizeof(sSteamID));
+		ConvecterSteam3ToSteam2(sSteamID);
 	
 	int iTarget = FindTargetSteam(sSteamID);
 	
@@ -444,6 +444,7 @@ public Action CommandGag(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_gag, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
+	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
 	
 	return Plugin_Handled;
@@ -474,6 +475,7 @@ public Action CommandMute(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_mute, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
+	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
 	
 	return Plugin_Handled;
@@ -505,6 +507,7 @@ public Action CommandSil(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_silence, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
+	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
 	
 	return Plugin_Handled;
@@ -528,6 +531,7 @@ public Action CommandUnGag(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_ungag, arg %s, type %d, reason %s.", sArg, iTyp, g_sTarget[iClient][TREASON]);
 #endif
+	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
 
 	return Plugin_Handled;
@@ -551,6 +555,7 @@ public Action CommandUnMute(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_unmute, arg %s, type %d, reason %s.", sArg, iTyp, g_sTarget[iClient][TREASON]);
 #endif
+	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
 
 	return Plugin_Handled;
@@ -574,6 +579,7 @@ public Action CommandUnSil(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_unsilence, arg %s, type %d, reason %s.", sArg, iTyp, g_sTarget[iClient][TREASON]);
 #endif
+	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
 
 	return Plugin_Handled;
@@ -606,6 +612,7 @@ public Action CommandBan(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_ban, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
+	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
 	
 	return Plugin_Handled;
@@ -637,6 +644,7 @@ public Action CommandBanIp(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_banip, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
+	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
 	
 	return Plugin_Handled;
@@ -678,7 +686,7 @@ public Action CommandAddBan(int iClient, int iArgc)
 		else
 		{
 			if (sArg[0] == '[')
-				ConvecterSteam3ToSteam2(sArg, sizeof(sArg));
+				ConvecterSteam3ToSteam2(sArg);
 			iTarget = FindTargetSteam(sArg);
 		}
 	}
@@ -741,7 +749,7 @@ public Action CommandUnBan(int iClient, int iArgc)
 		else
 		{
 			if (sArg[0] == '[')
-				ConvecterSteam3ToSteam2(sArg, sizeof(sArg));
+				ConvecterSteam3ToSteam2(sArg);
 			ServerCommandEx(sBuffer, sizeof(sBuffer), "removeid %s", sArg);
 		}
 	}

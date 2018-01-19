@@ -2,7 +2,7 @@
 //#pragma tabsize 0
 
 #include <sourcemod>
-#include <SteamWorks>
+//#include <SteamWorks>
 #include <materialadmin>
 #include <sdktools>
 #include <regex>
@@ -99,6 +99,7 @@ int	g_iServerID = -1,
 	g_iBanTypMenu,
 	g_iIgnoreBanServer,
 	g_iIgnoreMuteServer,
+	g_iAdminUpdateCache,
 	g_iTargetReport[MAXPLAYERS+1]; // репорт юзер
 
 Database g_dSQLite = null,
@@ -151,11 +152,11 @@ bool g_bSayReason[MAXPLAYERS+1],
 	g_bReport,
 	g_bBanSayPanel,
 	g_bActionOnTheMy,
-	g_bHooked,
 	g_bLalod,
 	g_bReshashAdmin,
 	g_bServerBanTyp,
 	g_bSourceSleuth,
+	g_bUnMuteUnBan,
 	g_bNewConnect[MAXPLAYERS+1],
 	g_bOnileTarget[MAXPLAYERS+1],
 	g_bReportReason[MAXPLAYERS+1],
@@ -207,18 +208,14 @@ public void OnPluginStart()
 	LoadTranslations("materialadmin.phrases");
 	LoadTranslations("common.phrases");
 
-	EngineVersion enVersion = GetEngineVersion();
-	
-	if (enVersion == Engine_CSS)
-		g_iGameTyp = GAMETYP_CCS; 
-	else if (enVersion == Engine_CSGO)
-		g_iGameTyp = GAMETYP_CSGO;
-	else if (enVersion == Engine_TF2)
-		g_iGameTyp = GAMETYP_TF2; 
-	else if (enVersion == Engine_Left4Dead)
-		g_iGameTyp = GAMETYP_l4d; 
-	else if (enVersion == Engine_Left4Dead2)
-		g_iGameTyp = GAMETYP_l4d2; 
+	switch(GetEngineVersion())
+	{
+		case Engine_CSS: 		g_iGameTyp = GAMETYP_CCS;
+		case Engine_CSGO: 		g_iGameTyp = GAMETYP_CSGO;
+		case Engine_TF2: 		g_iGameTyp = GAMETYP_TF2;
+		case Engine_Left4Dead: 	g_iGameTyp = GAMETYP_l4d;
+		case Engine_Left4Dead2: g_iGameTyp = GAMETYP_l4d2;
+	}
 
 	RegComands();
 
@@ -255,6 +252,8 @@ public void OnPluginStart()
 		OnAdminMenuReady(topmenu);
 	
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);
+	HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
+	HookEvent("player_death", Event_PlayerDeath, EventHookMode_Post);
 
 	MACreateMenu();
 	ReadConfig();
@@ -342,8 +341,11 @@ public void OnConfigsExecuted()
 	if(g_bOffMapClear) 
 		ClearHistories();
 	
+	if (g_iAdminUpdateCache)
+		AdminHash();
+	
 	// Отправка статы
-	int iIp[4];
+	/*int iIp[4];
 	if (SteamWorks_GetPublicIP(iIp))
 	{
 		Handle plugin = GetMyHandle();
@@ -358,7 +360,7 @@ public void OnConfigsExecuted()
 			SteamWorks_SendHTTPRequest(hndl);
 			delete hndl;
 		}
-	}
+	}*/
 }
 
 public void OnClientPostAdminCheck(int iClient)
@@ -423,8 +425,8 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	}
 	/*else
 	{
-		if (g_dDatabase)
-			BDSetActivityAdmin(iClient, sSteamID); // new 
+		if (ChekBD(g_dDatabase, "BDSetActivityAdmin"))
+			BDSetActivityAdmin(iClient, sSteamID);
 	}*/
 }
 
@@ -465,11 +467,20 @@ void ReadConfig()
 		}
 		else
 			FireOnConfigSetting();
+		
+		if (!g_mReasonMMenu.ItemCount)
+			SetFailState("%sFor file \"%s\" no reason \"MuteReasons\"", MAPREFIX, sConfigFile);
+		if (!g_mReasonBMenu.ItemCount)
+			SetFailState("%sFor file \"%s\" no reason \"BanReasons\"", MAPREFIX, sConfigFile);
+		if (!g_mHackingMenu.ItemCount)
+			SetFailState("%sFor file \"%s\" no reason \"HackingReasons\"", MAPREFIX, sConfigFile);
+		if (!g_tMenuTime.Size)
+			SetFailState("%sFor file \"%s\" no time \"Time\"", MAPREFIX, sConfigFile);
 	}
-	else 
+	else
 	{
-		LogToFile(g_sLogConfig, "FATAL *** ERROR *** can not find %s", sConfigFile);
-		SetFailState("%sFATAL *** ERROR *** can not find %s", MAPREFIX, sConfigFile);
+		LogToFile(g_sLogConfig, "Can not find %s", sConfigFile);
+		SetFailState("%sCan not find %s", MAPREFIX, sConfigFile);
 	}
 }
 
@@ -568,6 +579,13 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 				else
 					g_bSourceSleuth = true;
 			}
+			else if(strcmp("UnMuteUnBan", sKey, false) == 0)
+			{
+				if(StringToInt(sValue) == 0)
+					g_bUnMuteUnBan = false;
+				else
+					g_bUnMuteUnBan = true;
+			}
 			else if(strcmp("MassBan", sKey, false) == 0)
 				g_iMassBan = StringToInt(sValue);
 			else if(strcmp("ServerBanTime", sKey, false) == 0)
@@ -590,6 +608,8 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 				g_iIgnoreBanServer = StringToInt(sValue);
 			else if(strcmp("IgnoreMuteServer", sKey, false) == 0)
 				g_iIgnoreMuteServer = StringToInt(sValue);
+			else if(strcmp("AdminUpdateCache", sKey, false) == 0)
+				g_iAdminUpdateCache = StringToInt(sValue);
 		#if MADEBUG
 			LogToFile(g_sLogConfig,"Loaded config. key \"%s\", value \"%s\"", sKey, sValue);
 		#endif

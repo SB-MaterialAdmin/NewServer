@@ -206,6 +206,9 @@ bool IsUnMuteUnBan(int iAdmin, char[] sSteamID)
 	#endif
 		return true;
 	}
+	
+	if (!g_bUnMuteUnBan)
+		return true;
 
 	int iFlag = GetAdminWebFlag(iAdmin, 0);
 	
@@ -491,21 +494,21 @@ bool ValidSteam(char[] sSteamID)
 }
 
 // взято с этого плагина https://forums.alliedmods.net/showpost.php?p=2353704&postcount=10
-void ConvecterSteam3ToSteam2(char[] sSteamID, int iMaxLin)
+void ConvecterSteam3ToSteam2(char[] sSteamID)
 {
 	char sParts[3][10];
 	
-	ReplaceString(sSteamID, iMaxLin, "[", "");
-	ReplaceString(sSteamID, iMaxLin, "]", "");
+	ReplaceString(sSteamID, MAX_STEAMID_LENGTH, "[", "");
+	ReplaceString(sSteamID, MAX_STEAMID_LENGTH, "]", "");
 	ExplodeString(sSteamID, ":", sParts, sizeof(sParts), sizeof(sParts[]));
 
 	int iUniverse = StringToInt(sParts[1]);
 	int iSteamid32 = StringToInt(sParts[2]);
 
 	if (iUniverse == 1)
-		Format(sSteamID, iMaxLin, "STEAM_%d:%d:%d", 0, iSteamid32 & (1 << 0), iSteamid32 >>> 1);
+		Format(sSteamID, MAX_STEAMID_LENGTH, "STEAM_%d:%d:%d", 0, iSteamid32 & (1 << 0), iSteamid32 >>> 1);
 	else
-		Format(sSteamID, iMaxLin, "STEAM_%d:%d:%d", iUniverse, iSteamid32 & (1 << 0), iSteamid32 >>> 1);
+		Format(sSteamID, MAX_STEAMID_LENGTH, "STEAM_%d:%d:%d", iUniverse, iSteamid32 & (1 << 0), iSteamid32 >>> 1);
 }
 
 void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
@@ -789,11 +792,8 @@ public void ConVarChange_Deadtalk(ConVar convar, const char[] oldValue, const ch
 					}
 				}
 			}
-			HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
-			HookEvent("player_death", Event_PlayerDeath, EventHookMode_Post);
-			g_bHooked = true;
 		}
-		else if (g_bHooked)
+		else
 		{
 			for (int i = 1; i <= MaxClients; i++)
 			{
@@ -805,9 +805,6 @@ public void ConVarChange_Deadtalk(ConVar convar, const char[] oldValue, const ch
 						SetClientListeningFlags(i, VOICE_NORMAL);
 				}
 			}
-			UnhookEvent("player_spawn", Event_PlayerSpawn);
-			UnhookEvent("player_death", Event_PlayerDeath);		
-			g_bHooked = false;
 		}
 	}
 }
