@@ -2,7 +2,7 @@
 //#pragma tabsize 0
 
 #include <sourcemod>
-//#include <SteamWorks>
+#include <SteamWorks>
 #include <materialadmin>
 #include <sdktools>
 #include <regex>
@@ -345,7 +345,7 @@ public void OnConfigsExecuted()
 		AdminHash();
 	
 	// Отправка статы
-	/*int iIp[4];
+	int iIp[4];
 	if (SteamWorks_GetPublicIP(iIp))
 	{
 		Handle plugin = GetMyHandle();
@@ -360,7 +360,7 @@ public void OnConfigsExecuted()
 			SteamWorks_SendHTTPRequest(hndl);
 			delete hndl;
 		}
-	}*/
+	}
 }
 
 public void OnClientPostAdminCheck(int iClient)

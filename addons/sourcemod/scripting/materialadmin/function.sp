@@ -47,31 +47,35 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 
 void ShowAdminAction(int iClient, const char[] sMesag, any ...)
 {
-	char sBufer[256],
-		 sName[MAX_NAME_LENGTH];
-		 
 	if (!g_iShowAdminAction)
 		return;
+
+	char sBufer[256],
+		 sName[MAX_NAME_LENGTH];
+
+	switch(g_iShowAdminAction)
+	{
+		case 1: strcopy(sName, sizeof(sName), "Admin");
+		case 2: 
+		{
+			if (iClient)
+				GetClientName(iClient, sName, sizeof(sName));
+			else
+				strcopy(sName, sizeof(sName), "Server");
+		}
+	}
  
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
-			switch(g_iShowAdminAction)
-			{
-				case 1: FormatEx(sName, sizeof(sName), "%T", "Admin", i);
-				case 2: 
-				{
-					if (iClient)
-						GetClientName(iClient, sName, sizeof(sName));
-					else
-						FormatEx(sName, sizeof(sName), "%T", "Server", i);
-				}
-			}
+			if (g_iShowAdminAction == 2 && !iClient || g_iShowAdminAction == 1)
+				Format(sName, sizeof(sName), "%T", sName, i);
 			strcopy(g_sNameReples[1], sizeof(g_sNameReples[]), sName);
 			SetGlobalTransTarget(i);
 			VFormat(sBufer, sizeof(sBufer), sMesag, 3);
-			PrintToChat2(i, "%s %s", sName, sBufer);
+			ReplaceString(sBufer, sizeof(sBufer), "name", sName);
+			PrintToChat2(i, "%s", sBufer);
 		}
 	}
 }

@@ -688,50 +688,50 @@
 	}
 	"Banned show"
 	{
-		"#format"		"{1:s},{2:s},{3:s}"
-		"en"			"banned {1} to {2} because ({3})"
-		"ru"			"забанил {1} на {2} по причине ({3})"
+		"#format"		"{1:s},{2:s},{3:s},{4:s}"
+		"en"			"{1} banned {2} to {3} because ({4})"
+		"ru"			"{1} забанил {2} на {3} по причине ({4})"
 	}
 	"UnBanned show"
 	{
-		"#format"		"{1:s}"
-		"en"			"unbanned {1}"
-		"ru"			"разбанил {1}"
+		"#format"		"{1:s},{2:s}"
+		"en"			"{1} unbanned {2}"
+		"ru"			"{1} разбанил {2}"
 	}
 	"Gag show"
 	{
-		"#format"		"{1:s},{2:s},{3:s}"
-		"en"			"disabled text chat {1} on {2} for a reason ({3})"
-		"ru"			"отключил текстовый чат {1} на {2} по причине ({3})"
+		"#format"		"{1:s},{2:s},{3:s},{4:s}"
+		"en"			"{1} disabled text chat {2} on {3} for a reason ({4})"
+		"ru"			"{1} отключил текстовый чат {2} на {3} по причине ({4})"
 	}
 	"Mute show"
 	{
-		"#format"		"{1:s},{2:s},{3:s}"
-		"en"			"disabled the voice chat {1} on {2} for a reason ({3})"
-		"ru"			"отключил голосовой чат {1} на {2} по причине ({3})"
+		"#format"		"{1:s},{2:s},{3:s},{4:s}"
+		"en"			"{1} disabled the voice chat {2} on {3} for a reason ({4})"
+		"ru"			"{1} отключил голосовой чат {2} на {3} по причине ({4})"
 	}
 	"Silence show"
 	{
-		"#format"		"{1:s},{2:s},{3:s}"
-		"en"			"disabled the voice and text chat to {2} {1} because ({3})"
-		"ru"			"отключил голосовой и текстовый чат {1} на {2} по причине ({3})"
+		"#format"		"{1:s},{2:s},{3:s},{4:s}"
+		"en"			"{1} disabled the voice and text chat to {3} {2} because ({4})"
+		"ru"			"{1} отключил голосовой и текстовый чат {2} на {3} по причине ({4})"
 	}
 	"UnGag show"
 	{
-		"#format"		"{1:s}"
-		"en"			"included text chat {1}"
-		"ru"			"включил текстовый чат {1}"
+		"#format"		"{1:s},{2:s}"
+		"en"			"{1} included text chat {2}"
+		"ru"			"{1} включил текстовый чат {2}"
 	}
 	"UnMute show"
 	{
-		"#format"		"{1:s}"
-		"en"			"included voice chat {1}"
-		"ru"			"включил голосовой чат {1}"
+		"#format"		"{1:s},{2:s}"
+		"en"			"{1} included voice chat {2}"
+		"ru"			"{1} включил голосовой чат {2}"
 	}
 	"UnSilence show"
 	{
-		"#format"		"{1:s}"
-		"en"			"included voice and text chat {1}"
-		"ru"			"включил голосовой и текстовый чат {1}"
+		"#format"		"{1:s},{2:s}"
+		"en"			"{1} included voice and text chat {2}"
+		"ru"			"{1} включил голосовой и текстовый чат {2}"
 	}
 }
