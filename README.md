@@ -15,6 +15,7 @@
 - [FAQ](https://github.com/SB-MaterialAdmin/Web/wiki/FAQ)
 
 ### Описание
+Плагин отдаёт [статистику](https://stats.scriptplugs.info/plugin/3) при наличие расширения SteamWorks, не обязателен для работы плагина.
 В один плагин **materialadmin** включено:
 - Работа с админами
 - Работа с банами
