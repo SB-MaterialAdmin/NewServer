@@ -315,16 +315,19 @@ void FireOnClientMuted(int iClient, int iTarget, const char[] sIp, const char[] 
 	Call_PushString(sReason);
 	Call_Finish();
 	
-	if (iTarget)
+	if (LibraryExists("basecomm"))
 	{
-		switch(iType)
+		if (iTarget)
 		{
-			case 1:	BaseComm_SetClientMute(iTarget, true);
-			case 2:	BaseComm_SetClientGag(iTarget, true);
-			case 3:
+			switch(iType)
 			{
-				BaseComm_SetClientMute(iTarget, true);
-				BaseComm_SetClientGag(iTarget, true);
+				case 1:	BaseComm_SetClientMute(iTarget, true);
+				case 2:	BaseComm_SetClientGag(iTarget, true);
+				case 3:
+				{
+					BaseComm_SetClientMute(iTarget, true);
+					BaseComm_SetClientGag(iTarget, true);
+				}
 			}
 		}
 	}
@@ -347,16 +350,19 @@ void FireOnClientUnMuted(int iClient, int iTarget, const char[] sIp, const char[
 	Call_PushString(sReason);
 	Call_Finish();
 	
-	if (iTarget)
+	if (LibraryExists("basecomm"))
 	{
-		switch(iType)
+		if (iTarget)
 		{
-			case 1:	BaseComm_SetClientMute(iTarget, false);
-			case 2:	BaseComm_SetClientGag(iTarget, false);
-			case 3:
+			switch(iType)
 			{
-				BaseComm_SetClientMute(iTarget, false);
-				BaseComm_SetClientGag(iTarget, false);
+				case 1:	BaseComm_SetClientMute(iTarget, false);
+				case 2:	BaseComm_SetClientGag(iTarget, false);
+				case 3:
+				{
+					BaseComm_SetClientMute(iTarget, false);
+					BaseComm_SetClientGag(iTarget, false);
+				}
 			}
 		}
 	}

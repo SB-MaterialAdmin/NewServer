@@ -51,17 +51,18 @@ void ShowAdminAction(int iClient, const char[] sMesag, any ...)
 		return;
 
 	char sBufer[256],
-		 sName[MAX_NAME_LENGTH];
+		 sName[MAX_NAME_LENGTH],
+		 sNameShow[MAX_NAME_LENGTH];
 
 	switch(g_iShowAdminAction)
 	{
-		case 1: strcopy(sName, sizeof(sName), "Admin");
+		case 1: strcopy(sNameShow, sizeof(sNameShow), "Admin");
 		case 2: 
 		{
 			if (iClient)
-				GetClientName(iClient, sName, sizeof(sName));
+				GetClientName(iClient, sNameShow, sizeof(sNameShow));
 			else
-				strcopy(sName, sizeof(sName), "Server");
+				strcopy(sNameShow, sizeof(sNameShow), "Server");
 		}
 	}
  
@@ -70,7 +71,7 @@ void ShowAdminAction(int iClient, const char[] sMesag, any ...)
 		if (IsClientInGame(i) && !IsFakeClient(i))
 		{
 			if (g_iShowAdminAction == 2 && !iClient || g_iShowAdminAction == 1)
-				Format(sName, sizeof(sName), "%T", sName, i);
+				FormatEx(sName, sizeof(sName), "%T", sNameShow, i);
 			strcopy(g_sNameReples[1], sizeof(g_sNameReples[]), sName);
 			SetGlobalTransTarget(i);
 			VFormat(sBufer, sizeof(sBufer), sMesag, 3);

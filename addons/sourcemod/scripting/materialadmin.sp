@@ -343,6 +343,8 @@ public void OnConfigsExecuted()
 	if(g_bOffMapClear) 
 		ClearHistories();
 	
+	CheckBekapTime();
+	
 	if (g_iAdminUpdateCache)
 		AdminHash();
 	
@@ -352,19 +354,14 @@ public void OnConfigsExecuted()
 		int iIp[4];
 		if (SteamWorks_GetPublicIP(iIp))
 		{
-			Handle plugin = GetMyHandle();
-			if (GetPluginStatus(plugin) == Plugin_Running)
-			{
-				PrintToServer("%sStatistics ON", MAPREFIX);
-				char cBuffer[256], cVersion[12];
-				GetPluginInfo(plugin, PlInfo_Version, cVersion, sizeof(cVersion));
-				FormatEx(cBuffer, sizeof(cBuffer), "http://stats.scriptplugs.info/add_server.php");
-				Handle hndl = SteamWorks_CreateHTTPRequest(k_EHTTPMethodPOST, cBuffer);
-				FormatEx(cBuffer, sizeof(cBuffer), "key=c207ce6cda32a958e83a5897db41ac73&ip=%d.%d.%d.%d:%d&version=%s", iIp[0], iIp[1], iIp[2], iIp[3], FindConVar("hostport").IntValue, cVersion);
-				SteamWorks_SetHTTPRequestRawPostBody(hndl, "application/x-www-form-urlencoded", cBuffer, sizeof(cBuffer));
-				SteamWorks_SendHTTPRequest(hndl);
-				delete hndl;
-			}
+			PrintToServer("%sStatistics ON", MAPREFIX);
+			char cBuffer[256];
+			FormatEx(cBuffer, sizeof(cBuffer), "http://stats.scriptplugs.info/add_server.php");
+			Handle hndl = SteamWorks_CreateHTTPRequest(k_EHTTPMethodPOST, cBuffer);
+			FormatEx(cBuffer, sizeof(cBuffer), "key=c207ce6cda32a958e83a5897db41ac73&ip=%d.%d.%d.%d&port=%d&version=%s", iIp[0], iIp[1], iIp[2], iIp[3], FindConVar("hostport").IntValue, MAVERSION);
+			SteamWorks_SetHTTPRequestRawPostBody(hndl, "application/x-www-form-urlencoded", cBuffer, sizeof(cBuffer));
+			SteamWorks_SendHTTPRequest(hndl);
+			delete hndl;
 		}
 	}
 	else

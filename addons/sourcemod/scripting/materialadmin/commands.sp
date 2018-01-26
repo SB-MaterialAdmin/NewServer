@@ -1,6 +1,7 @@
 void RegComands()
 {
-	RegAdminCmd("ma_off_clear", 	CommandClear, 		ADMFLAG_ROOT, 	"Clear history");
+	RegAdminCmd("ma_off_clear", 	CommandClearOff, 	ADMFLAG_ROOT, 	"Clear history");
+	RegAdminCmd("ma_bekap_clear", 	CommandClearBekap, 	ADMFLAG_ROOT, 	"Clear bekap");
 	RegAdminCmd("ma_reload", 		CommandReload, 		ADMFLAG_RCON, 	"Reload config and ban reason menu options"); // перезагрузка меню и конфгов
 	RegAdminCmd("ma_rehashadm", 	CommandRehashAdm,	ADMFLAG_ROOT, 	"Reload SQL admins");
 	RegAdminCmd("ma_bd_connect",	CommandConnectBd, 	ADMFLAG_RCON, 	"Reload connect bd");
@@ -130,11 +131,20 @@ public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[
 	return Plugin_Continue;
 }
 
-public Action CommandClear(int iClient, int iArgc)
+public Action CommandClearOff(int iClient, int iArgc)
 {
 	ClearHistories();
 
 	ReplyToCommand(iClient, "%sClear history", MAPREFIX);
+	
+	return Plugin_Handled;
+}
+
+public Action CommandClearBekap(int iClient, int iArgc)
+{
+	ClearBekap();
+	
+	ReplyToCommand(iClient, "%sClear bekap", MAPREFIX);
 	
 	return Plugin_Handled;
 }

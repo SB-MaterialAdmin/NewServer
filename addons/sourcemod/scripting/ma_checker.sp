@@ -77,7 +77,7 @@ public void OnClientAuthorized(int iClient, const char[] sAuth)
 	FormatEx(sQuery, sizeof(sQuery), "\
 			SELECT COUNT(bid) FROM `%s_bans` \
 			WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')) \
-			AND ((`length` > '0' AND `ends` > UNIX_TIMESTAMP()) OR `RemoveType` IS NOT NULL)", 
+			AND ((`length` > '0' AND `ends` > UNIX_TIMESTAMP()) OR `RemoveType` IS NOT NULL) LIMIT 0,1", 
 		g_sDatabasePrefix, sAuth[8], sIp);
 	
 	g_dDatabase.Query(OnConnectBanCheck, sQuery, GetClientUserId(iClient), DBPrio_Low);
@@ -85,16 +85,25 @@ public void OnClientAuthorized(int iClient, const char[] sAuth)
 
 public OnConnectBanCheck(Database db, DBResultSet dbRs, const char[] sError, any iUserId)
 {
+	if (!dbRs || sError[0])
+	{
+		LogError("OnConnectBanCheck Query Failed: %s", sError);
+		return;
+	}
+	
 	int iClient = GetClientOfUserId(iUserId);
 	
-	if (!iClient || !dbRs || !dbRs.FetchRow())
+	if (!iClient)
 		return;
 	
-	int iBanCount = dbRs.FetchInt(0);
-	if (iBanCount > 0)
+	if (dbRs.FetchRow())
 	{
-		GetClientName(iClient, g_sNameReples, sizeof(g_sNameReples));
-		PrintToBanAdmins("%t", "Player connect", g_sNameReples, iBanCount);
+		int iBanCount = dbRs.FetchInt(0);
+		if (iBanCount > 0)
+		{
+			GetClientName(iClient, g_sNameReples, sizeof(g_sNameReples));
+			PrintToBanAdmins("%t", "Player connect", g_sNameReples, iBanCount);
+		}
 	}
 }
 

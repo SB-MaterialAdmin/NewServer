@@ -80,7 +80,8 @@ void CreateTables()
 	if(SQL_FastQuery(g_dSQLite, "\
 			CREATE TABLE IF NOT EXISTS `bekap` (\
 			`id` INTEGER PRIMARY KEY AUTOINCREMENT,\
-			`query` text NOT NULL);\
+			`query` text NOT NULL,\
+			`time` NUMERIC NOT NULL);\
 		") == false)
 	{
 		char sError[256];
@@ -98,6 +99,21 @@ bool ChekBD(Database db, char[] sBuffer)
 		return false;
 	}
 	return true;
+}
+//------------------------------------------------------------------------------------------------------------
+void ClearBekap()
+{
+	char sQuery[64];
+	FormatEx(sQuery, sizeof(sQuery), "DROP TABLE  `bekap`");
+	g_dSQLite.Query(SQL_Callback_DeleteBekaps, sQuery, _, DBPrio_High);
+}
+
+public void SQL_Callback_DeleteBekaps(Database db, DBResultSet dbRs, const char[] sError, any iData)
+{
+	if (sError[0])
+		LogToFile(g_sLogDateBase, "SQL_Callback_DeleteBekaps: %s", sError);
+	else
+		CreateTables();
 }
 //------------------------------------------------------------------------------------------------------------
 // offline
@@ -920,7 +936,7 @@ void CheckClientBan(int iClient)
 		FormatEx(sQuery, sizeof(sQuery), "\
 				SELECT a.`bid`, a.`length`, a.`created`, a.`reason`, b.`user` FROM `%s_bans` a LEFT JOIN `%s_admins` b ON a.`aid` = b.`aid` \
 				WHERE ((a.`type` = 0 AND a.`authid` REGEXP '^STEAM_[0-9]:%s$') OR (a.`type` = 1 AND a.`ip` = '%s')%s) \
-				AND (a.`length` = 0 OR a.`ends` > UNIX_TIMESTAMP()) AND a.`RemoveType` IS NULL%s", 
+				AND (a.`length` = 0 OR a.`ends` > UNIX_TIMESTAMP()) AND a.`RemoveType` IS NULL%s LIMIT 0,1", 
 			g_sDatabasePrefix, g_sDatabasePrefix, sSteamID[8], sIp, sSourceSleuth, sServer);
 
 	#if MADEBUG
@@ -1517,7 +1533,7 @@ void BekapStart(char[] sQuery)
 	char sQuerys[2524],
 		sEQuery[2124];
 	g_dSQLite.Escape(sQuery, sEQuery, sizeof(sEQuery));
-	FormatEx(sQuerys, sizeof(sQuerys), "INSERT INTO `bekap` (`query`) VALUES ('%s')", sEQuery);
+	FormatEx(sQuerys, sizeof(sQuerys), "INSERT INTO `bekap` (`query`, `time`) VALUES ('%s', %d)", sEQuery, GetTime());
 	g_dSQLite.Query(SQL_Callback_AddQueryBekap, sQuerys, _, DBPrio_Low);
 	
 #if MADEBUG
@@ -1576,14 +1592,17 @@ public void CheckCallbackBekap(Database db, DBResultSet dbRs, const char[] sErro
 		LogToFile(g_sLogDateBase, "CheckCallbackBekap: %s", sError);
 	}
 	else
-	{
-		char sQuery[256];
-		FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `bekap` WHERE `id` = %d", iId);
-		g_dSQLite.Query(SQL_Callback_DeleteBekap, sQuery, _, DBPrio_Low);
-	#if MADEBUG
-		LogToFile(g_sLogDateBase, "DeleteBekap:QUERY: %s", sQuery);
-	#endif
-	}
+		DeleteBekap(iId);
+}
+
+void DeleteBekap(int iId)
+{
+	char sQuery[256];
+	FormatEx(sQuery, sizeof(sQuery), "DELETE FROM `bekap` WHERE `id` = %d", iId);
+	g_dSQLite.Query(SQL_Callback_DeleteBekap, sQuery, _, DBPrio_Low);
+#if MADEBUG
+	LogToFile(g_sLogDateBase, "DeleteBekap:QUERY: %s", sQuery);
+#endif
 }
 
 public void SQL_Callback_DeleteBekap(Database db, DBResultSet dbRs, const char[] sError, any iData)
@@ -1592,6 +1611,37 @@ public void SQL_Callback_DeleteBekap(Database db, DBResultSet dbRs, const char[]
 		LogToFile(g_sLogDateBase, "SQL_Callback_DeleteBekap: %s", sError);
 }
 
+void CheckBekapTime()
+{
+	char sQuery[1024];
+	FormatEx(sQuery, sizeof(sQuery), "SELECT `id`, `time` FROM `bekap`");
+	g_dSQLite.Query(SQL_Callback_CheckBekapTime, sQuery, _, DBPrio_Low);
+}
+
+public void SQL_Callback_CheckBekapTime(Database db, DBResultSet dbRs, const char[] sError, any iData)
+{
+	if (!dbRs || sError[0])
+		LogToFile(g_sLogDateBase, "SQL_Callback_CheckBekapTime: %s", sError);
+
+	if (dbRs.RowCount)
+	{
+		int iId,
+			iTimeBekap;
+			
+		int iTime = GetTime();
+		while(dbRs.MoreRows)
+		{
+			if(!dbRs.FetchRow())
+				continue;
+			
+			iId = dbRs.FetchInt(0);
+			iTimeBekap = dbRs.FetchInt(1);
+			
+			if (iTimeBekap + 604800 > iTime)
+				DeleteBekap(iId);
+		}
+	}
+}
 //-----------------------------------------------------------------------------------------------------------------------------
 // репорт
 void SetBdReport(int iClient, const char[] sReason)
