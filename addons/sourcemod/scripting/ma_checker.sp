@@ -31,7 +31,7 @@
 #define MAX_STEAMID_LENGTH 	32
 #define MAX_IP_LENGTH 		64
 
-char g_sDatabasePrefix[12],
+char g_sDatabasePrefix[12] = "sb",
 	g_sNameReples[MAX_NAME_LENGTH];
 Database g_dDatabase = null;
 
@@ -54,7 +54,8 @@ public void OnPluginStart()
 
 public void MAOnConfigSetting()
 {
-	MAGetConfigSetting("DatabasePrefix", g_sDatabasePrefix);
+	if (!MAGetConfigSetting("DatabasePrefix", g_sDatabasePrefix))
+		MALog("ma_checker: MAGetConfigSetting no");
 }
 
 public void MAOnConnectDatabase(Database db)
@@ -79,6 +80,10 @@ public void OnClientAuthorized(int iClient, const char[] sAuth)
 			WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')) \
 			AND ((`length` > '0' AND `ends` > UNIX_TIMESTAMP()) OR `RemoveType` IS NOT NULL) LIMIT 0,1", 
 		g_sDatabasePrefix, sAuth[8], sIp);
+		
+#if MADEBUG
+	MALog("ma_checker: OnClientAuthorized Query %s", sQuery);
+#endif
 	
 	g_dDatabase.Query(OnConnectBanCheck, sQuery, GetClientUserId(iClient), DBPrio_Low);
 }
@@ -87,7 +92,7 @@ public OnConnectBanCheck(Database db, DBResultSet dbRs, const char[] sError, any
 {
 	if (!dbRs || sError[0])
 	{
-		LogError("OnConnectBanCheck Query Failed: %s", sError);
+		MALog("ma_checker: OnConnectBanCheck Query Failed: %s", sError);
 		return;
 	}
 	
@@ -159,6 +164,9 @@ public Action OnListSourceBansCmd(int iClient, int iArgs)
 			WHERE ((`type` = 0 AND `%s_bans`.`authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')) \
 			AND ((`length` > 0 AND `ends` > UNIX_TIMESTAMP()) OR `RemoveType` IS NOT NULL) ORDER BY `created`;", 
 		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sSteamID[8], sIP);
+#if MADEBUG
+	MALog("ma_checker: OnListSourceBansCmd Query %s", sQuery);
+#endif
 	g_dDatabase.Query(OnListBans, sQuery, dPack, DBPrio_Low);
 	
 	return Plugin_Handled;
@@ -179,6 +187,7 @@ public OnListBans(Database db, DBResultSet dbRs, const char[] sError, any data)
 	
 	if (!dbRs || sError[0])
 	{
+		MALog("ma_checker: OnListBans Query Failed: %s", sError);
 		if (!iUserId)
 			PrintToServer("%sDB error while retrieving bans for %s:\n%s", MAPREFIX, sName, sError);
 		else

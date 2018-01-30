@@ -347,7 +347,10 @@ public void OnConfigsExecuted()
 			ConnectBd(BDCONNECT, 0);*/
 	}
 	else
+	{
+		FireOnConfigSetting();
 		g_bLalod = true;
+	}
 	
 	if(g_bOffMapClear) 
 		ClearHistories();

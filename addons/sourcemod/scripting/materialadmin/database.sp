@@ -42,7 +42,7 @@ void ConnectBd(int iType, int iClient)
 public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 {
 	if (sError[0])
-		LogToFile(g_sLogDateBase, "ConnectBd: %s", sError);
+		LogToFile(g_sLogDateBase, "ConnectBd Query Failed: %s", sError);
 	
 	g_dDatabase = db;
 	
@@ -155,7 +155,7 @@ void ClearHistories()
 public void SQL_Callback_DeleteClients(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
 	if (sError[0])
-		LogToFile(g_sLogDateBase, "SQL_Callback_DeleteClients: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_DeleteClients Query Failed: %s", sError);
 	else
 		CreateTables();
 }
@@ -181,7 +181,7 @@ void SetOflineInfo(char[] sSteamID, char[] sName, char[] sIP)
 public void SQL_Callback_AddClient(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
 	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "SQL_Callback_AddClient: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_AddClient Query Failed: %s", sError);
 }
 
 void DelOflineInfo(char[] sSteamID)
@@ -201,7 +201,7 @@ void DelOflineInfo(char[] sSteamID)
 public void SQL_Callback_DeleteClient(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
 	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "SQL_Callback_DeleteClient: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_DeleteClient Query Failed: %s", sError);
 }
 
 //меню выбора игрока офлайн
@@ -236,7 +236,7 @@ public void SQL_Callback_GetInfoOffline(Database db, DBResultSet dbRs, const cha
 {
 	if (!dbRs || sError[0])
 	{
-		LogToFile(g_sLogDateBase, "SQL_Callback_GetInfoOffline: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_GetInfoOffline Query Failed: %s", sError);
 		PrintToChat2(iClient, "%T", "Failed to player", iClient);
 	}
 
@@ -290,7 +290,7 @@ public void SQL_Callback_GetMuteType(Database db, DBResultSet dbRs, const char[]
 
 	if (!dbRs || sError[0])
 	{
-		LogToFile(g_sLogDateBase, "SQL_Callback_GetMuteType: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_GetMuteType Query Failed: %s", sError);
 		//g_iTargetMuteType[iTarget] = 0;
 		ShowTypeMuteMenu(iClient);
 		return;
@@ -347,7 +347,7 @@ public void SQL_Callback_GetInfoMute(Database db, DBResultSet dbRs, const char[]
 
 	if (!dbRs || sError[0])
 	{
-		LogToFile(g_sLogDateBase, "SQL_Callback_GetInfoMute: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_GetInfoMute Query Failed: %s", sError);
 		PrintToChat2(iClient, "%T", "Reload connect no", iClient);
 		return;
 	}
@@ -435,7 +435,7 @@ public void SQL_Callback_CheckBanInBd(Database db, DBResultSet dbRs, const char[
 	
 	if (!dbRs || sError[0])
 	{
-		LogToFile(g_sLogDateBase, "SQL_Callback_CheckBanInBd: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_CheckBanInBd Query Failed: %s", sError);
 		CreateDB(iClient, iTarget, sSteamIp);
 		return;
 	}
@@ -1683,7 +1683,7 @@ void SentBekapInBd()
 public void SQL_Callback_QueryBekap(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
 	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "SQL_Callback_QueryBekap: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_QueryBekap Query Failed: %s", sError);
 
 	if (dbRs.RowCount)
 	{
@@ -1712,7 +1712,7 @@ public void CheckCallbackBekap(Database db, DBResultSet dbRs, const char[] sErro
 	{
 		if (g_hTimerBekap == null)
 			g_hTimerBekap = CreateTimer(g_fRetryTime, TimerBekap, _, TIMER_REPEAT);
-		LogToFile(g_sLogDateBase, "CheckCallbackBekap: %s", sError);
+		LogToFile(g_sLogDateBase, "CheckCallbackBekap Query Failed: %s", sError);
 	}
 	else
 		DeleteBekap(iId);
@@ -1731,7 +1731,7 @@ void DeleteBekap(int iId)
 public void SQL_Callback_DeleteBekap(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
 	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "SQL_Callback_DeleteBekap: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_DeleteBekap Query Failed: %s", sError);
 }
 
 void CheckBekapTime()
@@ -1744,7 +1744,7 @@ void CheckBekapTime()
 public void SQL_Callback_CheckBekapTime(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
 	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "SQL_Callback_CheckBekapTime: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_Callback_CheckBekapTime Query Failed: %s", sError);
 
 	if (dbRs.RowCount)
 	{
@@ -1848,7 +1848,7 @@ public void CheckCallbackReport(Database db, DBResultSet dbRs, const char[] sErr
 	dPack.ReadString(sReportName, sizeof(sReportName));
 	if (!dbRs || sError[0])
 	{
-		LogToFile(g_sLogDateBase, "SQL_CheckCallbackReport: %s", sError);
+		LogToFile(g_sLogDateBase, "SQL_CheckCallbackReport Query Failed: %s", sError);
 		if (sError[0] == 'C' || sError[0] == 'L')
 		{
 			char sQuery[1024];
@@ -2027,7 +2027,7 @@ public void CallbackForwards(Database db, DBResultSet dbRs, const char[] sError,
 
 	if (!dbRs || sError[0])
 	{
-		LogToFile(g_sLogDateBase, "CallbackForwards: %s", sError);
+		LogToFile(g_sLogDateBase, "CallbackForwards Query Failed: %s", sError);
 		if (sError[0] == 'C' || sError[0] == 'L')
 			BekapStart(sQuery);
 	}
@@ -2112,7 +2112,7 @@ public void CallbackCheckAdmin(Database db, DBResultSet dbRs, const char[] sErro
 	delete dPack;
 
 	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "CallbackCheckAdmins: %s", sError);
+		LogToFile(g_sLogDateBase, "CallbackCheckAdmins Query Failed: %s", sError);
 
 	if (!iClient && !IsClientInGame(iClient))
 		return;
@@ -2192,7 +2192,7 @@ public void CallbackAddServerAdmin(Database db, DBResultSet dbRs, const char[] s
 	int iClient = GetClientOfUserId(data);
 	if (!dbRs || sError[0])
 	{
-		LogToFile(g_sLogDateBase, "CallbackAddServerAdmin: %s", sError);
+		LogToFile(g_sLogDateBase, "CallbackAddServerAdmin Query Failed: %s", sError);
 		if (iClient)
 			PrintToChat2(iClient, "%T", "Failed add admin", iClient, g_sAddAdminInfo[iClient][ADDNAME]);
 		return;
@@ -2240,7 +2240,7 @@ public void CallbackDelAdmin(Database db, DBResultSet dbRs, const char[] sError,
 	int iClient = GetClientOfUserId(data);
 	if (!dbRs || sError[0])
 	{
-		LogToFile(g_sLogDateBase, "CallbackDelAdmin: %s", sError);
+		LogToFile(g_sLogDateBase, "CallbackDelAdmin Query Failed: %s", sError);
 		if (iClient && IsClientInGame(iClient))
 			PrintToChat2(iClient, "%T", "Failed del admin", iClient, g_sAddAdminInfo[iClient][ADDNAME]);
 		return;
@@ -2278,5 +2278,5 @@ public void CallbackDelAdmin(Database db, DBResultSet dbRs, const char[] sError,
 public void CallbackSetActivityAdmin(Database db, DBResultSet dbRs, const char[] sError, any data)
 {
 	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "CallbackSetActivityAdmin: %s", sError);
+		LogToFile(g_sLogDateBase, "CallbackSetActivityAdmin Query Failed: %s", sError);
 }*/
