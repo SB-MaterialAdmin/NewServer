@@ -6,58 +6,86 @@ void MAConnectDB()
 		SetFailState("%sLocal Database failure (%s)", MAPREFIX, sError);
 	else
 		CreateTables();
-	
-	if (ConnectBd(g_dDatabase))
-	{
-		AdminHash();
-		SentBekapInBd();
-	}
+
+	ConnectBd(BDCONNECT_ADMIN, 0);
 	
 	InsertServerInfo();
 }
 
-bool ConnectBd(Database &db)
+void ConnectBd(int iType, int iClient)
 {
-	if (db)
+	if (g_dDatabase)
 	{
-		delete db;
-		db = null;
+		delete g_dDatabase;
+		g_dDatabase = null;
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "ConnectBd: lost");
 	#endif
 	}
 
-	char sError[256];
 	if (SQL_CheckConfig("materialadmin"))
-		db = SQL_Connect("materialadmin", false, sError, sizeof(sError));
+	{
+		DataPack dPack = new DataPack();
+		dPack.WriteCell((!iClient)?0:GetClientUserId(iClient));
+		dPack.WriteCell(iType);
+		Database.Connect(SQL_Callback_ConnectBd, "materialadmin", dPack);
+	}
 	else
 	{
 		LogToFile(g_sLogDateBase, "Database failure: Could not find Database conf \"materialadmin\"");
-		db = null;
-		FireOnConnectDatabase(db);
+		g_dDatabase = null;
+		FireOnConnectDatabase(g_dDatabase);
 		SetFailState("%sDatabase failure: Could not find Database conf \"materialadmin\"", MAPREFIX);
-		return false;
 	}
-	
-	FireOnConnectDatabase(db);
+}
 
-	if (db)
+public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
+{
+	if (sError[0])
+		LogToFile(g_sLogDateBase, "ConnectBd: %s", sError);
+	
+	g_dDatabase = db;
+	
+	FireOnConnectDatabase(g_dDatabase);
+	
+	DataPack dPack = view_as<DataPack>(data);
+	dPack.Reset();
+	int iClient = GetClientOfUserId(dPack.ReadCell());
+	int iType = dPack.ReadCell();
+
+	if (g_dDatabase)
 	{
-		db.SetCharset("utf8");
+		g_dDatabase.SetCharset("utf8");
+		switch(iType)
+		{
+			case BDCONNECT_ADMIN: 	AdminHash();
+			case BDCONNECT_COM:		ReplyToCommand(iClient, "%sYes connect bd", MAPREFIX);
+			case BDCONNECT_MENU:
+			{
+				if (iClient)
+					PrintToChat2(iClient, "%T",  "Reload connect ok", iClient);
+			}
+		}
+		KillTimerBekap();
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "ConnectBd: yes");
 	#endif
-		return true;
 	}
 	else
 	{
+		switch(iType)
+		{
+			case BDCONNECT_COM:		ReplyToCommand(iClient, "%sNo connect bd", MAPREFIX);
+			case BDCONNECT_MENU:
+			{
+				if (iClient)
+					PrintToChat2(iClient, "%T",  "Reload connect no", iClient);
+			}
+		}
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "ConnectBd: no");
 	#endif
-		LogToFile(g_sLogDateBase, "ConnectBd: %s", sError);
 	}
-
-	return false;
 }
 
 void CreateTables()
@@ -241,7 +269,7 @@ void BdGetMuteType(int iClient, int iTarget)
 					LEFT JOIN `%s_admins` AS a ON a.`aid` = c.`aid` \
 					LEFT JOIN `%s_srvgroups` AS g ON g.`name` = a.`srv_group` \
 					WHERE `RemoveType` IS NULL  AND c.`authid` REGEXP '^STEAM_[0-9]:%s$' \
-					AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())", 
+					AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) LIMIT 1", 
 			g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sTarget[iClient][TSTEAMID][8]);
 
 		g_dDatabase.Query(SQL_Callback_GetMuteType, sQuery, dPack, DBPrio_High);
@@ -284,6 +312,72 @@ public void SQL_Callback_GetMuteType(Database db, DBResultSet dbRs, const char[]
 #endif
 
 	ShowTypeMuteMenu(iClient);
+}
+// поиск инфы о муте в меню
+void BDGetInfoMute(int iClient, char[] sOption)
+{
+	if (ChekBD(g_dDatabase, "GetInfoMute"))
+	{
+		char sSteamID[MAX_STEAMID_LENGTH];
+		int iTarget = GetClientOfUserId(StringToInt(sOption));
+		if (iTarget)
+			GetClientAuthId(iTarget, TYPE_STEAM, sSteamID, sizeof(sSteamID));
+		
+		char sQuery[524];
+		FormatEx(sQuery, sizeof(sQuery), "\
+					SELECT  c.`created`, c.`ends`, c.`length`, c.`reason`, a.`user` \
+					FROM `%s_comms` AS c \
+					LEFT JOIN `%s_admins` AS a ON a.`aid` = c.`aid` \
+					LEFT JOIN `%s_srvgroups` AS g ON g.`name` = a.`srv_group` \
+					WHERE c.`authid` REGEXP '^STEAM_[0-9]:%s$' \
+					AND ((`RemoveType` IS NULL AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())) OR `length` = -1) ORDER BY `bid` DESC LIMIT 1", 
+			g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sSteamID[8]);
+
+		g_dDatabase.Query(SQL_Callback_GetInfoMute, sQuery, iClient, DBPrio_High);
+	#if MADEBUG
+		LogToFile(g_sLogDateBase, "GetInfoMute:QUERY: %s", sQuery);
+	#endif
+	}
+	else
+		PrintToChat2(iClient, "%T", "Reload connect no", iClient);
+}
+
+public void SQL_Callback_GetInfoMute(Database db, DBResultSet dbRs, const char[] sError, any iClient)
+{
+
+	if (!dbRs || sError[0])
+	{
+		LogToFile(g_sLogDateBase, "SQL_Callback_GetInfoMute: %s", sError);
+		PrintToChat2(iClient, "%T", "Reload connect no", iClient);
+		return;
+	}
+	
+	int iCreated,
+		iEnds,
+		iLength;
+		
+	char sReason[126],
+		sNameAdmin[MAX_NAME_LENGTH];
+
+	if (dbRs.FetchRow())
+	{
+		iCreated = dbRs.FetchInt(0);
+		iEnds = dbRs.FetchInt(1);
+		iLength = dbRs.FetchInt(2);
+		dbRs.FetchString(3, sReason, sizeof(sReason));
+		dbRs.FetchString(4, sNameAdmin, sizeof(sNameAdmin));
+	}
+	else
+	{
+		PrintToChat2(iClient, "%T", "Failed to player", iClient);
+		return;
+	}
+
+#if MADEBUG
+	LogToFile(g_sLogDateBase, "GetInfoMute:%d, %d, %d, %s, %s", iCreated, iEnds, iLength, sReason, sNameAdmin);
+#endif
+
+	ShowInfoMuteMenu(iClient, iCreated, iEnds, iLength, sReason, sNameAdmin);
 }
 //-----------------------------------------------------------------------------------------------------------------------------
 void CheckBanInBd(int iClient, int iTarget, int iType, char[] sSteamIp)
@@ -389,9 +483,9 @@ public void SQL_Callback_CheckBanInBd(Database db, DBResultSet dbRs, const char[
 
 void DoCreateDB(int iClient, int iTarget, int iTrax = 0, Transaction hTxn = null)
 {
-	if (g_iTargetType[iClient] >= TYPE_GAG && g_iTargetType[iClient] <= TYPE_SILENCE)
+	if (g_iTargetType[iClient] >= TYPE_GAG)
 	{
-		if (g_iTargetMuteType[iTarget] > 0 && g_iTargetType[iClient] >= TYPE_UNGAG || g_iTargetMuteType[iTarget] > 0 && g_iTarget[iClient][TTIME] == -1)
+		if (g_iTargetMuteType[iTarget] > 0)
 		{
 			if (!IsUnMuteUnBan(iClient, g_sTargetMuteSteamAdmin[iTarget]))
 				return;
@@ -421,7 +515,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 	}
 	
 #if MADEBUG
-	if (IsClientInGame(iClient) && IsClientInGame(iTarget))
+	if ((iClient && IsClientInGame(iClient)) && (iTarget && IsClientInGame(iTarget)))
 		LogToFile(g_sLogDateBase,"Create bd: client %N, target %N, Type %d, MuteType %d", iClient, iTarget, g_iTargetType[iClient], g_iTargetMuteType[iTarget]);
 	else
 		LogToFile(g_sLogDateBase,"Create bd: client %d, target %d, Type %d, MuteType %d", iClient, iTarget, g_iTargetType[iClient], g_iTargetMuteType[iTarget]);
@@ -573,33 +667,40 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 		case TYPE_GAG, TYPE_MUTE, TYPE_SILENCE:
 		{
 			int iType;
-			bool bSetQ = true;
+			bool bSetQ = true,
+				bSet = true;
+			if (iTarget && g_iTargenMuteTime[iTarget] == -1)
+				bSet = false;
+
 			switch(g_iTargetType[iClient])
 			{
 				case TYPE_GAG:
 				{
 					iType = TYPEGAG;
-					if (g_iTargetMuteType[iTarget] == TYPEMUTE)
+					if (bSet)
 					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` \
-								SET `type` = 3 , `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
-								`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
-								WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-							g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+						if (g_iTargetMuteType[iTarget] == TYPEMUTE)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` \
+									SET `type` = 3 , `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
+									`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
+									WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+								g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
 
-						bSetQ = false;
-					}
-					else if (g_iTargetMuteType[iTarget] == TYPEGAG)
-					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` \
-								SET `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
-								`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
-								WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-							g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
-						
-						bSetQ = false;
+							bSetQ = false;
+						}
+						else if (g_iTargetMuteType[iTarget] == TYPEGAG)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` \
+									SET `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
+									`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
+									WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+								g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							
+							bSetQ = false;
+						}
 					}
 					if (iTarget)
 					{
@@ -614,27 +715,30 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				case TYPE_MUTE:
 				{
 					iType = TYPEMUTE;
-					if (g_iTargetMuteType[iTarget] == TYPEGAG)
+					if (bSet)
 					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` \
-								SET `type` = 3 , `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
-								`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
-								WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-							g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
-						
-						bSetQ = false;
-					}
-					else if (g_iTargetMuteType[iTarget] == TYPEMUTE)
-					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` \
-								SET `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
-								`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
-								WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-							g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
-						
-						bSetQ = false;
+						if (g_iTargetMuteType[iTarget] == TYPEGAG)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` \
+									SET `type` = 3 , `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
+									`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
+									WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+								g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							
+							bSetQ = false;
+						}
+						else if (g_iTargetMuteType[iTarget] == TYPEMUTE)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` \
+									SET `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
+									`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
+									WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+								g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							
+							bSetQ = false;
+						}
 					}
 					if (iTarget)
 					{
@@ -649,38 +753,41 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				case TYPE_SILENCE:
 				{
 					iType = TYPESILENCE;
-					if (g_iTargetMuteType[iTarget] == TYPEGAG)
+					if (bSet)
 					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` \
-								SET `type` = 3 , `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
-								`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
-								WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-							g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
-						
-						bSetQ = false;
-					}
-					else if (g_iTargetMuteType[iTarget] == TYPEMUTE)
-					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` \
-								SET `type` = 3 , `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
-								`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
-								WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-							g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
-						
-						bSetQ = false;
-					}
-					else if (g_iTargetMuteType[iTarget] == TYPESILENCE)
-					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` \
-								SET `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
-								`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
-								WHERE `type` = 3 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-							g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+						if (g_iTargetMuteType[iTarget] == TYPEGAG)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` \
+									SET `type` = 3 , `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
+									`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
+									WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+								g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							
+							bSetQ = false;
+						}
+						else if (g_iTargetMuteType[iTarget] == TYPEMUTE)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` \
+									SET `type` = 3 , `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
+									`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
+									WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+								g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							
+							bSetQ = false;
+						}
+						else if (g_iTargetMuteType[iTarget] == TYPESILENCE)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` \
+									SET `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
+									`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
+									WHERE `type` = 3 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+								g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdminIp, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
 
-						bSetQ = false;
+							bSetQ = false;
+						}
 					}
 					if (iTarget)
 					{
@@ -712,19 +819,29 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 		case TYPE_UNGAG, TYPE_UNMUTE, TYPE_UNSILENCE:
 		{
 			int iType;
-			bool bSetQ = true;
+			bool bSetQ = true,
+				bSet = true;
+			if (iTarget && g_iTargenMuteTime[iTarget] == -1)
+			{
+				bSet = false;
+				bSetQ = false;
+			}
+
 			switch(g_iTargetType[iClient])
 			{
 				case TYPE_UNGAG:
 				{
 					iType = TYPEGAG;
-					if (g_iTargetMuteType[iTarget] == TYPESILENCE)
+					if (bSet)
 					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` SET `type` = 1, `aid` = %s \
-								WHERE `type` = 3 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) AND `RemoveType` IS NULL", 
-							g_sDatabasePrefix, sQueryAdmin, g_sTarget[iClient][TSTEAMID][8]);
-						bSetQ = false;
+						if (g_iTargetMuteType[iTarget] == TYPESILENCE)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` SET `type` = 1, `aid` = %s \
+									WHERE `type` = 3 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) AND `RemoveType` IS NULL", 
+								g_sDatabasePrefix, sQueryAdmin, g_sTarget[iClient][TSTEAMID][8]);
+							bSetQ = false;
+						}
 					}
 					if (iTarget)
 					{
@@ -739,13 +856,16 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				case TYPE_UNMUTE:
 				{
 					iType = TYPEMUTE;
-					if (g_iTargetMuteType[iTarget] == TYPESILENCE)
+					if (bSet)
 					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` SET `type` = 2, `aid` = %s  \
-								WHERE `type` = 3 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) AND `RemoveType` IS NULL", 
-							g_sDatabasePrefix, sQueryAdmin, g_sTarget[iClient][TSTEAMID][8]);
-						bSetQ = false;
+						if (g_iTargetMuteType[iTarget] == TYPESILENCE)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` SET `type` = 2, `aid` = %s  \
+									WHERE `type` = 3 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) AND `RemoveType` IS NULL", 
+								g_sDatabasePrefix, sQueryAdmin, g_sTarget[iClient][TSTEAMID][8]);
+							bSetQ = false;
+						}
 					}
 					if (iTarget)
 					{
@@ -760,14 +880,17 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				case TYPE_UNSILENCE:
 				{
 					iType = TYPESILENCE;
-					if (g_iTargetMuteType[iTarget] < TYPESILENCE)
+					if (bSet)
 					{
-						FormatEx(sQuery, sizeof(sQuery), "\
-								UPDATE `%s_comms` \
-								SET `RemovedBy` = %s, `RemoveType` = 'U', `RemovedOn` = UNIX_TIMESTAMP(), `ureason` = '%s' \
-								WHERE `authid` REGEXP '^STEAM_[0-9]:%s$' AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) AND `RemoveType` IS NULL", 
-							g_sDatabasePrefix, sQueryAdmin, sReason, g_sTarget[iClient][TSTEAMID][8]);
-						bSetQ = false;
+						if (g_iTargetMuteType[iTarget] < TYPESILENCE)
+						{
+							FormatEx(sQuery, sizeof(sQuery), "\
+									UPDATE `%s_comms` \
+									SET `RemovedBy` = %s, `RemoveType` = 'U', `RemovedOn` = UNIX_TIMESTAMP(), `ureason` = '%s' \
+									WHERE `authid` REGEXP '^STEAM_[0-9]:%s$' AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) AND `RemoveType` IS NULL", 
+								g_sDatabasePrefix, sQueryAdmin, sReason, g_sTarget[iClient][TSTEAMID][8]);
+							bSetQ = false;
+						}
 					}
 					if (iTarget)
 					{
@@ -987,7 +1110,7 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any iU
 			sName[MAX_NAME_LENGTH],
 			sEName[MAX_NAME_LENGTH*2+1],
 			sIP[MAX_IP_LENGTH],
-			sQuery[512],
+			sQuery[1512],
 			sSourceSleuth[256],
 			sServer[256];
 		int iLength = dbRs.FetchInt(1);
@@ -1020,12 +1143,12 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any iU
 		if (!g_bSourceSleuth)
 			sSourceSleuth[0] = '\0';
 		else
-			FormatEx(sSourceSleuth, sizeof(sSourceSleuth), " OR (a.`type` = 0 AND a.`ip` = '%s')", sIP);
+			FormatEx(sSourceSleuth, sizeof(sSourceSleuth), " OR (`type` = 0 AND `ip` = '%s')", sIP);
 
 		FormatEx(sQuery, sizeof(sQuery), "\
 				INSERT INTO `%s_banlog` (`sid` ,`time` ,`name` ,`bid`) \
-				VALUES (%s, UNIX_TIMESTAMP(), '%s', (SELECT `bid` FROM `%s_bans` WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') \
-				OR (`type` = 1 AND `ip` = '%s')%s) AND `RemoveType` IS NULL LIMIT 0,1))", 
+				VALUES (%s, UNIX_TIMESTAMP(), '%s', \
+				(SELECT `bid` FROM `%s_bans` WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')%s) AND `RemoveType` IS NULL LIMIT 0,1))", 
 			g_sDatabasePrefix, sServer, sEName, g_sDatabasePrefix, sSteamID[8], sIP, sSourceSleuth);
 
 	#if MADEBUG
@@ -1074,7 +1197,7 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any iU
 
 public void SQL_Callback_BanLog(Database db, DBResultSet dbRs, const char[] sError, any data)
 {
-	if(sError[0])
+	if (!dbRs || sError[0])
 		LogToFile(g_sLogDateBase, "SQL_Callback_BanLog Query Failed: %s", sError);
 }
 

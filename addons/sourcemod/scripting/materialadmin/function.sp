@@ -30,8 +30,7 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 		ReplaceString(sBufer, sizeof(sBufer), g_sNameReples[0], sNameD[0]);
 	if (g_sNameReples[1][0])
 		ReplaceString(sBufer, sizeof(sBufer), g_sNameReples[1], sNameD[1]);
-	
-	Format(sBufer, sizeof(sBufer), "%T %s", "prifix", iClient, sBufer);
+
 	for(int i = 0; i < 13; i++)
 		ReplaceString(sBufer, sizeof(sBufer), sColorT[i], sColorC[i]);
 	
@@ -40,9 +39,9 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 	ReplaceString(sBufer, sizeof(sBufer), sNameD[1], g_sNameReples[1]);
 
 	if (GetUserMessageType() == UM_Protobuf)
-		PrintToChat(iClient, " \x01%s.", sBufer);
+		PrintToChat(iClient, " \x01%T %s.", "prifix", iClient, sBufer);
 	else
-		PrintToChat(iClient, "\x01%s.", sBufer);
+		PrintToChat(iClient, "\x01%T %s.", "prifix", iClient, sBufer);
 }
 
 void ShowAdminAction(int iClient, const char[] sMesag, any ...)
@@ -60,7 +59,7 @@ void ShowAdminAction(int iClient, const char[] sMesag, any ...)
 		case 2: 
 		{
 			if (iClient)
-				GetClientName(iClient, sNameShow, sizeof(sNameShow));
+				GetClientName(iClient, sName, sizeof(sName));
 			else
 				strcopy(sNameShow, sizeof(sNameShow), "Server");
 		}
@@ -970,7 +969,7 @@ void UnMute(int iClient)
 	KillTimerMute(iClient);
 
 #if MADEBUG
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "un mute: %N type %d", iClient, g_iTargetMuteType[iClient]);
 	else
 		LogToFile(g_sLogAction, "un mute: %d type %d", iClient, g_iTargetMuteType[iClient]);
@@ -989,13 +988,13 @@ void KillTimerMute(int iClient)
 public Action TimerMute(Handle timer, any iClient)
 {
 #if MADEBUG
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "timer mute end: %N", iClient);
 	else
 		LogToFile(g_sLogAction, "timer mute end: %d", iClient);
 #endif
 	g_hTimerMute[iClient] = null;
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		UnMute(iClient);
 }
 
@@ -1009,7 +1008,7 @@ void UnGag(int iClient)
 	KillTimerGag(iClient);
 
 #if MADEBUG
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "un gag: %N type %d", iClient, g_iTargetMuteType[iClient]);
 	else
 		LogToFile(g_sLogAction, "un gag: %d type %d", iClient, g_iTargetMuteType[iClient]);
@@ -1028,13 +1027,13 @@ void KillTimerGag(int iClient)
 public Action TimerGag(Handle timer, any iClient)
 {
 #if MADEBUG
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "timer gag end: %N", iClient);
 	else
 		LogToFile(g_sLogAction, "timer gag end: %d", iClient);
 #endif
 	g_hTimerGag[iClient] = null;
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		UnGag(iClient);
 }
 
@@ -1045,7 +1044,7 @@ void UnSilence(int iClient)
 	KillTimerMute(iClient);
 	FunMute(iClient);
 #if MADEBUG
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "un silence: %N type %d", iClient, g_iTargetMuteType[iClient]);
 	else
 		LogToFile(g_sLogAction, "un silence: %d type %d", iClient, g_iTargetMuteType[iClient]);
@@ -1070,7 +1069,7 @@ void AddGag(int iClient, int iTime)
 	}
 	
 #if MADEBUG
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "add gag: %N type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
 	else
 		LogToFile(g_sLogAction, "add gag: %d type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
@@ -1096,7 +1095,7 @@ void AddMute(int iClient, int iTime)
 	}
 
 #if MADEBUG
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "add mute: %N type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
 	else
 		LogToFile(g_sLogAction, "add mute: %d type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
@@ -1133,7 +1132,7 @@ void AddSilence(int iClient, int iTime)
 	}
 
 #if MADEBUG
-	if (IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "add silence: %N type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
 	else
 		LogToFile(g_sLogAction, "add silence: %d type %d, time %d", iClient, g_iTargetMuteType[iClient], iTime);
@@ -1155,15 +1154,7 @@ public Action TimerBekap(Handle timer, any data)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "TimerBekap");
 #endif
-	if (ConnectBd(g_dDatabase))
-	{
-	#if MADEBUG
-		LogToFile(g_sLogDateBase, "TimerBekap yes connect bd");
-	#endif
-		g_hTimerBekap = null;
-		SentBekapInBd();
-		return Plugin_Stop;
-	}
+	ConnectBd(BDCONNECT, 0);
 	return Plugin_Continue;
 }
 //--------------------------------------------------------------------------------------------------
@@ -1183,7 +1174,7 @@ void CreateSayBanned(char[] sAdminName, int iClient, int iCreated, int iTime, ch
 	}
 	else
 	{
-		if(IsClientInGame(iClient))
+		if (iClient && IsClientInGame(iClient))
 			KickClient(iClient, "%T", "Banned Admin", iClient, sAdminName, sReason, sCreated, sLength, g_sWebsite);
 	}
 }
@@ -1199,7 +1190,7 @@ void CreateTeaxtDialog(int iClient, const char[] sMesag, any ...)
 	kvKey.SetString("title", sTitle);
 	kvKey.SetNum("level", 0);
 	kvKey.SetString("msg", sText);
-	if(IsClientInGame(iClient))
+	if (iClient && IsClientInGame(iClient))
 	{
 	#if MADEBUG
 		LogToFile(g_sLogAction, "CreateTeaxtDialog %N", iClient);

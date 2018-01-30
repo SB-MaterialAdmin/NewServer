@@ -145,16 +145,7 @@ public int MenuHandler_Setting(Menu Mmenu, MenuAction mAction, int iClient, int 
 					ReadConfig();
 					PrintToChat2(iClient, "%T",  "Reload config", iClient);
 				}
-				case 3:
-				{
-					if (ConnectBd(g_dDatabase))
-					{
-						PrintToChat2(iClient, "%T",  "Reload connect ok", iClient);
-						KillTimerBekap();
-					}
-					else
-						PrintToChat2(iClient, "%T",  "Reload connect no", iClient);
-				}
+				case 3: ConnectBd(BDCONNECT_MENU, iClient);
 			}
 			ShowSetting(iClient);
 		}
@@ -282,7 +273,7 @@ void ShowTargetOnline(int iClient)
 		iTarget = GetEntPropEnt(iClient, Prop_Send, "m_hObserverTarget");
 		if ((iTarget > 0 && iTarget < MaxClients) && !IsFakeClient(iTarget))
 		{
-			AdminMenuAddClients(Mmenu, iClient, iTarget);
+			AdminMenuAddClients(Mmenu, iClient, iTarget, g_iMassBan);
 			bIsClien = true;
 		}
 	}
@@ -293,7 +284,7 @@ void ShowTargetOnline(int iClient)
 	{
 		if (IsClientInGame(i) && !IsFakeClient(i) && i != iTarget && CheckAdminImune(iClient, i))
 		{
-			AdminMenuAddClients(Mmenu, iClient, i);
+			AdminMenuAddClients(Mmenu, iClient, i, g_iMassBan);
 			bIsClien = true;
 		}
 	}
@@ -310,7 +301,7 @@ void ShowTargetOnline(int iClient)
 	Mmenu.Display(iClient, MENU_TIME_FOREVER);
 }
 
-void AdminMenuAddClients(Menu Mmenu, int iClient, int iTarget)
+void AdminMenuAddClients(Menu Mmenu, int iClient, int iTarget, int iMassBan)
 {
 	char sTitle[128],
 		sBuffer[128],
@@ -318,7 +309,7 @@ void AdminMenuAddClients(Menu Mmenu, int iClient, int iTarget)
 	int iUserId = GetClientUserId(iTarget);
 	IntToString(iUserId, sOption, sizeof(sOption));
 
-	if(g_iMassBan)
+	if(iMassBan)
 	{
 		if (g_aUserId[iClient])
 		{
@@ -424,7 +415,7 @@ public int MenuHandler_MenuType(Menu Mmenu, MenuAction mAction, int iClient, int
 		case MenuAction_Cancel:
 		{
 			if (iSlot == MenuCancel_ExitBack && g_tmAdminMenu)
-				g_tmAdminMenu.Display(iClient, TopMenuPosition_Start);
+				g_tmAdminMenu.Display(iClient, TopMenuPosition_LastCategory);
 		}
 		case MenuAction_Select:
 		{
@@ -477,7 +468,7 @@ public int MenuHandler_MenuTypeBan(Menu Mmenu, MenuAction mAction, int iClient, 
 		case MenuAction_Cancel:
 		{
 			if (iSlot == MenuCancel_ExitBack && g_tmAdminMenu)
-				g_tmAdminMenu.Display(iClient, TopMenuPosition_Start);
+				g_tmAdminMenu.Display(iClient, TopMenuPosition_LastCategory);
 		}
 		case MenuAction_Select:
 		{
@@ -577,7 +568,7 @@ public int MenuHandler_MenuTypeMute(Menu Mmenu, MenuAction mAction, int iClient,
 		case MenuAction_Cancel:
 		{
 			if (iSlot == MenuCancel_ExitBack && g_tmAdminMenu)
-				g_tmAdminMenu.Display(iClient, TopMenuPosition_Start);
+				g_tmAdminMenu.Display(iClient, TopMenuPosition_LastCategory);
 		}
 		case MenuAction_Select:
 		{
@@ -848,29 +839,17 @@ void ShowTargetList(int iClient)
 	Menu Mmenu = new Menu(MenuHandler_TargetList);
 	Mmenu.SetTitle("%T:", "SelectPlayerTitle", iClient);
 	
-	if(g_iMassBan)
-	{
-		FormatEx(sTitle, sizeof(sTitle), "%T", "Clients", iClient);
-		if (g_aUserId[iClient].Length != 0)
-			Mmenu.AddItem("0", sTitle);
-		else
-			Mmenu.AddItem("0", sTitle, ITEMDRAW_DISABLED);
-	}
-	
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && !IsFakeClient(i) && g_iTargetMuteType[i] > 0 && CheckAdminImune(iClient, i))
+		if (IsClientInGame(i) && g_iTargetMuteType[i] > 0)
 		{
-			AdminMenuAddClients(Mmenu, iClient, i);
+			AdminMenuAddClients(Mmenu, iClient, i, 0);
 			bIsClien = true;
 		}
 	}
 	
 	if (!bIsClien)
 	{
-		if(g_iMassBan)
-			Mmenu.RemoveAllItems();
-
 		FormatEx(sTitle, sizeof(sTitle), "%T", "no target", iClient);
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 	}
@@ -893,29 +872,114 @@ public int MenuHandler_TargetList(Menu Mmenu, MenuAction mAction, int iClient, i
 			char sOption[32];
 			Mmenu.GetItem(iSlot, sOption, sizeof(sOption));
 
-			g_iTarget[iClient][TTYPE] = StringToInt(sOption);
+			ShowListTipe(iClient, sOption);
+		}
+	}
+}
+
+void ShowListTipe(int iClient, char[] sOption)
+{
+	char sTitle[192];
+
+	Menu Mmenu = new Menu(MenuHandler_ListTipe);
+	Mmenu.SetTitle("%T:", "SetTitle", iClient);
+	
+	FormatEx(sTitle, sizeof(sTitle), "%T", "Show", iClient); // показ
+	Mmenu.AddItem(sOption, sTitle);
+	
+	FormatEx(sTitle, sizeof(sTitle), "%T", "Run", iClient); // выполнить
+	int iTarget = GetClientOfUserId(StringToInt(sOption));
+	if (iTarget && IsUnMuteUnBan(iClient, g_sTargetMuteSteamAdmin[iTarget]))
+		Mmenu.AddItem(sOption, sTitle);
+	else
+		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	
+	Mmenu.ExitBackButton = true;
+	Mmenu.Display(iClient, MENU_TIME_FOREVER);
+}
+
+public int MenuHandler_ListTipe(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
+{
+	switch(mAction)
+	{
+		case MenuAction_End: delete Mmenu;
+		case MenuAction_Cancel:
+		{
+			if (iSlot == MenuCancel_ExitBack && g_tmAdminMenu)
+				ShowTargetList(iClient);
+		}
+		case MenuAction_Select:
+		{
+			char sOption[32];
+			Mmenu.GetItem(iSlot, sOption, sizeof(sOption));
 			
-			if (g_iTarget[iClient][TTYPE] > 0)
-			{
-				int iPos = g_aUserId[iClient].FindValue(g_iTarget[iClient][TTYPE]);
-				if (iPos > -1)
-					g_aUserId[iClient].Erase(iPos);
-				else
-					g_aUserId[iClient].Push(g_iTarget[iClient][TTYPE]);
-				
-				if(g_iMassBan)
-					ShowTargetList(iClient);
-				else
-				{
-					g_iTarget[iClient][TTYPE] = 0;
-					g_bOnileTarget[iClient] = true;
-					ShowTypeMuteMenu(iClient);
-				}
-			}
+			g_aUserId[iClient].Push(StringToInt(sOption));
+
+			if (!iSlot)
+				BDGetInfoMute(iClient, sOption);
 			else
 			{
 				g_bOnileTarget[iClient] = true;
 				ShowTypeMuteMenu(iClient);
+			}
+		}
+	}
+}
+
+void ShowInfoMuteMenu(int iClient, int iCreated, int iEnds, int iLength, char[] sReason, char[] sNameAdmin)
+{
+	if (!iClient || !IsClientInGame(iClient))
+		return;
+
+	int iTarget = GetClientOfUserId(g_aUserId[iClient].Get(0));
+	char sTitle[192],
+		sBuffer[56];
+
+	Menu Mmenu = new Menu(MenuHandler_InfoMute);
+	if (iTarget)
+		Mmenu.SetTitle("%T: %N", "ListInfoTitle", iClient, iTarget);
+	else
+		Mmenu.SetTitle("%T:", "ListInfoTitle", iClient);
+	
+	FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Admin", iClient, sNameAdmin);
+	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	
+	FormatVrema(iClient, iLength, sBuffer, sizeof(sBuffer));
+	FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Time", iClient, sBuffer);
+	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	
+	if (sReason[0])
+		FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Reason", iClient, sReason);
+	else
+		FormatEx(sTitle, sizeof(sTitle), "%T:\n%T", "Reason", iClient, "No reason", iClient);
+	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	
+	FormatTime(sBuffer, sizeof(sBuffer), g_sOffFormatTime, iCreated);
+	FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "TimeCreated", iClient, sBuffer);
+	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	
+	if (iLength > 0)
+		FormatTime(sBuffer, sizeof(sBuffer), g_sOffFormatTime, iEnds);
+	else
+		FormatVrema(iClient, iLength, sBuffer, sizeof(sBuffer));
+	FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "TimeEnds", iClient, sBuffer);
+	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	
+	Mmenu.ExitBackButton = true;
+	Mmenu.Display(iClient, MENU_TIME_FOREVER);
+}
+
+public int MenuHandler_InfoMute(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
+{
+	switch(mAction)
+	{
+		case MenuAction_End: delete Mmenu;
+		case MenuAction_Cancel:
+		{
+			if (iSlot == MenuCancel_ExitBack && g_tmAdminMenu)
+			{
+				g_aUserId[iClient].Clear();
+				ShowTargetList(iClient);
 			}
 		}
 	}
@@ -1012,7 +1076,7 @@ public int MenuHandler_SettingAdminMenu(Menu Mmenu, MenuAction mAction, int iCli
 		case MenuAction_Cancel:
 		{
 			if (iSlot == MenuCancel_ExitBack && g_tmAdminMenu)
-				g_tmAdminMenu.Display(iClient, TopMenuPosition_Start);
+				g_tmAdminMenu.Display(iClient, TopMenuPosition_LastCategory);
 		}
 		case MenuAction_Select:
 		{

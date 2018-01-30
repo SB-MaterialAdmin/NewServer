@@ -98,6 +98,15 @@ public int Native_IsClientGagged(Handle hPlugin, int numParams)
 	if (!IsClientInGame(iClient))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Client %d is not in game", iClient);
 	
+	if (LibraryExists("materialadmin"))
+	{
+		int iType = MAGetClientMuteType(iClient);
+		if (iType > 1)
+			g_bGagged[iClient] = true;
+		else
+			g_bGagged[iClient] = false;
+	}
+	
 	return g_bGagged[iClient];
 }
 
@@ -109,6 +118,15 @@ public int Native_IsClientMuted(Handle hPlugin, int numParams)
 	
 	if (!IsClientInGame(iClient))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Client %d is not in game", iClient);
+	
+	if (LibraryExists("materialadmin"))
+	{
+		int iType = MAGetClientMuteType(iClient);
+		if (iType == 1 || iType == 3)
+			g_bMuted[iClient] = true;
+		else
+			g_bMuted[iClient] = false;
+	}
 	
 	return g_bMuted[iClient];
 }

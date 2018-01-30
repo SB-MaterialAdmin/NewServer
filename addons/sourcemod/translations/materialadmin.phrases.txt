@@ -165,6 +165,41 @@
 		"en"			"No time"
 		"ru"			"Для вас ничего не доступно"
 	}
+	"Show"
+	{
+		"en"			"Show"
+		"ru"			"Показать"
+	}
+	"Run"
+	{
+		"en"			"Execute"
+		"ru"			"Выполнить"
+	}
+	"ListInfoTitle"
+	{
+		"en"			"Information about"
+		"ru"			"Информация о"
+	}
+	"Time"
+	{
+		"en"			"Time"
+		"ru"			"Время"
+	}
+	"Reason"
+	{
+		"en"			"Reason"
+		"ru"			"Причина"
+	}
+	"TimeCreated"
+	{
+		"en"			"Was issued"
+		"ru"			"Был выдан"
+	}
+	"TimeEnds"
+	{
+		"en"			"Will be removed"
+		"ru"			"Будет снят"
+	}
 	"SettingAdminTitle"
 	{
 		"en"			"Аdmins management"
@@ -319,7 +354,7 @@
 	/*******RU******
 	 Сообщение при бане (цветов нет)
 	********EN******
-	 -
+	 Messages ban (no color)
 	*/
 	"Permanent"
 	{
@@ -370,6 +405,11 @@
 		"en"			"Server"
 		"ru"			"Сервер"
 	}
+	"Admin"
+	{
+		"en"			"Admin"
+		"ru"			"Админ"
+	}
 	"No reason"
 	{
 		"en"			"No reason"
@@ -379,7 +419,7 @@
 	/*******RU******
 	 Сообщения (не всё идёт в чат, так что не везде будут работать цвета)
 	********EN******
-	 -
+	 Messages
 	*/
 	"temporarily"
 	{
@@ -679,13 +719,8 @@
 	/*******RU******
 	 Действия админа (цвета есть)
 	********EN******
-	 -
+	 Action admin (color)
 	*/
-	"Admin"
-	{
-		"en"			"Admin"
-		"ru"			"Админ"
-	}
 	"Banned show"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s}"

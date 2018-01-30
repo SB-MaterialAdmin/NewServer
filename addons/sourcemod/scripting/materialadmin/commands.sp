@@ -160,13 +160,7 @@ public Action CommandReload(int iClient, int iArgc)
 
 public Action CommandConnectBd(int iClient, int iArgc)
 {
-	if (ConnectBd(g_dDatabase))
-	{
-		ReplyToCommand(iClient, "%sYes connect bd", MAPREFIX);
-		KillTimerBekap();
-	}
-	else
-		ReplyToCommand(iClient, "%sNo connect bd", MAPREFIX);
+	ConnectBd(BDCONNECT_COM, iClient);
 	
 	return Plugin_Handled;
 }

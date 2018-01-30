@@ -25,6 +25,11 @@
 #define TYPE_STEAM 	AuthId_Steam2 // вид стим
 #define FORMAT_TIME NULL_STRING	// формат времени показывающий игроку при бане, NULL_STRING = sm_datetime_format
 
+#define	BDCONNECT			0
+#define	BDCONNECT_ADMIN		1
+#define	BDCONNECT_COM		2
+#define	BDCONNECT_MENU		3
+
 char g_sTarget[MAXPLAYERS+1][4][125];
 #define TNAME 		0 	// Name
 #define TIP 		1	// ip
@@ -334,8 +339,12 @@ public void OnConfigsExecuted()
 	{
 		LogOn();
 		ReadConfig();
-		if (ConnectBd(g_dDatabase))
-			KillTimerBekap();
+		if (g_iAdminUpdateCache)
+			AdminHash();
+		/*if (g_iAdminUpdateCache)
+			ConnectBd(BDCONNECT_ADMIN, 0);
+		else
+			ConnectBd(BDCONNECT, 0);*/
 	}
 	else
 		g_bLalod = true;
@@ -344,9 +353,6 @@ public void OnConfigsExecuted()
 		ClearHistories();
 	
 	CheckBekapTime();
-	
-	if (g_iAdminUpdateCache)
-		AdminHash();
 	
 	// Отправка статы
 	if (LibraryExists("SteamWorks"))
