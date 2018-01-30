@@ -30,6 +30,8 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 		ReplaceString(sBufer, sizeof(sBufer), g_sNameReples[0], sNameD[0]);
 	if (g_sNameReples[1][0])
 		ReplaceString(sBufer, sizeof(sBufer), g_sNameReples[1], sNameD[1]);
+	
+	Format(sBufer, sizeof(sBufer), "%T %s", "prifix", iClient, sBufer);
 
 	for(int i = 0; i < 13; i++)
 		ReplaceString(sBufer, sizeof(sBufer), sColorT[i], sColorC[i]);
@@ -39,9 +41,9 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 	ReplaceString(sBufer, sizeof(sBufer), sNameD[1], g_sNameReples[1]);
 
 	if (GetUserMessageType() == UM_Protobuf)
-		PrintToChat(iClient, " \x01%T %s.", "prifix", iClient, sBufer);
+		PrintToChat(iClient, " \x01%s.", sBufer);
 	else
-		PrintToChat(iClient, "\x01%T %s.", "prifix", iClient, sBufer);
+		PrintToChat(iClient, "\x01%s.", sBufer);
 }
 
 void ShowAdminAction(int iClient, const char[] sMesag, any ...)
