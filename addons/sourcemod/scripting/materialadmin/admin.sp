@@ -100,7 +100,7 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 	{
 		if (g_iGroupState == GroupState_InGroup)
 		{
-			if (StrEqual(sKey, "flags"))
+			if (StrEqual(sKey, "flags", false)) 
 			{
 				for (int i = 0; i < strlen(sValue); i++)
 				{
@@ -117,11 +117,11 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 				LogToFile(g_sLogAdmin, "Load group flag override (grup %d, %s %s)", g_idGroup, sKey, sValue);
 			#endif
 			}
-			else if (StrEqual(sKey, "maxbantime"))
+			else if (StrEqual(sKey, "maxbantime", false))  
 				g_tGroupBanTimeMax.SetValue(sGroupID, iValue, false);
-			else if (StrEqual(sKey, "maxmutetime"))
+			else if (StrEqual(sKey, "maxmutetime", false))  
 				g_tGroupMuteTimeMax.SetValue(sGroupID, iValue, false);
-			else if (StrEqual(sKey, "immunity"))
+			else if (StrEqual(sKey, "immunity", false))  
 				g_bNeedReparse = true;
 
 		} 
@@ -129,7 +129,7 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 		{
 			OverrideRule overRule = Command_Deny;
 			
-			if (StrEqual(sValue, "allow"))
+			if (StrEqual(sValue, "allow", false))  
 				overRule = Command_Allow;
 			
 			if (sKey[0] == '@')
@@ -153,7 +153,7 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 	else if (g_iGroupPass == GroupPass_Second && g_iGroupState == GroupState_InGroup)
 	{
 		/* Check for immunity again, core should handle double inserts */
-		if (StrEqual(sKey, "immunity"))
+		if (StrEqual(sKey, "immunity", false))  
 		{
 			/* If it's a sValue we know about, use it */
 			if (StrEqual(sValue, "*"))
@@ -278,13 +278,13 @@ public SMCResult ReadUsers_NewSection(SMCParser smc, const char[] sName, bool op
 
 public SMCResult ReadUsers_KeyValue(SMCParser smc, const char[] sKey, const char[] sValue, bool key_quotes, bool value_quotes)
 {
-	if (StrEqual(sKey, "auth"))
+	if (StrEqual(sKey, "auth", false))  
 		strcopy(g_sCurAuth, sizeof(g_sCurAuth), sValue);
-	else if (StrEqual(sKey, "identity"))
+	else if (StrEqual(sKey, "identity", false))  
 		strcopy(g_sCurIdent, sizeof(g_sCurIdent), sValue);
-	else if (StrEqual(sKey, "password")) 
+	else if (StrEqual(sKey, "password", false))  
 		strcopy(g_sCurPass, sizeof(g_sCurPass), sValue);
-	else if (StrEqual(sKey, "group")) 
+	else if (StrEqual(sKey, "group", false))  
 	{
 		GroupId idGroup = FindAdmGroup(sValue);
 		if (idGroup == INVALID_GROUP_ID)
@@ -297,7 +297,7 @@ public SMCResult ReadUsers_KeyValue(SMCParser smc, const char[] sKey, const char
 			g_aGroupArray.Push(idGroup);
 		}
 	} 
-	else if (StrEqual(sKey, "flags")) 
+	else if (StrEqual(sKey, "flags", false))  
 	{
 		AdminFlag admFlag;
 		
@@ -309,28 +309,28 @@ public SMCResult ReadUsers_KeyValue(SMCParser smc, const char[] sKey, const char
 				g_iCurFlags |= FlagToBit(admFlag);
 		}
 	} 
-	else if (StrEqual(sKey, "immunity"))
+	else if (StrEqual(sKey, "immunity", false))  
 	{
 		if(sValue[0])
 			g_iCurImmunity = StringToInt(sValue);
 		else
 			g_iCurImmunity = 0;
 	}
-	else if (StrEqual(sKey, "expire"))
+	else if (StrEqual(sKey, "expire", false))  
 	{
 		if(sValue[0])
 			g_iCurExpire = StringToInt(sValue);
 		else
 			g_iCurExpire = 0;
 	}
-	else if (StrEqual(sKey, "setingsadmin"))
+	else if (StrEqual(sKey, "setingsadmin", false))  
 	{
 		if(sValue[0])
 			g_iWebFlagSetingsAdmin = StringToInt(sValue);
 		else
 			g_iWebFlagSetingsAdmin = 0;
 	}
-	else if (StrEqual(sKey, "unbanmute"))
+	else if (StrEqual(sKey, "unbanmute", false))  
 	{
 		if(sValue[0])
 			g_iWebFlagUnBanMute = StringToInt(sValue);

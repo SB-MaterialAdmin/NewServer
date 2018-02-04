@@ -291,7 +291,7 @@ void GetFormatVrema(int iClient, char[] sLength, int iLens)
 		{
 			CancelClientMenu(iClient, true);
 		#if MADEBUG
-			MALog("Menu RemoveAdmin expire: admin id %d, name %N", idAdmin, iClient);
+			MALog(MA_LogAction, "adminmenu: Menu RemoveAdmin expire: admin id %d, name %N", idAdmin, iClient);
 		#endif
 			RemoveAdmin(idAdmin);
 			return;

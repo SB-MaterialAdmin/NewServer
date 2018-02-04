@@ -55,7 +55,7 @@ public void OnPluginStart()
 public void MAOnConfigSetting()
 {
 	if (!MAGetConfigSetting("DatabasePrefix", g_sDatabasePrefix))
-		MALog("ma_checker: MAGetConfigSetting no");
+		MALog(MA_LogConfig, "ma_checker: MAGetConfigSetting no");
 }
 
 public void MAOnConnectDatabase(Database db)
@@ -66,23 +66,22 @@ public void MAOnConnectDatabase(Database db)
 public void OnClientAuthorized(int iClient, const char[] sAuth)
 {
 	/* Do not check bots nor check player with lan steamid. */
-	if (sAuth[0] == 'B' || sAuth[9] == 'L')
+	if (sAuth[0] == 'B' || sAuth[9] == 'L' || sAuth[0] == '[')
 		return;
 
 	if (!g_dDatabase)
 		return;
 	
 	char sQuery[512], 
-		sIp[30];
+		sIp[MAX_IP_LENGTH];
 	GetClientIP(iClient, sIp, sizeof(sIp));
 	FormatEx(sQuery, sizeof(sQuery), "\
 			SELECT COUNT(bid) FROM `%s_bans` \
-			WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')) \
-			AND ((`length` > '0' AND `ends` > UNIX_TIMESTAMP()) OR `RemoveType` IS NOT NULL) LIMIT 0,1", 
+			WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')) LIMIT 1", 
 		g_sDatabasePrefix, sAuth[8], sIp);
 		
 #if MADEBUG
-	MALog("ma_checker: OnClientAuthorized Query %s", sQuery);
+	MALog(MA_LogDateBase, "ma_checker: OnClientAuthorized Query %s", sQuery);
 #endif
 	
 	g_dDatabase.Query(OnConnectBanCheck, sQuery, GetClientUserId(iClient), DBPrio_Low);
@@ -92,7 +91,7 @@ public OnConnectBanCheck(Database db, DBResultSet dbRs, const char[] sError, any
 {
 	if (!dbRs || sError[0])
 	{
-		MALog("ma_checker: OnConnectBanCheck Query Failed: %s", sError);
+		MALog(MA_LogDateBase, "ma_checker: OnConnectBanCheck Query Failed: %s", sError);
 		return;
 	}
 	
@@ -101,7 +100,7 @@ public OnConnectBanCheck(Database db, DBResultSet dbRs, const char[] sError, any
 	if (!iClient)
 		return;
 	
-	if (dbRs.FetchRow())
+	if (dbRs.HasResults && dbRs.FetchRow())
 	{
 		int iBanCount = dbRs.FetchInt(0);
 		if (iBanCount > 0)
@@ -165,7 +164,7 @@ public Action OnListSourceBansCmd(int iClient, int iArgs)
 			AND ((`length` > 0 AND `ends` > UNIX_TIMESTAMP()) OR `RemoveType` IS NOT NULL) ORDER BY `created`;", 
 		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sSteamID[8], sIP);
 #if MADEBUG
-	MALog("ma_checker: OnListSourceBansCmd Query %s", sQuery);
+	MALog(MA_LogDateBase, "ma_checker: OnListSourceBansCmd Query %s", sQuery);
 #endif
 	g_dDatabase.Query(OnListBans, sQuery, dPack, DBPrio_Low);
 	
@@ -187,7 +186,7 @@ public OnListBans(Database db, DBResultSet dbRs, const char[] sError, any data)
 	
 	if (!dbRs || sError[0])
 	{
-		MALog("ma_checker: OnListBans Query Failed: %s", sError);
+		MALog(MA_LogDateBase, "ma_checker: OnListBans Query Failed: %s", sError);
 		if (!iUserId)
 			PrintToServer("%sDB error while retrieving bans for %s:\n%s", MAPREFIX, sName, sError);
 		else

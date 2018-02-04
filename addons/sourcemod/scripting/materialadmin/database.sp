@@ -55,7 +55,10 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 
 	if (g_dDatabase)
 	{
-		g_dDatabase.SetCharset("utf8");
+		SQL_LockDatabase(g_dDatabase);
+		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+		SQL_UnlockDatabase(g_dDatabase);
+		//g_dDatabase.SetCharset("utf8");
 		switch(iType)
 		{
 			case BDCONNECT_ADMIN: 	AdminHash();
@@ -223,7 +226,7 @@ void BdGetInfoOffline(int iClient, int iId)
 
 	FormatEx(sQuery, sizeof(sQuery), "\
 			SELECT `auth`, `ip`, `name` FROM `offline` \
-			WHERE `id` = '%i'", 
+			WHERE `id` = '%i' LIMIT 1", 
 		iId);
 
 	g_dSQLite.Query(SQL_Callback_GetInfoOffline, sQuery, iClient, DBPrio_High);
@@ -548,7 +551,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 		GetClientName(iClient, sAdminName, sizeof(sAdminName));
 		FormatEx(sQueryAdmin, sizeof(sQueryAdmin), "\
 				IFNULL((SELECT aid FROM %s_admins a INNER JOIN %s_admins_servers_groups asg ON (a.aid = asg.admin_id AND asg.server_id = %s) \
-				WHERE (a.authid REGEXP '^STEAM_[0-9]:%s$')), 0)", 
+				WHERE (a.authid REGEXP '^STEAM_[0-9]:%s$') LIMIT 1), 0)", 
 			g_sDatabasePrefix, g_sDatabasePrefix, sServer, sAdmin_SteamID[8]);
 	}
 	else
@@ -923,7 +926,9 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 	{
 		if (!iTrax)
 		{
+			SQL_LockDatabase(g_dDatabase);
 			SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+			SQL_UnlockDatabase(g_dDatabase);
 			//g_dDatabase.SetCharset("utf8");
 			g_dDatabase.Query(CreateBdCallback, sQuery, dPack, DBPrio_High);
 		}
@@ -1066,7 +1071,9 @@ void CheckClientBan(int iClient)
 		LogToFile(g_sLogDateBase, "Checking ban for: %s. QUERY: %s", sSteamID, sQuery);
 	#endif
 		
+		SQL_LockDatabase(g_dDatabase);
 		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+		SQL_UnlockDatabase(g_dDatabase);
 		//g_dDatabase.SetCharset("utf8");
 		g_dDatabase.Query(VerifyBan, sQuery, GetClientUserId(iClient), DBPrio_High);
 	}
@@ -1154,7 +1161,9 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any iU
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "Ban log: QUERY: %s", sQuery);
 	#endif
+		SQL_LockDatabase(g_dDatabase);
 		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+		SQL_UnlockDatabase(g_dDatabase);
 		//g_dDatabase.SetCharset("utf8");
 		g_dDatabase.Query(SQL_Callback_BanLog, sQuery, _, DBPrio_High);
 
@@ -1306,7 +1315,9 @@ void AdminHash()
 				FROM `%s_overrides`", 
 			g_sDatabasePrefix);
 
+		SQL_LockDatabase(g_dDatabase);
 		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+		SQL_UnlockDatabase(g_dDatabase);
 		//g_dDatabase.SetCharset("utf8");
 		g_dDatabase.Query(OverridesDone, sQuery, _, DBPrio_High);
 	}
@@ -1370,7 +1381,9 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "GroupsDone:QUERY: %s", sQuery);
 #endif
+	SQL_LockDatabase(g_dDatabase);
 	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+	SQL_UnlockDatabase(g_dDatabase);
 	//g_dDatabase.SetCharset("utf8");
 	g_dDatabase.Query(GroupsDone, sQuery, _, DBPrio_High);
 }
@@ -1538,7 +1551,9 @@ public void LoadGroupsOverrides(Database db, DBResultSet dbRs, const char[] sErr
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "AdminsDone:QUERY: %s", sQuery);
 #endif
+	SQL_LockDatabase(g_dDatabase);
 	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+	SQL_UnlockDatabase(g_dDatabase);
 	//g_dDatabase.SetCharset("utf8");
 	g_dDatabase.Query(AdminsDone, sQuery, _, DBPrio_High);
 }
@@ -1699,7 +1714,9 @@ public void SQL_Callback_QueryBekap(Database db, DBResultSet dbRs, const char[] 
 		#if MADEBUG
 			LogToFile(g_sLogDateBase, "QueryBekap:QUERY: %s", sQuery);
 		#endif
+			SQL_LockDatabase(g_dDatabase);
 			SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+			SQL_UnlockDatabase(g_dDatabase);
 			//g_dDatabase.SetCharset("utf8");
 			g_dDatabase.Query(CheckCallbackBekap, sQuery, iId, DBPrio_Low); // байда с зависанием скрипта
 		}
@@ -1831,7 +1848,9 @@ void SetBdReport(int iClient, const char[] sReason)
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "SetBdReport:QUERY: %s", sQuery);
 	#endif
+		SQL_LockDatabase(g_dDatabase);
 		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+		SQL_UnlockDatabase(g_dDatabase);
 		//g_dDatabase.SetCharset("utf8");
 		g_dDatabase.Query(CheckCallbackReport, sQuery, dPack, DBPrio_High);
 	}
@@ -1907,7 +1926,9 @@ public Action OnBanClient(int iClient, int iTime, int iFlags, const char[] sReas
 			
 			DataPack dPack = new DataPack();
 			dPack.WriteString(sQuery);
+			SQL_LockDatabase(g_dDatabase);
 			SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+			SQL_UnlockDatabase(g_dDatabase);
 			//g_dDatabase.SetCharset("utf8");
 			g_dDatabase.Query(CallbackForwards, sQuery, dPack, DBPrio_High);
 		}
@@ -1957,7 +1978,9 @@ public Action OnBanIdentity(const char[] sIdentity, int iTime, int flags, const 
 	#endif
 		DataPack dPack = new DataPack();
 		dPack.WriteString(sQuery);
+		SQL_LockDatabase(g_dDatabase);
 		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+		SQL_UnlockDatabase(g_dDatabase);
 		//g_dDatabase.SetCharset("utf8");
 		g_dDatabase.Query(CallbackForwards, sQuery, dPack, DBPrio_High);
 	}
@@ -2007,7 +2030,9 @@ public Action OnRemoveBan(const char[] sIdentity, int flags, const char[] comman
 	#endif
 		DataPack dPack = new DataPack();
 		dPack.WriteString(sQuery);
+		SQL_LockDatabase(g_dDatabase);
 		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+		SQL_UnlockDatabase(g_dDatabase);
 		//g_dDatabase.SetCharset("utf8");
 		g_dDatabase.Query(CallbackForwards, sQuery, dPack, DBPrio_High);
 	}
@@ -2060,7 +2085,9 @@ void BDAddAdmin(int iClient, bool bFlag = false)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDAddAdmin:QUERY: %s", sQuery);
 #endif
+	SQL_LockDatabase(g_dDatabase);
 	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+	SQL_UnlockDatabase(g_dDatabase);
 	//g_dDatabase.SetCharset("utf8");
 	g_dDatabase.Query(CallbackAddAdmin, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
@@ -2098,7 +2125,9 @@ void BDCheckAdmins(int iClient, int iTyp)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDCheckAdmins:QUERY: %s", sQuery);
 #endif
+	SQL_LockDatabase(g_dDatabase);
 	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+	SQL_UnlockDatabase(g_dDatabase);
 	//g_dDatabase.SetCharset("utf8");
 	g_dDatabase.Query(CallbackCheckAdmin, sQuery, dPack, DBPrio_High);
 }
@@ -2162,7 +2191,7 @@ public void CallbackCheckAdmin(Database db, DBResultSet dbRs, const char[] sErro
 void BDAddServerAdmin(int iClient, int iId, char[] sGroup)
 {
 	if(sGroup[0])
-		Format(sGroup, 124, "IFNULL ((SELECT `id` FROM `%s_srvgroups` WHERE `name` = '%s'), -1)", g_sDatabasePrefix, sGroup);
+		Format(sGroup, 124, "IFNULL ((SELECT `id` FROM `%s_srvgroups` WHERE `name` = '%s' LIMIT 1), -1)", g_sDatabasePrefix, sGroup);
 	else
 		strcopy(sGroup, 124, "-1");
 	
@@ -2182,7 +2211,9 @@ void BDAddServerAdmin(int iClient, int iId, char[] sGroup)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDAddServerAdmin:QUERY: %s", sQuery);
 #endif
+	SQL_LockDatabase(g_dDatabase);
 	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+	SQL_UnlockDatabase(g_dDatabase);
 	//g_dDatabase.SetCharset("utf8");
 	g_dDatabase.Query(CallbackAddServerAdmin, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
@@ -2230,7 +2261,9 @@ void BDDelAdmin(int iClient, int iId, int iTyp)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDDelAdmin:QUERY: %s", sQuery);
 #endif
+	SQL_LockDatabase(g_dDatabase);
 	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+	SQL_UnlockDatabase(g_dDatabase);
 	//g_dDatabase.SetCharset("utf8");
 	g_dDatabase.Query(CallbackDelAdmin, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
@@ -2269,7 +2302,7 @@ public void CallbackDelAdmin(Database db, DBResultSet dbRs, const char[] sError,
 	FormatEx(sQuery, sizeof(sQuery), "\
 			INSERT INTO `%s_admins_activity` (`aid`, `sid`, `ctime`, `played`) \
 			VALUES (IFNULL((SELECT aid FROM %s_admins a INNER JOIN %s_admins_servers_groups asg ON (a.aid = asg.admin_id AND asg.server_id = %s) \
-			WHERE (a.authid REGEXP '^STEAM_[0-9]:%s$')), 0), %s, %d, %d)", 
+			WHERE (a.authid REGEXP '^STEAM_[0-9]:%s$') LIMIT 1), 0), %s, %d, %d)", 
 		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sServer, sSteamID[8], sServer, iTime - iPlayed, iPlayed);
 		
 	g_dDatabase.Query(CallbackSetActivityAdmin, sQuery);

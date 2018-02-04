@@ -841,7 +841,7 @@ void ShowTargetList(int iClient)
 	
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsClientInGame(i) && g_iTargetMuteType[i] > 0)
+		if (IsClientInGame(i) && g_iTargetMuteType[i] > 0 && CheckAdminImune(iClient, i))
 		{
 			AdminMenuAddClients(Mmenu, iClient, i, 0);
 			bIsClien = true;

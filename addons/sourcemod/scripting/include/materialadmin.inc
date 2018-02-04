@@ -31,7 +31,7 @@ public __pl_materialadmin_SetNTVOptional()
 #endif
 
 #define MAPREFIX 		"[MA] "
-#define MAVERSION 		"0.6.5"
+#define MAVERSION 		"0.6.6"
 #define MADEBUG 		0
 
 /*********************************************************
@@ -405,10 +405,18 @@ forward void MAOnConfigSetting();
 *********************************************************/
 forward void MAOnFindLoadingAdmin(AdminCachePart acPart);
  
+#define MA_LogAdmin			0
+#define MA_LogConfig		1
+#define MA_LogDateBase		2
+#define MA_LogAction		3
 /*********************************************************
 ********RU******
 * Логи
+* @param iType		Тип лога
+* @return			true, false
 ********EN******
 * Log.
+* @param iType		Type log
+* @return			true, false
 *********************************************************/
-native void MALog(const char[] sLog, any ...);
+native bool MALog(int iType, const char[] sLog, any ...);

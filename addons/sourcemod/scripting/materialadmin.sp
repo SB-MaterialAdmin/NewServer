@@ -6,9 +6,6 @@
 #include <sdktools>
 #include <regex>
 
-#undef REQUIRE_EXTENSIONS
-#include <SteamWorks>
-
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 #include <basecomm>
@@ -148,7 +145,6 @@ char g_sServerIP[32],
 char g_sLogAdmin[256],
 	g_sLogConfig[256],
 	g_sLogDateBase[256],
-	g_sLogNative[256],
 	g_sLogAction[256];
 	
 bool g_bSayReason[MAXPLAYERS+1],
@@ -356,25 +352,6 @@ public void OnConfigsExecuted()
 		ClearHistories();
 	
 	CheckBekapTime();
-	
-	// Отправка статы
-	if (LibraryExists("SteamWorks"))
-	{
-		int iIp[4];
-		if (SteamWorks_GetPublicIP(iIp))
-		{
-			PrintToServer("%sStatistics ON", MAPREFIX);
-			char cBuffer[256];
-			FormatEx(cBuffer, sizeof(cBuffer), "http://stats.scriptplugs.info/add_server.php");
-			Handle hndl = SteamWorks_CreateHTTPRequest(k_EHTTPMethodPOST, cBuffer);
-			FormatEx(cBuffer, sizeof(cBuffer), "key=c207ce6cda32a958e83a5897db41ac73&ip=%d.%d.%d.%d&port=%d&version=%s", iIp[0], iIp[1], iIp[2], iIp[3], FindConVar("hostport").IntValue, MAVERSION);
-			SteamWorks_SetHTTPRequestRawPostBody(hndl, "application/x-www-form-urlencoded", cBuffer, sizeof(cBuffer));
-			SteamWorks_SendHTTPRequest(hndl);
-			delete hndl;
-		}
-	}
-	else
-		PrintToServer("%sStatistics OFF", MAPREFIX);
 }
 
 public void OnClientPostAdminCheck(int iClient)

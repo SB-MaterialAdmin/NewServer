@@ -180,9 +180,7 @@ bool CheckAdminImune(int iAdminClient, int iAdminTarget)
 	AdminId idAdminTarget = GetUserAdmin(iAdminTarget);
 	if (idAdminTarget != INVALID_ADMIN_ID && g_iCvar_ImmunityMode != 0)
 	{
-		int iAdminFlags = GetUserFlagBits(iAdminClient);
-		int iTargetFlags = GetUserFlagBits(iAdminTarget);
-		if (iAdminFlags & ADMFLAG_ROOT && iTargetFlags & ADMFLAG_ROOT)
+		if (GetUserFlagBits(iAdminClient) & ADMFLAG_ROOT && GetUserFlagBits(iAdminTarget) & ADMFLAG_ROOT)
 			return false;
 		
 		int iTargetImun = GetImmuneAdmin(iAdminTarget);
@@ -1245,9 +1243,6 @@ void LogOn()
 	
 	FormatEx(sBuffer, sizeof(sBuffer), "logs/materialadmin/LogDateBase_%s.log", sTime);
 	BuildPath(Path_SM, g_sLogDateBase, sizeof(g_sLogDateBase), sBuffer);
-	
-	FormatEx(sBuffer, sizeof(sBuffer), "logs/materialadmin/LogNative_%s.log", sTime);
-	BuildPath(Path_SM, g_sLogNative, sizeof(g_sLogNative), sBuffer);
 	
 	FormatEx(sBuffer, sizeof(sBuffer), "logs/materialadmin/LogAction_%s.log", sTime);
 	BuildPath(Path_SM, g_sLogAction, sizeof(g_sLogAction), sBuffer);

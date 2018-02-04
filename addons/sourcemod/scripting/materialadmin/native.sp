@@ -21,8 +21,22 @@ public int Native_GetDatabase(Handle plugin, int numParams)
 public int Native_Log(Handle plugin, int numParams)
 {
 	char sBufer[256];
-	FormatNativeString(0, 1, 2, sizeof(sBufer), _, sBufer);
-	LogToFile(g_sLogNative, sBufer);
+	int iType = GetNativeCell(1);
+	
+	if (iType < 0 || iType > 3)
+		return ThrowNativeError(SP_ERROR_NATIVE, "Log Error: Invalid Type.");
+	
+	FormatNativeString(0, 2, 3, sizeof(sBufer), _, sBufer);
+	
+	switch(iType)
+	{
+		case MA_LogAdmin: 		LogToFile(g_sLogAdmin, sBufer);
+		case MA_LogConfig: 		LogToFile(g_sLogConfig, sBufer);
+		case MA_LogDateBase: 	LogToFile(g_sLogDateBase, sBufer);
+		case MA_LogAction: 		LogToFile(g_sLogAction, sBufer);
+	}
+	
+	return true;
 }
 
 public int Native_GetConfigSetting(Handle plugin, int numParams)
