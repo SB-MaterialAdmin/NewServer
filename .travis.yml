@@ -5,6 +5,7 @@ env:
     - SMVERSION=1.7
     - SMVERSION=1.8
     - SMVERSION=1.9
+    - SMVERSION=1.10
 
 matrix:
     fast_finish: true
@@ -19,8 +20,7 @@ before_install:
 before_script:
     - wget -q "http://www.sourcemod.net/latest.php?version=$SMVERSION&os=linux" -O sourcemod.tar.gz
     - tar -xzf sourcemod.tar.gz
-    - cd addons/sourcemod/scripting/
-    - curl "https://raw.githubusercontent.com/KyleSanderson/SteamWorks/master/Pawn/includes/SteamWorks.inc" -o include/SteamWorks.inc
+    - cd addons/sourcemod/scripting
     - chmod +x spcomp
     - chmod +x compile.sh
 
