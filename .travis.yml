@@ -5,7 +5,7 @@ env:
     - SMVERSION=1.7
     - SMVERSION=1.8
     - SMVERSION=1.9
-    - SMVERSION=1.10
+    - SMVERSION=1.10
 
 matrix:
     fast_finish: true
