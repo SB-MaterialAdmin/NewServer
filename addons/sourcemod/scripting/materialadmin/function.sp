@@ -39,6 +39,9 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 	// add name ????
 	ReplaceString(sBufer, sizeof(sBufer), sNameD[0], g_sNameReples[0]);
 	ReplaceString(sBufer, sizeof(sBufer), sNameD[1], g_sNameReples[1]);
+	
+	if (!IsClientInGame(iClient))
+		return;
 
 	if (GetUserMessageType() == UM_Protobuf)
 		PrintToChat(iClient, " \x01%s.", sBufer);

@@ -561,6 +561,18 @@
 		"en"    		"{1} is already banned"
 		"ru"    		"{1} уже находится в бане"
 	}
+	"No access mute"
+	{
+		"#format"		"{1:s}"
+		"en"    		"You don't have permissions to mute {1}"
+		"ru"    		"У вас не достаточно прав для мута {1}"
+	}
+	"No access un mute"
+	{
+		"#format"		"{1:s}"
+		"en"    		"You don't have permissions to unmute {1}"
+		"ru"    		"У вас не достаточно прав для размута {1}"
+	}
 	"No access un ban"
 	{
 		"#format"		"{1:s}"

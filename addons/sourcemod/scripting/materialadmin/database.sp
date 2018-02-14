@@ -491,7 +491,30 @@ void DoCreateDB(int iClient, int iTarget, int iTrax = 0, Transaction hTxn = null
 		if (g_iTargetMuteType[iTarget] > 0)
 		{
 			if (!IsUnMuteUnBan(iClient, g_sTargetMuteSteamAdmin[iTarget]))
+			{
+				if (iTarget && IsClientInGame(iTarget))
+				{
+					char sName[MAX_NAME_LENGTH];
+					GetClientName(iTarget, sName, sizeof(sName));
+					switch(g_iTargetType[iClient])
+					{
+						case TYPE_GAG, TYPE_MUTE, TYPE_SILENCE:			PrintToChat2(iClient, "%T", "No access mute", iClient, sName);
+						case TYPE_UNGAG, TYPE_UNMUTE, TYPE_UNSILENCE:	PrintToChat2(iClient, "%T", "No access un mute", iClient, sName);
+					}
+				}
+				else
+				{
+					if (!iTarget)
+					{
+						switch(g_iTargetType[iClient])
+						{
+							case TYPE_GAG, TYPE_MUTE, TYPE_SILENCE:			PrintToChat2(iClient, "%T", "No access mute", iClient, g_sTarget[iClient][TNAME]);
+							case TYPE_UNGAG, TYPE_UNMUTE, TYPE_UNSILENCE: 	PrintToChat2(iClient, "%T", "No access un mute", iClient, g_sTarget[iClient][TNAME]);
+						}
+					}
+				}
 				return;
+			}
 		}
 		
 		if (iTarget && g_iTargetType[iClient] > TYPE_UNGAG && g_iTargetMuteType[iTarget] == 0 && GetClientListeningFlags(iTarget) == VOICE_MUTED)
@@ -512,7 +535,9 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 {
 	if (iTrax == 2)
 	{
+		SQL_LockDatabase(g_dDatabase);
 		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+		SQL_UnlockDatabase(g_dDatabase);
 		g_dDatabase.Execute(hTxn, SQL_TxnCallback_Success, SQL_TxnCallback_Failure);
 		return;
 	}
@@ -604,8 +629,11 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 	if (!g_sTarget[iClient][TREASON][0])
 		FormatEx(g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]), "%T", "No reason", iClient);
 
-	g_dDatabase.Escape(g_sTarget[iClient][TREASON], sReason, sizeof(sReason));
-	g_dDatabase.Escape(g_sTarget[iClient][TNAME], sBanName, sizeof(sBanName));
+	if (ChekBD(g_dDatabase, "create bd escape"))
+	{
+		g_dDatabase.Escape(g_sTarget[iClient][TREASON], sReason, sizeof(sReason));
+		g_dDatabase.Escape(g_sTarget[iClient][TNAME], sBanName, sizeof(sBanName));
+	}
 #if MADEBUG
 	LogToFile(g_sLogDateBase,"name do %s : posle %s", g_sTarget[iClient][TNAME], sBanName);
 #endif
