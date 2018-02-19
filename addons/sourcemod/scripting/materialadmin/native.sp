@@ -57,6 +57,8 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		strcopy(sValue, sizeof(sValue), g_sWebsite);
 	else if(StrEqual("OffTimeFormat", sSetting, false))
 		strcopy(sValue, sizeof(sValue), g_sOffFormatTime);
+	else if(StrEqual("BanFlagPermanent", sSetting, false))
+		strcopy(sValue, sizeof(sValue), g_sBanFlagPermanent);
 	else if(StrEqual("Addban", sSetting, false))
 	{
 		if(g_bAddBan)

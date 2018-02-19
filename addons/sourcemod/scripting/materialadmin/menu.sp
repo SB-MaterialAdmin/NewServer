@@ -617,7 +617,7 @@ void ShowTimeMenu(int iClient)
 	{
 		iTime = g_aTimeMenuSorting.Get(i);
 
-		if (g_iTargetType[iClient] < TYPE_ADDBAN && iTime == -1 || g_iTargetType[iClient] < TYPE_ADDBAN && !iTime && !CheckAdminFlags(iClient, ADMFLAG_UNBAN) || iMaxTime > -1 && !iTime)
+		if (g_iTargetType[iClient] < TYPE_ADDBAN && iTime == -1 || g_iTargetType[iClient] < TYPE_ADDBAN && !iTime && !CheckAdminFlags(iClient, ReadFlagString(g_sBanFlagPermanent)) || iMaxTime > -1 && !iTime)
 		{
 		#if MADEBUG
 			LogToFile(g_sLogAction,"Menu Time: no time %d", iTime);

@@ -139,6 +139,7 @@ Menu g_mReasonBMenu,
 char g_sServerIP[32], 
 	g_sServerPort[8],
 	g_sOffFormatTime[56],
+	g_sBanFlagPermanent[12],
 	g_sWebsite[256],
 	g_sDatabasePrefix[10] = "sb";
 	
@@ -514,6 +515,8 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 				strcopy(g_sWebsite, sizeof(g_sWebsite), sValue);
 			else if(strcmp("OffTimeFormat", sKey, false) == 0)
 				strcopy(g_sOffFormatTime, sizeof(g_sOffFormatTime), sValue);
+			else if(strcmp("BanFlagPermanent", sKey, false) == 0)
+				strcopy(g_sBanFlagPermanent, sizeof(g_sBanFlagPermanent), sValue);
 			else if(strcmp("Addban", sKey, false) == 0)
 			{
 				if(StringToInt(sValue) == 0)

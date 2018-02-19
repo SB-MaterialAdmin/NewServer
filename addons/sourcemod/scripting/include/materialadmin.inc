@@ -31,7 +31,7 @@ public __pl_materialadmin_SetNTVOptional()
 #endif
 
 #define MAPREFIX 		"[MA] "
-#define MAVERSION 		"0.6.7"
+#define MAVERSION 		"0.6.8"
 #define MADEBUG 		0
 
 /*********************************************************
