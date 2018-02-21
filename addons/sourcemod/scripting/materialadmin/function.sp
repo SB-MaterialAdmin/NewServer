@@ -17,11 +17,18 @@ void InsertServerInfo()
 	cvarPort.GetString(g_sServerPort, sizeof(g_sServerPort));
 }
 
-void PrintToChat2(int iClient, const char[] sMesag, any ...)
+void GetColor(char[] sBuffer, int iMaxlin)
 {
 	static const char sColorT[][] = {"#1",   "#2",   "#3",   "#4",   "#5",   "#6",   "#7",   "#8",   "#9",   "#10", "#OB",   "#OC",  "#OE"},
-					  sColorC[][] = {"\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\x09", "\x10", "\x0B", "\x0C", "\x0E"},
-					  sNameD[][] = {"name1", "name2"};
+					  sColorC[][] = {"\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\x09", "\x10", "\x0B", "\x0C", "\x0E"};
+					  
+	for(int i = 0; i < 13; i++)
+		ReplaceString(sBuffer, iMaxlin, sColorT[i], sColorC[i]);
+}
+
+void PrintToChat2(int iClient, const char[] sMesag, any ...)
+{
+	static const char sNameD[][] = {"name1", "name2"};
 	char sBufer[256];
 	VFormat(sBufer, sizeof(sBufer), sMesag, 3);
 	
@@ -33,8 +40,7 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 	
 	Format(sBufer, sizeof(sBufer), "%T %s", "prifix", iClient, sBufer);
 
-	for(int i = 0; i < 13; i++)
-		ReplaceString(sBufer, sizeof(sBufer), sColorT[i], sColorC[i]);
+	GetColor(sBufer, sizeof(sBufer));
 	
 	// add name ????
 	ReplaceString(sBufer, sizeof(sBufer), sNameD[0], g_sNameReples[0]);
@@ -47,6 +53,20 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 		PrintToChat(iClient, " \x01%s.", sBufer);
 	else
 		PrintToChat(iClient, "\x01%s.", sBufer);
+}
+
+void PrintToChatAdmin(const char[] sMesag, any ...)
+{
+	char sBufer[256];
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i) && CheckAdminFlags(i, ADMFLAG_GENERIC))
+		{
+			SetGlobalTransTarget(i);
+			VFormat(sBufer, sizeof(sBufer), sMesag, 2);
+			PrintToChat2(i, "%s", sBufer);
+		}
+	}
 }
 
 void ShowAdminAction(int iClient, const char[] sMesag, any ...)
@@ -88,7 +108,7 @@ void ShowAdminAction(int iClient, const char[] sMesag, any ...)
 bool CheckAdminFlags(int iClient, int iFlag)
 {
 	int iUserFlags = GetUserFlagBits(iClient);
-	if (iUserFlags & ADMFLAG_ROOT || iUserFlags & iFlag)
+	if (iUserFlags & (ADMFLAG_ROOT | iFlag))
 		return true;
 	else
 		return false;

@@ -727,6 +727,12 @@
 		"en"			"The player is not an admin"
 		"ru"			"Игрок не админ"
 	}
+	"Update Version"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"			"Update the materialadmin plug-in, the latest version of {1} here {2}"
+		"ru"			"Обновите плагин materialadmin, последняя версия {1} тут {2}"
+	}
 	//------------------------------------------------
 	/*******RU******
 	 Действия админа (цвета есть)

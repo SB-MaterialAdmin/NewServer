@@ -31,7 +31,8 @@ public __pl_materialadmin_SetNTVOptional()
 #endif
 
 #define MAPREFIX 		"[MA] "
-#define MAVERSION 		"0.6.8"
+#define MAVERSION 		"0.6.9"
+#define MAUPDATE 		"https://github.com/SB-MaterialAdmin/NewServer/archive/master.zip"
 #define MADEBUG 		0
 
 /*********************************************************

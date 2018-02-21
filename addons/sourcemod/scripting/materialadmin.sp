@@ -6,6 +6,9 @@
 #include <sdktools>
 #include <regex>
 
+#undef REQUIRE_EXTENSIONS
+#include <SteamWorks>
+
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 #include <basecomm>
@@ -197,6 +200,7 @@ ConfigState g_iConfigState = ConfigState_Non;
 #include "materialadmin/commands.sp"
 #include "materialadmin/database.sp"
 #include "materialadmin/native.sp"
+#include "materialadmin/update.sp"
 
 public Plugin myinfo = 
 {
@@ -353,6 +357,9 @@ public void OnConfigsExecuted()
 		ClearHistories();
 	
 	CheckBekapTime();
+	
+	if (LibraryExists("SteamWorks"))
+		UpdateVersion();
 }
 
 public void OnClientPostAdminCheck(int iClient)
