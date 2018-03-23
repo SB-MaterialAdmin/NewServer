@@ -181,12 +181,13 @@ public void ShowTargetOffline(Database db, DBResultSet dbRs, const char[] sError
 			dbRs.FetchString(1, sSteamID, sizeof(sSteamID));
 			dbRs.FetchString(2, sName, sizeof(sName));
 			FormatTime(sTime, sizeof(sTime), g_sOffFormatTime, dbRs.FetchInt(3));
-			switch(g_iOffMenuItems)
-			{
-				case 1:	FormatEx(sTitle, sizeof(sTitle), "%s (%s)", sName, sTime);
-				case 2: FormatEx(sTitle, sizeof(sTitle), "%s (%s)", sName, sSteamID); 
-				case 3: FormatEx(sTitle, sizeof(sTitle), "%s - %s (%s)", sName, sSteamID, sTime); 
-			}
+			
+			FormatEx(sTitle, sizeof(sTitle), "%s", g_sOffMenuItems);
+			
+			ReplaceString(sTitle, sizeof(sTitle), "{NICK}", sName);
+			ReplaceString(sTitle, sizeof(sTitle), "{STEAMID}", sSteamID);
+			ReplaceString(sTitle, sizeof(sTitle), "{TIME}", sTime);
+			
 			Mmenu.AddItem(sID, sTitle);
 		#if MADEBUG
 			LogToFile(g_sLogAction,"Menu: %s, %s - %s", sID, sSteamID, sTitle);
@@ -531,15 +532,27 @@ void MenuTypeAdd(int iClient, int iTarget, Menu Mmenu)
 		bMut = IsUnMuteUnBan(iClient, g_sTargetMuteSteamAdmin[iTarget]);
 	
 	
-	char sTitle[192];
+	char sTitle[192],
+		 sBuffer[25];
+		
+	FormatEx(sBuffer, sizeof(sBuffer), "%i %b", iTarget, bMut);
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Mute", iClient); // мут
-	Mmenu.AddItem("", sTitle);
+	if(!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] == TYPEGAG && !bMut || g_iTargetMuteType[iTarget] && bMut)
+		Mmenu.AddItem(sBuffer, sTitle);
+	else
+		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Gag", iClient); // чат
-	Mmenu.AddItem("", sTitle);
+	if(!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] == TYPEMUTE && !bMut || g_iTargetMuteType[iTarget] && bMut)
+		Mmenu.AddItem(sBuffer, sTitle);
+	else
+		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Silence", iClient); // силенце
-	Mmenu.AddItem("", sTitle);
+	if(!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] && bMut)
+		Mmenu.AddItem(sBuffer, sTitle);
+	else
+		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "unMute", iClient); // ун мут
 	if(g_iTargetMuteType[iTarget] == TYPEMUTE && bMut || g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
@@ -588,7 +601,26 @@ public int MenuHandler_MenuTypeMute(Menu Mmenu, MenuAction mAction, int iClient,
 				OnlineClientSet(iClient);
 			}
 			else
-				ShowTimeMenu(iClient);
+			{
+				char sOption[25],
+				sTemp[2][12];
+				Mmenu.GetItem(iSlot, sOption, sizeof(sOption));
+			#if MADEBUG
+				LogToFile(g_sLogAction,"Menu select TypeMute: Option %s", sOption);
+			#endif
+				ExplodeString(sOption, " ", sTemp, 2, 12);
+				int iTarget = StringToInt(sTemp[0]);
+				int iUn = StringToInt(sTemp[1]);
+				
+				if (g_iTargetMuteType[iTarget] > 0 && !iUn)
+				{
+					g_sTarget[iClient][TREASON] = g_sTargetMuteReason[iTarget];
+					g_iTarget[iClient][TTIME] = g_iTargenMuteTime[iTarget];
+					OnlineClientSet(iClient);
+				}
+				else
+					ShowTimeMenu(iClient);
+			}
 
 		#if MADEBUG
 			LogToFile(g_sLogAction,"Menu select TypeMute: slot %i , type %d", iSlot, g_iTargetType[iClient]);
@@ -743,7 +775,7 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 				SetBdReport(iClient, sInfo);
 			else
 			{
-				strcopy(g_sTarget[iClient][TREASON], sizeof(sInfo), sInfo);
+				strcopy(g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]), sInfo);
 				OnlineClientSet(iClient);
 			}
 		}
@@ -769,7 +801,7 @@ public int MenuHandler_MenuMReason(Menu Mmenu, MenuAction mAction, int iClient, 
 				g_bSayReason[iClient] = true;
 				return;
 			}
-			strcopy(g_sTarget[iClient][TREASON], sizeof(sInfo), sInfo);
+			strcopy(g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]), sInfo);
 		#if MADEBUG
 			LogToFile(g_sLogAction,"Menu select reason: %s", sInfo);
 		#endif
@@ -806,7 +838,7 @@ public int MenuHandler_MenuHacking(Menu Mmenu, MenuAction mAction, int iClient, 
 				SetBdReport(iClient, sInfo);
 			else
 			{
-				strcopy(g_sTarget[iClient][TREASON], sizeof(sInfo), sInfo);
+				strcopy(g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]), sInfo);
 				OnlineClientSet(iClient);
 			}
 		}

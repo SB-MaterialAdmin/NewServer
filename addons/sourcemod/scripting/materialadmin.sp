@@ -98,7 +98,6 @@ bool g_bAdminAdd[MAXPLAYERS+1][4];
 
 int	g_iServerID = -1,
 	g_iOffMaxPlayers,
-	g_iOffMenuItems,
 	g_iShowAdminAction,
 	g_iServerBanTime,
 	g_iBasecommTime,
@@ -142,6 +141,7 @@ Menu g_mReasonBMenu,
 char g_sServerIP[32], 
 	g_sServerPort[8],
 	g_sOffFormatTime[56],
+	g_sOffMenuItems[128],
 	g_sBanFlagPermanent[12],
 	g_sWebsite[256],
 	g_sDatabasePrefix[10] = "sb";
@@ -340,7 +340,7 @@ public void OnConfigsExecuted()
 	{
 		LogOn();
 		ReadConfig();
-		if (g_iAdminUpdateCache)
+		if (g_iAdminUpdateCache && g_dDatabase)
 			AdminHash();
 		/*if (g_iAdminUpdateCache)
 			ConnectBd(BDCONNECT_ADMIN, 0);
@@ -524,6 +524,8 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 				strcopy(g_sOffFormatTime, sizeof(g_sOffFormatTime), sValue);
 			else if(strcmp("BanFlagPermanent", sKey, false) == 0)
 				strcopy(g_sBanFlagPermanent, sizeof(g_sBanFlagPermanent), sValue);
+			else if(strcmp("OffMenuNast", sKey, false) == 0)
+				strcopy(g_sOffMenuItems, sizeof(g_sOffMenuItems), sValue);
 			else if(strcmp("Addban", sKey, false) == 0)
 			{
 				if(StringToInt(sValue) == 0)
@@ -595,8 +597,6 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 				g_iServerID = StringToInt(sValue);
 			else if(strcmp("OffMaxPlayers", sKey, false) == 0)
 				g_iOffMaxPlayers = StringToInt(sValue);
-			else if(strcmp("OffMenuNast", sKey, false) == 0)
-				g_iOffMenuItems = StringToInt(sValue);
 			else if(strcmp("RetryTime", sKey, false) == 0)
 				g_fRetryTime = StringToFloat(sValue);
 			else if(strcmp("ShowAdminAction", sKey, false) == 0)

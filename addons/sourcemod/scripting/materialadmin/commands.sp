@@ -786,8 +786,13 @@ public Action CommandRehashAdm(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction, "Rehash Admin cl com.");
 #endif
-	AdminHash();
-	ReplyToCommand(iClient, "Rehash Admin");
+	if (g_dDatabase)
+	{
+		AdminHash();
+		ReplyToCommand(iClient, "Rehash Admin");
+	}
+	else
+		ReplyToCommand(iClient, "No connect bd");
 	return Plugin_Handled;
 }
 //------------------------------------------------------------------------------------------------------------------------
@@ -797,8 +802,13 @@ public Action CommandWRehashAdm(int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction, "Rehash Admin web com.");
 #endif
-	AdminHash();
-	ReplyToCommand(0, "Rehash Admin");
+	if (g_dDatabase)
+	{
+		AdminHash();
+		ReplyToCommand(0, "Rehash Admin");
+	}
+	else
+		ReplyToCommand(0, "No connect bd");
 	return Plugin_Handled;
 }
 

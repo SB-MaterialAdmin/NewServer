@@ -59,6 +59,8 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		strcopy(sValue, sizeof(sValue), g_sOffFormatTime);
 	else if(StrEqual("BanFlagPermanent", sSetting, false))
 		strcopy(sValue, sizeof(sValue), g_sBanFlagPermanent);
+	else if(StrEqual("OffMenuNast", sSetting, false))
+		strcopy(sValue, sizeof(sValue), g_sOffMenuItems);
 	else if(StrEqual("Addban", sSetting, false))
 	{
 		if(g_bAddBan)
@@ -136,8 +138,6 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		IntToString(g_iServerID, sValue, sizeof(sValue));
 	else if(StrEqual("OffMaxPlayers", sSetting, false))
 		IntToString(g_iOffMaxPlayers, sValue, sizeof(sValue));
-	else if(StrEqual("OffMenuNast", sSetting, false))
-		IntToString(g_iOffMenuItems, sValue, sizeof(sValue));
 	else if(StrEqual("RetryTime", sSetting, false))
 		FloatToString(g_fRetryTime, sValue, sizeof(sValue));
 	else if(StrEqual("ShowAdminAction", sSetting, false))
@@ -205,7 +205,13 @@ public int Native_BanPlayer(Handle plugin, int numParams)
 	if (!iTarget || !IsClientInGame(iTarget))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player no game.");
 	
-	CreateDB(iClient, iTarget);
+	char sSteamIp[MAX_IP_LENGTH];
+	if (iType == MA_BAN_STEAM)
+		GetClientAuthId(iTarget, TYPE_STEAM, sSteamIp, sizeof(sSteamIp));
+	else
+		GetClientIP(iTarget, sSteamIp, sizeof(sSteamIp));
+	
+	CheckBanInBd(iClient, iTarget, 1, sSteamIp);
 	return true;
 }
 
