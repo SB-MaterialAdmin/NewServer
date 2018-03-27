@@ -164,6 +164,7 @@ bool g_bSayReason[MAXPLAYERS+1],
 	g_bServerBanTyp,
 	g_bSourceSleuth,
 	g_bUnMuteUnBan,
+	g_bUpdatePlugin,
 	g_bNewConnect[MAXPLAYERS+1],
 	g_bOnileTarget[MAXPLAYERS+1],
 	g_bReportReason[MAXPLAYERS+1],
@@ -358,8 +359,11 @@ public void OnConfigsExecuted()
 	
 	CheckBekapTime();
 	
-	if (LibraryExists("SteamWorks"))
-		UpdateVersion();
+	if (g_bUpdatePlugin)
+	{
+		if (LibraryExists("SteamWorks"))
+			UpdateVersion();
+	}
 }
 
 public void OnClientPostAdminCheck(int iClient)
@@ -487,15 +491,15 @@ public SMCResult NewSection(SMCParser Smc, const char[] sName, bool bOpt_quotes)
 {
 	if(sName[0])
 	{
-		if(strcmp("Config", sName, false) == 0)
+		if(!strcmp("Config", sName, false))
 			g_iConfigState = ConfigState_Config;
-		else if(strcmp("MuteReasons", sName, false) == 0)
+		else if(!strcmp("MuteReasons", sName, false))
 			g_iConfigState = ConfigState_Reason_Mute;
-		else if(strcmp("BanReasons", sName, false) == 0)
+		else if(!strcmp("BanReasons", sName, false))
 			g_iConfigState = ConfigState_Reason_Ban;
-		else if(strcmp("HackingReasons", sName, false) == 0)
+		else if(!strcmp("HackingReasons", sName, false))
 			g_iConfigState = ConfigState_Reason_Hacking;
-		else if(strcmp("Time", sName, false) == 0)
+		else if(!strcmp("Time", sName, false))
 			g_iConfigState = ConfigState_Time;
 		else
 			g_iConfigState = ConfigState_Non;
@@ -516,100 +520,107 @@ public SMCResult KeyValue(SMCParser Smc, const char[] sKey, const char[] sValue,
 	{
 		case ConfigState_Config:
 		{
-			if(strcmp("DatabasePrefix", sKey, false) == 0) 
+			if(!strcmp("DatabasePrefix", sKey, false)) 
 				strcopy(g_sDatabasePrefix, sizeof(g_sDatabasePrefix), sValue);
-			else if(strcmp("Website", sKey, false) == 0) 
+			else if(!strcmp("Website", sKey, false)) 
 				strcopy(g_sWebsite, sizeof(g_sWebsite), sValue);
-			else if(strcmp("OffTimeFormat", sKey, false) == 0)
+			else if(!strcmp("OffTimeFormat", sKey, false))
 				strcopy(g_sOffFormatTime, sizeof(g_sOffFormatTime), sValue);
-			else if(strcmp("BanFlagPermanent", sKey, false) == 0)
+			else if(!strcmp("BanFlagPermanent", sKey, false))
 				strcopy(g_sBanFlagPermanent, sizeof(g_sBanFlagPermanent), sValue);
-			else if(strcmp("OffMenuNast", sKey, false) == 0)
+			else if(!strcmp("OffMenuNast", sKey, false))
 				strcopy(g_sOffMenuItems, sizeof(g_sOffMenuItems), sValue);
-			else if(strcmp("Addban", sKey, false) == 0)
+			else if(!strcmp("Addban", sKey, false))
 			{
-				if(StringToInt(sValue) == 0)
+				if(!StringToInt(sValue))
 					g_bAddBan = false;
 				else
 					g_bAddBan = true;
 			}
-			else if(strcmp("Unban", sKey, false) == 0)
+			else if(!strcmp("Unban", sKey, false))
 			{
-				if(StringToInt(sValue) == 0)
+				if(!StringToInt(sValue))
 					g_bUnBan = false;
 				else
 					g_bUnBan = true;
 			}
-			else if(strcmp("OffMapClear", sKey, false) == 0)
+			else if(!strcmp("OffMapClear", sKey, false))
 			{
-				if(StringToInt(sValue) == 0)
+				if(!StringToInt(sValue))
 					g_bOffMapClear = false;
 				else
 					g_bOffMapClear = true;
 			}
-			else if(strcmp("Report", sKey, false) == 0)
+			else if(!strcmp("Report", sKey, false))
 			{
-				if(StringToInt(sValue) == 0)
+				if(!StringToInt(sValue))
 					g_bReport = false;
 				else
 					g_bReport = true;
 			}
-			else if(strcmp("BanSayPanel", sKey, false) == 0)
+			else if(!strcmp("BanSayPanel", sKey, false))
 			{
-				if(StringToInt(sValue) == 0)
+				if(!StringToInt(sValue))
 					g_bBanSayPanel = false;
 				else
 					g_bBanSayPanel = true;
 			}
-			else if(strcmp("ActionOnTheMy", sKey, false) == 0)
+			else if(!strcmp("ActionOnTheMy", sKey, false))
 			{
-				if(StringToInt(sValue) == 0)
+				if(!StringToInt(sValue))
 					g_bActionOnTheMy = false;
 				else
 					g_bActionOnTheMy = true;
 			}
-			else if(strcmp("ServerBanTyp", sKey, false) == 0)
+			else if(!strcmp("ServerBanTyp", sKey, false))
 			{
-				if(StringToInt(sValue) == 0)
+				if(!StringToInt(sValue))
 					g_bServerBanTyp = false;
 				else
 					g_bServerBanTyp = true;
 			}
-			else if(strcmp("SourceSleuth", sKey, false) == 0)
+			else if(!strcmp("SourceSleuth", sKey, false))
 			{
-				if(StringToInt(sValue) == 0)
+				if(!StringToInt(sValue))
 					g_bSourceSleuth = false;
 				else
 					g_bSourceSleuth = true;
 			}
-			else if(strcmp("UnMuteUnBan", sKey, false) == 0)
+			else if(!strcmp("UnMuteUnBan", sKey, false))
 			{
-				if(StringToInt(sValue) == 0)
+				if(!StringToInt(sValue))
 					g_bUnMuteUnBan = false;
 				else
 					g_bUnMuteUnBan = true;
 			}
-			else if(strcmp("MassBan", sKey, false) == 0)
+			else if(!strcmp("UpdatePlugin", sKey, false))
+			{
+				if(!StringToInt(sValue))
+					g_bUpdatePlugin = false;
+				else
+					g_bUpdatePlugin = true;
+			}
+			else if(!strcmp("MassBan", sKey, false))
 				g_iMassBan = StringToInt(sValue);
-			else if(strcmp("ServerBanTime", sKey, false) == 0)
+			else if(!strcmp("ServerBanTime", sKey, false))
 				g_iServerBanTime = StringToInt(sValue);
-			else if(strcmp("ServerID", sKey, false) == 0)
+			else if(!strcmp("ServerID", sKey, false))
 				g_iServerID = StringToInt(sValue);
-			else if(strcmp("OffMaxPlayers", sKey, false) == 0)
+			else if(!strcmp("OffMaxPlayers", sKey, false))
 				g_iOffMaxPlayers = StringToInt(sValue);
-			else if(strcmp("RetryTime", sKey, false) == 0)
+			else if(!strcmp("RetryTime", sKey, false))
 				g_fRetryTime = StringToFloat(sValue);
-			else if(strcmp("ShowAdminAction", sKey, false) == 0)
+			else if(!strcmp("ShowAdminAction", sKey, false))
 				g_iShowAdminAction = StringToInt(sValue);
-			else if(strcmp("BasecommTime", sKey, false) == 0)
+			else if(!strcmp("BasecommTime", sKey, false))
 				g_iBasecommTime = StringToInt(sValue);
-			else if(strcmp("BanTypMenu", sKey, false) == 0)
+			else if(!strcmp("BanTypMenu", sKey, false))
 				g_iBanTypMenu = StringToInt(sValue);
-			else if(strcmp("IgnoreBanServer", sKey, false) == 0)
+			else if(!strcmp("IgnoreBanServer", sKey, false))
 				g_iIgnoreBanServer = StringToInt(sValue);
-			else if(strcmp("IgnoreMuteServer", sKey, false) == 0)
+			else if(!strcmp("IgnoreMuteServer", sKey, false))
 				g_iIgnoreMuteServer = StringToInt(sValue);
-			else if(strcmp("AdminUpdateCache", sKey, false) == 0)
+			else if(!strcmp("AdminUpdateCache", sKey, false))
 				g_iAdminUpdateCache = StringToInt(sValue);
 		#if MADEBUG
 			LogToFile(g_sLogConfig,"Loaded config. key \"%s\", value \"%s\"", sKey, sValue);

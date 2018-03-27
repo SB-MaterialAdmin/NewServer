@@ -124,6 +124,13 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		else
 			sValue = "0";
 	}
+	else if(StrEqual("UpdatePlugin", sSetting, false))
+	{
+		if(g_bUpdatePlugin)
+			sValue = "1";
+		else
+			sValue = "0";
+	}
 	else if(StrEqual("AdminUpdateCache", sSetting, false))
 		IntToString(g_iAdminUpdateCache, sValue, sizeof(sValue));
 	else if(StrEqual("IgnoreBanServer", sSetting, false))

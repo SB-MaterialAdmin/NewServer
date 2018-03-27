@@ -387,12 +387,28 @@ void CheckBanInBd(int iClient, int iTarget, int iType, char[] sSteamIp)
 {
 	if (ChekBD(g_dDatabase, "CheckBanInBd"))
 	{
-		char sQuery[560],
+		char sQuery[1024],
+			sServer[256],
 			sWhele[256];
 		if (sSteamIp[0] == 'S')
 			FormatEx(sWhele, sizeof(sWhele), "`type` = 0 AND c.`authid` REGEXP '^STEAM_[0-9]:%s$'", sSteamIp[8]);
 		else
 			FormatEx(sWhele, sizeof(sWhele), "`type` = 1 AND c.`ip` = '%s'", sSteamIp);
+		
+		if (g_iIgnoreBanServer)
+		{
+			if(g_iServerID == -1)
+				FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
+			else
+				IntToString(g_iServerID, sServer, sizeof(sServer));
+		}
+		
+		switch(g_iIgnoreBanServer)
+		{
+			case 0: sServer[0] = '\0';
+			case 1:	Format(sServer, sizeof(sServer), " AND a.`sid` = %s", sServer);
+			case 2: Format(sServer, sizeof(sServer), " AND (a.`sid` = %s OR a.`sid` = 0)", sServer);
+		}
 		
 		FormatEx(sQuery, sizeof(sQuery), "\
 				SELECT  c.`bid`, a.`authid` \
@@ -400,8 +416,8 @@ void CheckBanInBd(int iClient, int iTarget, int iType, char[] sSteamIp)
 				LEFT JOIN `%s_admins` AS a ON a.`aid` = c.`aid` \
 				LEFT JOIN `%s_srvgroups` AS g ON g.`name` = a.`srv_group` \
 				WHERE `RemoveType` IS NULL  AND (%s) \
-				AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())", 
-			g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sWhele);
+				AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())%s", 
+			g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sWhele, sServer);
 
 		DataPack dPack = new DataPack();
 		dPack.WriteCell((!iClient)?0:GetClientUserId(iClient));
@@ -1091,7 +1107,7 @@ void CheckClientBan(int iClient)
 		FormatEx(sQuery, sizeof(sQuery), "\
 				SELECT a.`bid`, a.`length`, a.`created`, a.`reason`, b.`user` FROM `%s_bans` a LEFT JOIN `%s_admins` b ON a.`aid` = b.`aid` \
 				WHERE ((a.`type` = 0 AND a.`authid` REGEXP '^STEAM_[0-9]:%s$') OR (a.`type` = 1 AND a.`ip` = '%s')%s) \
-				AND (a.`length` = 0 OR a.`ends` > UNIX_TIMESTAMP()) AND a.`RemoveType` IS NULL%s LIMIT 0,1", 
+				AND (a.`length` = 0 OR a.`ends` > UNIX_TIMESTAMP()) AND a.`RemoveType` IS NULL%s LIMIT 1", 
 			g_sDatabasePrefix, g_sDatabasePrefix, sSteamID[8], sIp, sSourceSleuth, sServer);
 
 	#if MADEBUG
@@ -1182,7 +1198,7 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any iU
 		FormatEx(sQuery, sizeof(sQuery), "\
 				INSERT INTO `%s_banlog` (`sid` ,`time` ,`name` ,`bid`) \
 				VALUES (%s, UNIX_TIMESTAMP(), '%s', \
-				(SELECT `bid` FROM `%s_bans` WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')%s) AND `RemoveType` IS NULL LIMIT 0,1))", 
+				(SELECT `bid` FROM `%s_bans` WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')%s) AND `RemoveType` IS NULL LIMIT 1))", 
 			g_sDatabasePrefix, sServer, sEName, g_sDatabasePrefix, sSteamID[8], sIP, sSourceSleuth);
 
 	#if MADEBUG
@@ -1264,7 +1280,7 @@ void CheckClientMute(int iClient, char[] sSteamID)
 			LEFT JOIN `%s_admins` AS a ON a.`aid` = c.`aid` \
 			LEFT JOIN `%s_srvgroups` AS g ON g.`name` = a.`srv_group` \
 			WHERE `RemoveType` IS NULL  AND c.`authid` REGEXP '^STEAM_[0-9]:%s$' \
-			AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())%s", 
+			AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())%s LIMIT 1", 
 		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sSteamID[8], sServer);
 
 #if MADEBUG
@@ -1296,7 +1312,7 @@ public void VerifyMute(Database db, DBResultSet dbRs, const char[] sError, any i
 		dbRs.FetchString(4, g_sTargetMuteSteamAdmin[iClient], sizeof(g_sTargetMuteSteamAdmin[]));
 			
 	#if MADEBUG
-		LogToFile(g_sLogDateBase, "CheckClientMute: set %N, time %d, type %d", iClient, iTime, iType);
+		LogToFile(g_sLogDateBase, "CheckClientMute: set %N, time %d, end time %d, type %d", iClient, iTime, iEndTime, iType);
 	#endif
 			
 		g_iTargetMuteType[iClient] = iType;
@@ -1304,7 +1320,7 @@ public void VerifyMute(Database db, DBResultSet dbRs, const char[] sError, any i
 		if(!iTime)
 			g_iTargenMuteTime[iClient] = iTime;
 		else
-			g_iTargenMuteTime[iClient] = iEndTime + GetTime();
+			g_iTargenMuteTime[iClient] = iEndTime;
 		
 		FireOnClientConnectGetMute(iClient, iType, g_iTargenMuteTime[iClient], g_sTargetMuteReason[iClient]);
 		
@@ -1928,12 +1944,12 @@ public Action OnBanClient(int iClient, int iTime, int iFlags, const char[] sReas
 		g_bOnileTarget[0] = false;
 		if (iFlags & BANFLAG_AUTO || iFlags & BANFLAG_AUTHID)
 		{
-			CheckBanInBd(0, iClient, 1, g_sTarget[0][TSTEAMID]);
+			CheckBanInBd(0, 0, 1, g_sTarget[0][TSTEAMID]);
 			g_iTargetType[0] = TYPE_BAN;
 		}
 		else if (iFlags & BANFLAG_IP)
 		{
-			CheckBanInBd(0, iClient, 1, g_sTarget[0][TIP]);
+			CheckBanInBd(0, 0, 1, g_sTarget[0][TIP]);
 			g_iTargetType[0] = TYPE_BANIP;
 		}
 	}

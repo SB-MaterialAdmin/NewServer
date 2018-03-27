@@ -107,8 +107,7 @@ void ShowAdminAction(int iClient, const char[] sMesag, any ...)
 //-----------------------------------------------------------------------------
 bool CheckAdminFlags(int iClient, int iFlag)
 {
-	int iUserFlags = GetUserFlagBits(iClient);
-	if (iUserFlags & (ADMFLAG_ROOT | iFlag))
+	if (GetUserFlagBits(iClient) & (ADMFLAG_ROOT | iFlag))
 		return true;
 	else
 		return false;
@@ -324,8 +323,7 @@ int GetAdminWebAcces(int iFlag, int iTipe)
 				return 6; // разбан своих
 		}
 	}
-	else
-		return 0; // нет прав
+
 	return 0; // нет прав
 }
 
