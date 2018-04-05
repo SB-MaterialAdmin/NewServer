@@ -54,14 +54,13 @@ void RegComands()
 
 public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[] sArgs)
 {
+	if (!iClient)
+		return Plugin_Continue;
+	
 	if (g_iTargetMuteType[iClient] > 1)
 	{
 		char sLength[128];
-		if (g_iTargenMuteTime[iClient] > 0)
-			FormatVrema(iClient, g_iTargenMuteTime[iClient] - GetTime(), sLength, sizeof(sLength));
-		else
-			FormatVrema(iClient, g_iTargenMuteTime[iClient], sLength, sizeof(sLength));
-		
+		FormatVrema(iClient, g_iTargenMuteTime[iClient], sLength, sizeof(sLength));
 		PrintToChat2(iClient, "%T", "Target no text chat", iClient, sLength, g_sTargetMuteReason[iClient]);
 		return Plugin_Handled;
 	}
@@ -817,6 +816,7 @@ public Action CommandWMute(int iArgc)
 	char sArgs[256],
 		sArg[4][264];
 	GetCmdArgString(sArgs, sizeof(sArgs));
+	// ma_wb_mute type time steam reason
 
 	int iType, iTime;
 	if (ExplodeString(sArgs, " ", sArg, 4, 264) != 4 || !StringToIntEx(sArg[0], iType) || iType < 1 || iType > 4 || !StringToIntEx(sArg[1], iTime))
@@ -857,6 +857,7 @@ public Action CommandWUnMute(int iArgc)
 	char sArgs[256],
 		sArg[2][64];
 	GetCmdArgString(sArgs, sizeof(sArgs));
+	// ma_wb_unmute type steam
 
 	int iType;
 	if (ExplodeString(sArgs, " ", sArg, 2, 64) != 2 || !StringToIntEx(sArg[0], iType) || iType < 1 || iType > 4)
@@ -892,6 +893,7 @@ public Action CommandWBan(int iArgc)
 	char sArgs[256],
 		sArg[1][64];
 	GetCmdArgString(sArgs, sizeof(sArgs));
+	// ma_wb_ban steam
 
 	if (!ExplodeString(sArgs, " ", sArg, 1, 64))
 	{

@@ -713,6 +713,8 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				bSet = true;
 			if (iTarget && g_iTargenMuteTime[iTarget] == -1)
 				bSet = false;
+			
+			bool bUnMute = IsUnMuteUnBan(iClient, g_sTarget[iClient][TSTEAMID]);
 
 			switch(g_iTargetType[iClient])
 			{
@@ -723,11 +725,22 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 					{
 						if (g_iTargetMuteType[iTarget] == TYPEMUTE)
 						{
-							FormatEx(sQuery, sizeof(sQuery), "\
-									UPDATE `%s_comms` \
-									SET `type` = 3 , `aid` = %s, `adminIp` = '%s', `sid` = %s \
-									WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-								g_sDatabasePrefix, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							if (bUnMute)
+							{
+								FormatEx(sQuery, sizeof(sQuery), "\
+										UPDATE `%s_comms` \
+										SET `type` = 3 , `aid` = %s, `adminIp` = '%s', `sid` = %s \
+										WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+									g_sDatabasePrefix, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							}
+							else
+							{
+								FormatEx(sQuery, sizeof(sQuery), "\
+										UPDATE `%s_comms` \
+										SET `type` = 3, `sid` = %s \
+										WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+									g_sDatabasePrefix, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							}
 
 							bSetQ = false;
 						}
@@ -760,11 +773,22 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 					{
 						if (g_iTargetMuteType[iTarget] == TYPEGAG)
 						{
-							FormatEx(sQuery, sizeof(sQuery), "\
-									UPDATE `%s_comms` \
-									SET `type` = 3 , `aid` = %s, `adminIp` = '%s', `sid` = %s \
-									WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-								g_sDatabasePrefix, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							if (bUnMute)
+							{
+								FormatEx(sQuery, sizeof(sQuery), "\
+										UPDATE `%s_comms` \
+										SET `type` = 3 , `aid` = %s, `adminIp` = '%s', `sid` = %s \
+										WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+									g_sDatabasePrefix, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							}
+							else
+							{
+								FormatEx(sQuery, sizeof(sQuery), "\
+										UPDATE `%s_comms` \
+										SET `type` = 3, `sid` = %s \
+										WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
+									g_sDatabasePrefix, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+							}
 							
 							bSetQ = false;
 						}
@@ -799,9 +823,10 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 						{
 							FormatEx(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` \
-									SET `type` = 3 , `aid` = %s, `adminIp` = '%s', `sid` = %s \
+									SET `type` = 3, `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
+									`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
 									WHERE `type` = 2 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-								g_sDatabasePrefix, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+								g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
 							
 							bSetQ = false;
 						}
@@ -809,9 +834,10 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 						{
 							FormatEx(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` \
-									SET `type` = 3 , `aid` = %s, `adminIp` = '%s', `sid` = %s \
+									SET `type` = 3, `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
+									`length` = %d, `aid` = %s, `adminIp` = '%s', `sid` = %s \
 									WHERE `type` = 1 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND %s", 
-								g_sDatabasePrefix, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
+								g_sDatabasePrefix, sReason, iTime, iTime, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
 							
 							bSetQ = false;
 						}
