@@ -615,7 +615,7 @@ public int MenuHandler_MenuTypeMute(Menu Mmenu, MenuAction mAction, int iClient,
 				if (g_iTargetMuteType[iTarget] > 0 && !iUn)
 				{
 					g_sTarget[iClient][TREASON] = g_sTargetMuteReason[iTarget];
-					g_iTarget[iClient][TTIME] = g_iTargenMuteTime[iTarget];
+					g_iTarget[iClient][TTIME] = g_iTargenMuteTime[iTarget]/60;
 					OnlineClientSet(iClient);
 				}
 				else

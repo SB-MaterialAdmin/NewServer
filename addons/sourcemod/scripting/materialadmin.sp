@@ -405,6 +405,9 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	g_bSayReasonReport[iClient] = false;
 	g_bReportReason[iClient] = false;
 	g_iTargetMuteType[iClient] = 0;
+	g_sTargetMuteReason[iClient][0] = '\0';
+	g_sTargetMuteSteamAdmin[iClient][0] = '\0';
+	g_iTargenMuteTime[iClient] = 0;
 	KillTimerMute(iClient);
 	KillTimerGag(iClient);
 	

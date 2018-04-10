@@ -309,9 +309,9 @@ public void SQL_Callback_GetMuteType(Database db, DBResultSet dbRs, const char[]
 
 #if MADEBUG
 	if(iTarget && IsClientInGame(iTarget))
-		LogToFile(g_sLogDateBase, "GetMuteType:%N: %d", iTarget, g_iTargetMuteType[iTarget]);
+		LogToFile(g_sLogDateBase, "GetMuteType:%N: %d %s", iTarget, g_iTargetMuteType[iTarget], g_sTargetMuteSteamAdmin[iTarget]);
 	else
-		LogToFile(g_sLogDateBase, "GetMuteType:%d: %d", iTarget, g_iTargetMuteType[iTarget]);
+		LogToFile(g_sLogDateBase, "GetMuteType:%d: %d %s", iTarget, g_iTargetMuteType[iTarget], g_sTargetMuteSteamAdmin[iTarget]);
 #endif
 
 	ShowTypeMuteMenu(iClient);
@@ -606,9 +606,6 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 		GetClientAuthId(iTarget, TYPE_STEAM, g_sTarget[iClient][TSTEAMID], sizeof(g_sTarget[][]));
 		GetClientIP(iTarget, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
 		GetClientName(iTarget, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
-		
-		if (g_iTargetType[iClient] >= TYPE_GAG && g_iTargetType[iClient] <= TYPE_SILENCE)
-			strcopy(g_sTargetMuteSteamAdmin[iTarget], sizeof(g_sTargetMuteSteamAdmin[]), sAdmin_SteamID);
 	}
 	else
 	{
@@ -714,7 +711,18 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 			if (iTarget && g_iTargenMuteTime[iTarget] == -1)
 				bSet = false;
 			
-			bool bUnMute = IsUnMuteUnBan(iClient, g_sTarget[iClient][TSTEAMID]);
+			bool bUnMute = true;
+			
+			if (g_iTargetMuteType[iTarget])
+			{
+				bUnMute = IsUnMuteUnBan(iClient, g_sTargetMuteSteamAdmin[iTarget]);
+				if (!bUnMute)
+					iTime = g_iTargenMuteTime[iTarget];
+				else
+					strcopy(g_sTargetMuteSteamAdmin[iTarget], sizeof(g_sTargetMuteSteamAdmin[]), sAdmin_SteamID);
+			}
+			else
+				strcopy(g_sTargetMuteSteamAdmin[iTarget], sizeof(g_sTargetMuteSteamAdmin[]), sAdmin_SteamID);
 
 			switch(g_iTargetType[iClient])
 			{
@@ -866,10 +874,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 			}
 			if (iTarget)
 			{
-				if (iTime > 0)
-					g_iTargenMuteTime[iTarget] = iCreated + iTime;
-				else
-					g_iTargenMuteTime[iTarget] = iTime;
+				g_iTargenMuteTime[iTarget] = iTime;
 				strcopy(g_sTargetMuteReason[iTarget], sizeof(g_sTargetMuteReason[]), g_sTarget[iClient][TREASON]);
 			}
 			if(bSetQ)
