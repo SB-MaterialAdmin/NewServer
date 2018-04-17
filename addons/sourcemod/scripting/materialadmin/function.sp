@@ -88,6 +88,13 @@ void ShowAdminAction(int iClient, const char[] sMesag, any ...)
 			else
 				strcopy(sNameShow, sizeof(sNameShow), "Server");
 		}
+		case 3: 
+		{
+			if (iClient)
+				GetClientName(iClient, sName, sizeof(sName));
+			else
+				return;
+		}
 	}
  
 	for (int i = 1; i <= MaxClients; i++)

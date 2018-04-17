@@ -166,7 +166,7 @@ public void ShowTargetOffline(Database db, DBResultSet dbRs, const char[] sError
 	
 	Menu Mmenu = new Menu(MenuHandler_OfflineList);
 	Mmenu.SetTitle("%T:", "SelectPlayerTitle", iClient);
-	char sTitle[128];
+	char sTitle[256];
 
 	if (dbRs.RowCount)
 	{
@@ -304,8 +304,8 @@ void ShowTargetOnline(int iClient)
 
 void AdminMenuAddClients(Menu Mmenu, int iClient, int iTarget, int iMassBan)
 {
-	char sTitle[128],
-		sBuffer[128],
+	char sTitle[256],
+		sBuffer[256],
 		sOption[32];
 	int iUserId = GetClientUserId(iTarget);
 	IntToString(iUserId, sOption, sizeof(sOption));
@@ -750,7 +750,7 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 		}
 		case MenuAction_Select:
 		{
-			char sInfo[128];
+			char sInfo[256];
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
 			if(StrEqual("Hacking", sInfo))
 			{
@@ -793,7 +793,7 @@ public int MenuHandler_MenuMReason(Menu Mmenu, MenuAction mAction, int iClient, 
 		}
 		case MenuAction_Select:
 		{
-			char sInfo[128];
+			char sInfo[256];
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
 			if(StrEqual("Own Reason", sInfo))
 			{
@@ -827,7 +827,7 @@ public int MenuHandler_MenuHacking(Menu Mmenu, MenuAction mAction, int iClient, 
 		}
 		case MenuAction_Select:
 		{
-			char sInfo[128];
+			char sInfo[256];
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
 			
 		#if MADEBUG
@@ -865,7 +865,7 @@ void OnlineClientSet(int iClient)
 
 void ShowTargetList(int iClient)
 {
-	char sTitle[192];
+	char sTitle[256];
 	bool bIsClien = false;
 	
 	Menu Mmenu = new Menu(MenuHandler_TargetList);
@@ -964,8 +964,8 @@ void ShowInfoMuteMenu(int iClient, int iCreated, int iEnds, int iLength, char[] 
 		return;
 
 	int iTarget = GetClientOfUserId(g_aUserId[iClient].Get(0));
-	char sTitle[192],
-		sBuffer[56];
+	char sTitle[256],
+		sBuffer[64];
 
 	Menu Mmenu = new Menu(MenuHandler_InfoMute);
 	if (iTarget)

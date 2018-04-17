@@ -212,13 +212,15 @@ public int Native_BanPlayer(Handle plugin, int numParams)
 	if (!iTarget || !IsClientInGame(iTarget))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player no game.");
 	
-	char sSteamIp[MAX_IP_LENGTH];
+	GetClientAuthId(iTarget, TYPE_STEAM, g_sTarget[iClient][TSTEAMID], sizeof(g_sTarget[][]));
+	GetClientIP(iTarget, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
+	GetClientName(iTarget, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
+
 	if (iType == MA_BAN_STEAM)
-		GetClientAuthId(iTarget, TYPE_STEAM, sSteamIp, sizeof(sSteamIp));
+		CheckBanInBd(iClient, 0, 1, g_sTarget[iClient][TSTEAMID]);
 	else
-		GetClientIP(iTarget, sSteamIp, sizeof(sSteamIp));
-	
-	CheckBanInBd(iClient, iTarget, 1, sSteamIp);
+		CheckBanInBd(iClient, 0, 1, g_sTarget[iClient][TIP]);	
+
 	return true;
 }
 

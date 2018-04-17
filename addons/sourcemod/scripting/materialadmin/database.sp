@@ -359,7 +359,7 @@ public void SQL_Callback_GetInfoMute(Database db, DBResultSet dbRs, const char[]
 		iEnds,
 		iLength;
 		
-	char sReason[126],
+	char sReason[256],
 		sNameAdmin[MAX_NAME_LENGTH];
 
 	if (dbRs.FetchRow())

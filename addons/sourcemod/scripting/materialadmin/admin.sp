@@ -39,7 +39,7 @@ public int OnRebuildAdminCache(AdminCachePart acPart)
 public void OnRebuildAdminCache(AdminCachePart acPart)
 #endif
 {
-	if (g_iAdminUpdateCache == 3 && g_dDatabase)
+	if (g_iAdminUpdateCache == 2 && g_dDatabase)
 		AdminHash();
 	else
 	{

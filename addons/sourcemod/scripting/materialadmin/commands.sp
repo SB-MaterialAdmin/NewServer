@@ -430,7 +430,7 @@ public Action CommandGag(int iClient, int iArgc)
 		return Plugin_Handled;
 	}
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
 	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
@@ -461,7 +461,7 @@ public Action CommandMute(int iClient, int iArgc)
 		return Plugin_Handled;
 	}
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
 	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
@@ -493,7 +493,7 @@ public Action CommandSil(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
 	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
@@ -525,7 +525,7 @@ public Action CommandUnGag(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	SBGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
 	
@@ -549,7 +549,7 @@ public Action CommandUnMute(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	SBGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
 	
@@ -573,7 +573,7 @@ public Action CommandUnSil(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	SBGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
 	
@@ -598,7 +598,7 @@ public Action CommandBan(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
 	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
@@ -630,7 +630,7 @@ public Action CommandBanIp(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
 	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
@@ -665,7 +665,7 @@ public Action CommandAddBan(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[256];	
+		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
 	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
@@ -738,7 +738,7 @@ public Action CommandUnBan(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[4096];	
+		sBuffer[512];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	SBGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
 	
@@ -813,7 +813,7 @@ public Action CommandWRehashAdm(int iArgc)
 
 public Action CommandWMute(int iArgc)
 {
-	char sArgs[256],
+	char sArgs[356],
 		sArg[4][264];
 	GetCmdArgString(sArgs, sizeof(sArgs));
 	// ma_wb_mute type time steam reason
@@ -854,7 +854,7 @@ public Action CommandWMute(int iArgc)
 
 public Action CommandWUnMute(int iArgc)
 {
-	char sArgs[256],
+	char sArgs[356],
 		sArg[2][64];
 	GetCmdArgString(sArgs, sizeof(sArgs));
 	// ma_wb_unmute type steam
@@ -890,7 +890,7 @@ public Action CommandWUnMute(int iArgc)
 
 public Action CommandWBan(int iArgc)
 {
-	char sArgs[256],
+	char sArgs[356],
 		sArg[1][64];
 	GetCmdArgString(sArgs, sizeof(sArgs));
 	// ma_wb_ban steam

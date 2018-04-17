@@ -30,7 +30,7 @@
 #define	BDCONNECT_COM		2
 #define	BDCONNECT_MENU		3
 
-char g_sTarget[MAXPLAYERS+1][4][125];
+char g_sTarget[MAXPLAYERS+1][4][256];
 #define TNAME 		0 	// Name
 #define TIP 		1	// ip
 #define TSTEAMID 	2 	// steam
@@ -53,7 +53,7 @@ int g_iTargetType[MAXPLAYERS+1];
 #define TYPE_UNSILENCE	10
 
 int g_iTargenMuteTime[MAXPLAYERS+1];
-char g_sTargetMuteReason[MAXPLAYERS+1][125],
+char g_sTargetMuteReason[MAXPLAYERS+1][256],
 	g_sTargetMuteSteamAdmin[MAXPLAYERS+1][MAX_STEAMID_LENGTH],
 	g_sNameReples[2][MAX_NAME_LENGTH];
 
