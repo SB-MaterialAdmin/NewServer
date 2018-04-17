@@ -217,9 +217,9 @@ public int Native_BanPlayer(Handle plugin, int numParams)
 	GetClientName(iTarget, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
 
 	if (iType == MA_BAN_STEAM)
-		CheckBanInBd(iClient, 0, 1, g_sTarget[iClient][TSTEAMID]);
+		CheckBanInBd(iClient, iTarget, 1, g_sTarget[iClient][TSTEAMID]);
 	else
-		CheckBanInBd(iClient, 0, 1, g_sTarget[iClient][TIP]);	
+		CheckBanInBd(iClient, iTarget, 1, g_sTarget[iClient][TIP]);	
 
 	return true;
 }
