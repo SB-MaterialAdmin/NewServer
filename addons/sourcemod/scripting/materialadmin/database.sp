@@ -1400,6 +1400,9 @@ void AdminHash()
 	}
 	else
 	{
+		DumpAdminCache(AdminCache_Groups, true);
+		DumpAdminCache(AdminCache_Overrides, true);
+		DumpAdminCache(AdminCache_Admins, true);
 		ReadOverrides();
 		ReadGroups();
 		ReadUsers();

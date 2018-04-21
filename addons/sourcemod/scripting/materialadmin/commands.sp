@@ -16,6 +16,8 @@ void RegComands()
 	RegAdminCmd("sm_unmute", 		CommandUnMute, 		ADMFLAG_CHAT, 	"Un mute client");
 	RegAdminCmd("sm_unsilence", 	CommandUnSil, 		ADMFLAG_CHAT, 	"Un silence client");
 	
+	AddCommandListener(LCommandRehashAdm, "sm_reloadadmins");
+	
 	// добавлене и удаление админа
 	RegAdminCmd("ma_addadmin", 		CommandAddAdmin, 	ADMFLAG_ROOT, 	"Add admin");
 	RegAdminCmd("ma_addadminoff", 	CommandAddAdminOff, ADMFLAG_ROOT, 	"Add admin off");
@@ -780,6 +782,22 @@ public Action CommandUnBan(int iClient, int iArgc)
 }
 
 public Action CommandRehashAdm(int iClient, int iArgc)
+{
+	g_bReshashAdmin = true;
+#if MADEBUG
+	LogToFile(g_sLogAction, "Rehash Admin cl com.");
+#endif
+	if (g_dDatabase)
+	{
+		AdminHash();
+		ReplyToCommand(iClient, "Rehash Admin");
+	}
+	else
+		ReplyToCommand(iClient, "No connect bd");
+	return Plugin_Handled;
+}
+
+public Action LCommandRehashAdm(int iClient, const char[] sCommand, int iArgc)
 {
 	g_bReshashAdmin = true;
 #if MADEBUG

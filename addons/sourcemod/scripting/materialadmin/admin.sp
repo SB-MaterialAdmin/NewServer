@@ -39,16 +39,11 @@ public int OnRebuildAdminCache(AdminCachePart acPart)
 public void OnRebuildAdminCache(AdminCachePart acPart)
 #endif
 {
-	if (g_iAdminUpdateCache == 2 && g_dDatabase)
-		AdminHash();
-	else
+	switch(acPart)
 	{
-		switch(acPart)
-		{
-			case AdminCache_Overrides: 	ReadOverrides();
-			case AdminCache_Groups: 	ReadGroups();
-			case AdminCache_Admins: 	ReadUsers();
-		}
+		case AdminCache_Overrides: 	ReadOverrides();
+		case AdminCache_Groups: 	ReadGroups();
+		case AdminCache_Admins: 	ReadUsers();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
