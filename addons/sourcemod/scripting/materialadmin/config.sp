@@ -10,6 +10,7 @@ enum ConfigState
 }
 ConfigState g_iConfigState = ConfigState_Non;
 
+//получение значений конфига
 void ReadConfig()
 {
 	if (!g_smcTimeReasonParser)
