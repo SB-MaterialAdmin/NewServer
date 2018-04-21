@@ -564,8 +564,8 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 #endif
 	
 	char sBanName[MAX_NAME_LENGTH*2+1],
-		 sQuery[1024],
-		 sReason[256],
+		 sQuery[1524],
+		 sReason[516],
 		 sLog[1024],
 		 sLength[64],
 		 sAdmin_SteamID[MAX_STEAMID_LENGTH],
@@ -1024,7 +1024,7 @@ public void CreateBdCallback(Database db, DBResultSet dbRs, const char[] sError,
 		LogToFile(g_sLogDateBase, "CreateBdCallback Query Failed: %s", sError);
 		if (sError[0] == 'C' || sError[0] == 'L')
 		{
-			char sQuery[1024];
+			char sQuery[1524];
 			dPack.ReadString(sQuery, sizeof(sQuery));
 			BekapStart(sQuery);
 		}
@@ -1081,7 +1081,6 @@ public void SQL_TxnCallback_Success(Database db, any data, int iNumQueries, DBRe
 
 public void SQL_TxnCallback_Failure(Database db, any data, int iNumQueries, const char[] sError, int iFailIndex, any[] QueryData)
 {
-	//неверно переписать!!!!!!!!!!!!!
 	DataPack dPack = view_as<DataPack>(QueryData[iFailIndex]);
 	dPack.Reset();
 	int iClient = GetClientOfUserId(dPack.ReadCell());
