@@ -647,8 +647,8 @@
 	"say set pass next expire"
 	{
 		"#format"		"{1:s}"
-		"en"			"The password {1} is accepted, now write admin time"
-		"ru"			"Пароль {1} принят, теперь напишите на сколько админка"
+		"en"			"The password {1} is accepted, now write admin time (min.)"
+		"ru"			"Пароль {1} принят, теперь напишите на сколько админка в минутах"
 	}
 	"Failed expire"
 	{
@@ -658,8 +658,8 @@
 	"say set expire"
 	{
 		"#format"		"{1:s}"
-		"en"			"Admin time {1} accepted" 
-		"ru"			"Время админки {1} принято"
+		"en"			"Admin time ({1}) accepted" 
+		"ru"			"Время админки ({1}) принято"
 	}
 	"Failed add admin"
 	{

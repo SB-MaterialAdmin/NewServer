@@ -312,7 +312,7 @@ void AdminMenuAddClients(Menu Mmenu, int iClient, int iTarget, int iMassBan)
 
 	if(iMassBan)
 	{
-		if (g_aUserId[iClient])
+		if (g_aUserId[iClient] != null)
 		{
 			int iPos = g_aUserId[iClient].FindValue(iUserId);
 			if (iPos > -1)
@@ -1076,7 +1076,7 @@ void ShowSettingAdmin(int iClient)
 		if (iFlag < 4)
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%T", "add admin", iClient);
-			if (g_dDatabase)
+			if (g_dDatabase != null)
 				Mmenu.AddItem("", sTitle);
 			else
 				Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
@@ -1084,7 +1084,7 @@ void ShowSettingAdmin(int iClient)
 		if (iFlag != 3)
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%T", "del admin", iClient);
-			if (g_dDatabase)
+			if (g_dDatabase != null)
 				Mmenu.AddItem("", sTitle);
 			else
 				Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);

@@ -13,7 +13,7 @@ ConfigState g_iConfigState = ConfigState_Non;
 //получение значений конфига
 void ReadConfig()
 {
-	if (!g_smcTimeReasonParser)
+	if (g_smcTimeReasonParser == null)
 		g_smcTimeReasonParser = new SMCParser();
 	
 	g_smcTimeReasonParser.OnEnterSection = NewSectionReason;
@@ -61,7 +61,7 @@ void ReadConfig()
 		SetFailState("%sCan not find %s", MAPREFIX, sConfigFile);
 	}
 	
-	if (!g_smcConfigParser)
+	if (g_smcConfigParser == null)
 		g_smcConfigParser = new SMCParser();
 	
 	g_smcConfigParser.OnEnterSection = NewSectionConfig;

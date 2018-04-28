@@ -1169,7 +1169,7 @@ void AddSilence(int iClient, int iTime)
 //----------------------------------------------------------------------------------------------
 void KillTimerBekap()
 {
-	if (g_hTimerBekap)
+	if (g_hTimerBekap != null)
 	{
 		KillTimer(g_hTimerBekap);
 		g_hTimerBekap = null;

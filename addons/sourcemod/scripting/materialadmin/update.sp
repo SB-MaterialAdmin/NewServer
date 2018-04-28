@@ -3,7 +3,7 @@ void UpdateVersion()
 	LogMessage("Try retrieve latest version...");
 	Handle hRequest = SteamWorks_CreateHTTPRequest(k_EHTTPMethodGET, "https://raw.githubusercontent.com/SB-MaterialAdmin/NewServer/master/updates.version");
 
-	if (hRequest)
+	if (hRequest != null)
 	{
 		if (SteamWorks_SetHTTPCallbacks(hRequest, OnRequestFinished) == false || SteamWorks_SendHTTPRequest(hRequest) == false) 
 		{

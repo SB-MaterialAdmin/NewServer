@@ -95,7 +95,7 @@ public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[
 	if (g_bAdminAdd[iClient][ADDIMUN])
 	{
 		int iImun = StringToInt(sArgs);
-		if (iImun > -1 && iImun < 100)
+		if (SimpleRegexMatch(sArgs, "^[0-9]+$") > 0 && iImun > -1 && iImun < 100)
 		{
 			g_bAdminAdd[iClient][ADDIMUN] = false;
 			g_iAddAdmin[iClient][ADDIMUN] = iImun;
@@ -117,14 +117,20 @@ public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[
 	if (g_bAdminAdd[iClient][ADDTIME])
 	{
 		int iTime = StringToInt(sArgs);
-		if (iTime < 0)
-			PrintToChat2(iClient, "%T", "Failed expire", iClient);
-		else
+		if (SimpleRegexMatch(sArgs, "^[0-9]+$") > 0 && iTime >= 0)
 		{
-			g_iAddAdmin[iClient][ADDTIME] = iTime;
-			PrintToChat2(iClient, "%T", "say set expire", iClient, sArgs);
+			if (!iTime)
+				g_iAddAdmin[iClient][ADDTIME] = iTime;
+			else
+				g_iAddAdmin[iClient][ADDTIME] = GetTime() + iTime*60;
+			g_bAdminAdd[iClient][ADDTIME] = false;
+			char sLength[128];
+			FormatVrema(iClient, iTime*60, sLength, sizeof(sLength));
+			PrintToChat2(iClient, "%T", "say set expire", iClient, sLength);
 			BDAddAdmin(iClient); // добавление админа в бд
 		}
+		else
+			PrintToChat2(iClient, "%T", "Failed expire", iClient);
 
 		return Plugin_Handled;
 	}
@@ -221,7 +227,7 @@ public Action CommandAddAdmin(int iClient, int iArgc)
 	}
 	
 	int iImun = StringToInt(sImun);
-	if (iImun < 0 || iImun > 100)
+	if (SimpleRegexMatch(sImun, "^[0-9]+$") < 0 || iImun < 0 || iImun > 100)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed imune", iClient);
 		return Plugin_Handled;
@@ -240,7 +246,7 @@ public Action CommandAddAdmin(int iClient, int iArgc)
 	}
 	
 	int iTime = StringToInt(sExpire);
-	if (iTime < 0)
+	if (SimpleRegexMatch(sExpire, "^[0-9]+$") < 0 || iTime < 0)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed expire", iClient);
 		return Plugin_Handled;
@@ -314,7 +320,7 @@ public Action CommandAddAdminOff(int iClient, int iArgc)
 	}
 	
 	int iImun = StringToInt(sImun);
-	if (iImun > 100 || iImun < 0)
+	if (SimpleRegexMatch(sImun, "^[0-9]+$") < 0 || iImun > 100 || iImun < 0)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed imune", iClient);
 		return Plugin_Handled;
@@ -333,7 +339,7 @@ public Action CommandAddAdminOff(int iClient, int iArgc)
 	}
 	
 	int iTime = StringToInt(sExpire);
-	if (iTime < 0)
+	if (SimpleRegexMatch(sExpire, "^[0-9]+$") < 0 || iTime < 0)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed expire", iClient);
 		return Plugin_Handled;
@@ -787,7 +793,7 @@ public Action CommandRehashAdm(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction, "Rehash Admin cl com.");
 #endif
-	if (g_dDatabase)
+	if (g_dDatabase != null)
 	{
 		AdminHash();
 		ReplyToCommand(iClient, "Rehash Admin");
@@ -803,13 +809,17 @@ public Action LCommandRehashAdm(int iClient, const char[] sCommand, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction, "Rehash Admin cl com.");
 #endif
-	if (g_dDatabase)
+	if (g_dDatabase != null)
 	{
 		AdminHash();
-		ReplyToCommand(iClient, "Rehash Admin");
+		if (iClient >= 0)
+			ReplyToCommand(iClient, "Rehash Admin");
 	}
 	else
-		ReplyToCommand(iClient, "No connect bd");
+	{
+		if (iClient >= 0)
+			ReplyToCommand(iClient, "No connect bd");
+	}
 	return Plugin_Handled;
 }
 //------------------------------------------------------------------------------------------------------------------------
@@ -819,7 +829,7 @@ public Action CommandWRehashAdm(int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction, "Rehash Admin web com.");
 #endif
-	if (g_dDatabase)
+	if (g_dDatabase != null)
 	{
 		AdminHash();
 		ReplyToCommand(0, "Rehash Admin");

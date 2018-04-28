@@ -329,7 +329,7 @@ public void OnConfigsExecuted()
 	{
 		LogOn();
 		ReadConfig();
-		if (g_iAdminUpdateCache && g_dDatabase)
+		if (g_iAdminUpdateCache && g_dDatabase != null)
 			AdminHash();
 		/*if (g_iAdminUpdateCache)
 			ConnectBd(BDCONNECT_ADMIN, 0);
@@ -361,7 +361,7 @@ public void OnClientPostAdminCheck(int iClient)
 
 	if(!g_bNewConnect[iClient])
 	{
-		if (g_dDatabase)
+		if (g_dDatabase != null)
 			CheckClientBan(iClient);
 		else
 		{

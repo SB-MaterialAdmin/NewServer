@@ -14,7 +14,7 @@ void MAConnectDB()
 
 void ConnectBd(int iType, int iClient)
 {
-	if (g_dDatabase)
+	if (g_dDatabase != null)
 	{
 		delete g_dDatabase;
 		g_dDatabase = null;
@@ -53,12 +53,15 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 	int iClient = GetClientOfUserId(dPack.ReadCell());
 	int iType = dPack.ReadCell();
 
-	if (g_dDatabase)
+	if (g_dDatabase != null)
 	{
 		SQL_LockDatabase(g_dDatabase);
 		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
 		SQL_UnlockDatabase(g_dDatabase);
 		//g_dDatabase.SetCharset("utf8");
+	#if MADEBUG
+		LogToFile(g_sLogDateBase, "ConnectBd: yes");
+	#endif
 		switch(iType)
 		{
 			case BDCONNECT_ADMIN: 	AdminHash();
@@ -70,9 +73,6 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 			}
 		}
 		KillTimerBekap();
-	#if MADEBUG
-		LogToFile(g_sLogDateBase, "ConnectBd: yes");
-	#endif
 	}
 	else
 	{
@@ -124,7 +124,7 @@ void CreateTables()
 //------------------------------------------------------------------------------------------------------------
 bool ChekBD(Database db, char[] sBuffer)
 {
-	if (!db)
+	if (db == null)
 	{
 		LogToFile(g_sLogDateBase, "No connect Database: %s", sBuffer);
 		return false;
@@ -2143,7 +2143,7 @@ public void CallbackCheckAdmin(Database db, DBResultSet dbRs, const char[] sErro
 			else
 				sGroup[0] = '\0';
 
-			BDAddServerAdmin(iClient, iId, sGroup); // добавляется просто админ на сервер.
+			BDAddServerAdmin(iClient, iId, sGroup, sizeof(sGroup)); // добавляется просто админ на сервер.
 		}
 		else
 		{
@@ -2158,12 +2158,12 @@ public void CallbackCheckAdmin(Database db, DBResultSet dbRs, const char[] sErro
 	}
 }
 
-void BDAddServerAdmin(int iClient, int iId, char[] sGroup)
+void BDAddServerAdmin(int iClient, int iId, char[] sGroup, int iLine)
 {
 	if(sGroup[0])
-		Format(sGroup, 124, "IFNULL ((SELECT `id` FROM `%s_srvgroups` WHERE `name` = '%s' LIMIT 1), -1)", g_sDatabasePrefix, sGroup);
+		Format(sGroup, iLine, "IFNULL ((SELECT `id` FROM `%s_srvgroups` WHERE `name` = '%s' LIMIT 1), -1)", g_sDatabasePrefix, sGroup);
 	else
-		strcopy(sGroup, 124, "-1");
+		strcopy(sGroup, iLine, "-1");
 	
 	char sServer[256],
 		 sQuery[556];
@@ -2202,6 +2202,7 @@ public void CallbackAddServerAdmin(Database db, DBResultSet dbRs, const char[] s
 	if (iClient && IsClientInGame(iClient))
 		PrintToChat2(iClient, "%T", "Ok add admin server", iClient, g_sAddAdminInfo[iClient][ADDNAME]);
 
+	g_bReshashAdmin = true;
 	AdminHash();
 }
 
@@ -2252,6 +2253,7 @@ public void CallbackDelAdmin(Database db, DBResultSet dbRs, const char[] sError,
 	if (iClient && IsClientInGame(iClient))
 		PrintToChat2(iClient, "%T", "Ok del admin", iClient, g_sAddAdminInfo[iClient][ADDNAME]);
 
+	g_bReshashAdmin = true;
 	AdminHash();
 }
 //--------------------------------------------------------------------------------------------------------

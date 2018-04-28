@@ -235,7 +235,7 @@ static void InternalReadGroups(const char[] sPath, GroupPass grPass)
 
 void ReadGroups()
 {
-	if (!g_smcGroupParser)
+	if (g_smcGroupParser == null)
 	{
 		g_smcGroupParser = new SMCParser();
 		g_smcGroupParser.OnEnterSection = ReadGroups_NewSection;
@@ -484,7 +484,7 @@ public SMCResult ReadUsers_EndSection(SMCParser smc)
 
 void ReadUsers()
 {
-	if (!g_smcUserParser)
+	if (g_smcUserParser == null)
 	{
 		g_smcUserParser = new SMCParser();
 		g_smcUserParser.OnEnterSection = ReadUsers_NewSection;
@@ -561,7 +561,7 @@ public SMCResult ReadOverrides_EndSection(SMCParser smc)
 
 void ReadOverrides()
 {
-	if (!g_smcOverrideParser)
+	if (g_smcOverrideParser == null)
 	{
 		g_smcOverrideParser = new SMCParser();
 		g_smcOverrideParser.OnEnterSection = ReadOverrides_NewSection;
