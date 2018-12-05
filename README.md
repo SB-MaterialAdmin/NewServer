@@ -32,7 +32,7 @@
   - Изменить название секции в _/addons/sourcemod/configs/databases.cfg_ с **sourcebans** на **materialadmin**. Если в файле есть секция **sourcecomms**, можете её удалить.
 - Если не использовались старые плагины:
   - Создать секцию в _/addons/sourcemod/configs/databases.cfg_ с данными от БД, и с именем **materialadmin**.
-- Настроить конфиг в _/addons/sourcemod/configs/materialadmin/materialadmin.cfg_. **Не используйте старый конфиг**, в старом нет некоторых настроек.
+- Настроить конфиг в _/addons/sourcemod/configs/materialadmin/config.cfg_. **Не используйте старый конфиг**, в старом нет некоторых настроек.
 - Если используется SourceMod версии 1.7, желательна перекомпиляция плагинов.
 
 ### О плагинах
