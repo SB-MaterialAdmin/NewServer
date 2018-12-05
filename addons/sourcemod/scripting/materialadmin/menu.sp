@@ -8,6 +8,8 @@ void MACreateMenu()
 
 	g_mHackingMenu = new Menu(MenuHandler_MenuHacking);
 	g_mHackingMenu.ExitBackButton = true;
+	
+	
 }
 
 public void OnAdminMenuReady(Handle aTopMenu)
@@ -28,7 +30,9 @@ public void OnAdminMenuReady(Handle aTopMenu)
 	g_tmAdminMenu.AddItem("ma_target_offline", Handle_MenuTargetOffline, CategoryId, "ma_target_offline", ADMFLAG_GENERIC);
 	g_tmAdminMenu.AddItem("ma_target_list", Handle_MenuTargetList, CategoryId, "ma_target_list", ADMFLAG_GENERIC);
 	g_tmAdminMenu.AddItem("ma_setting", Handle_MenuSetting, CategoryId, "ma_setting", ADMFLAG_ROOT);
+#if SETTINGADMIN
 	g_tmAdminMenu.AddItem("ma_setting_admin", Handle_MenuSettingAdmin, CategoryId, "ma_setting_admin", ADMFLAG_ROOT);
+#endif
 }
 
 public void Handle_materialadmin(Handle topmenu, TopMenuAction action, TopMenuObject topobj_id, int iClient, char[] buffer, int maxlength)
@@ -84,6 +88,7 @@ public void Handle_MenuSetting(Handle topmenu, TopMenuAction action, TopMenuObje
 	}
 }
 
+#if SETTINGADMIN
 public void Handle_MenuSettingAdmin(Handle topmenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
 	switch(action)
@@ -92,6 +97,7 @@ public void Handle_MenuSettingAdmin(Handle topmenu, TopMenuAction action, TopMen
 		case TopMenuAction_SelectOption: ShowSettingAdmin(iClient);
 	}
 }
+#endif
 
 void ShowSetting(int iClient)
 {
@@ -269,10 +275,10 @@ void ShowTargetOnline(int iClient)
 			Mmenu.AddItem("0", sTitle, ITEMDRAW_DISABLED);
 	}
 	
-	if (iSpecMode == 4 || iSpecMode == 5)
+	if ((g_iGameTyp == GAMETYP_CCS34) && iSpecMode == 3 || iSpecMode == 4 || (g_iGameTyp != GAMETYP_CCS34) && iSpecMode == 5) // 3 тока для ксс 34
 	{
 		iTarget = GetEntPropEnt(iClient, Prop_Send, "m_hObserverTarget");
-		if ((iTarget > 0 && iTarget < MaxClients) && !IsFakeClient(iTarget))
+		if ((iTarget > 0 && iTarget < MaxClients) && !IsFakeClient(iTarget) && CheckAdminImune(iClient, iTarget))
 		{
 			AdminMenuAddClients(Mmenu, iClient, iTarget, g_iMassBan);
 			bIsClien = true;
@@ -1063,6 +1069,7 @@ public int MenuHandler_ReportMenu(Menu Mmenu, MenuAction mAction, int iClient, i
 }
 //---------------------------------------------------------------------------------------------------
 // управление админами
+#if SETTINGADMIN
 void ShowSettingAdmin(int iClient)
 {
 	char sTitle[192];
@@ -1166,7 +1173,7 @@ public int MenuHandler_AddAdminMenu(Menu Mmenu, MenuAction mAction, int iClient,
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
 			
 			int iTarget	= GetClientOfUserId(StringToInt(sInfo));
-			if(iTarget)
+			if(iTarget && IsClientAuthorized(iTarget))
 			{
 				GetClientName(iTarget, g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]));
 				GetClientAuthId(iTarget, TYPE_STEAM, g_sAddAdminInfo[iClient][ADDSTEAM], sizeof(g_sAddAdminInfo[][]));
@@ -1199,115 +1206,115 @@ void MenuAddAdninFlag(int iClient)
 	{
 		FormatEx(sTitle, sizeof(sTitle), "%T", "set flags", iClient);
 		Mmenu.AddItem("-1", sTitle);
-		if (!g_bAddAdminFlag[MFLAG_RESERVATION])
+		if (!g_bAddAdminFlag[iClient][MFLAG_RESERVATION])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_RESERVATION], "a flag", iClient);
 			IntToString(MFLAG_RESERVATION, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_KICK])
+		if (!g_bAddAdminFlag[iClient][MFLAG_KICK])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_KICK], "c flag", iClient);
 			IntToString(MFLAG_KICK, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_BAN])
+		if (!g_bAddAdminFlag[iClient][MFLAG_BAN])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_BAN], "d flag", iClient);
 			IntToString(MFLAG_BAN, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_UNBAN])
+		if (!g_bAddAdminFlag[iClient][MFLAG_UNBAN])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_UNBAN], "e flag", iClient);
 			IntToString(MFLAG_UNBAN, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_SLAY])
+		if (!g_bAddAdminFlag[iClient][MFLAG_SLAY])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_SLAY], "f flag", iClient);
 			IntToString(MFLAG_SLAY, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CHANGEMAP])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CHANGEMAP])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CHANGEMAP], "g flag", iClient);
 			IntToString(MFLAG_CHANGEMAP, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CONVARS])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CONVARS])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CONVARS], "h flag", iClient);
 			IntToString(MFLAG_CONVARS, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CONFIG])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CONFIG])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CONFIG], "i flag", iClient);
 			IntToString(MFLAG_CONFIG, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CHAT])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CHAT])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CHAT], "j flag", iClient);
 			IntToString(MFLAG_CHAT, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_VOTE])
+		if (!g_bAddAdminFlag[iClient][MFLAG_VOTE])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_VOTE], "k flag", iClient);
 			IntToString(MFLAG_VOTE, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_PASSWORD])
+		if (!g_bAddAdminFlag[iClient][MFLAG_PASSWORD])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_PASSWORD], "l flag", iClient);
 			IntToString(MFLAG_PASSWORD, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_RCON])
+		if (!g_bAddAdminFlag[iClient][MFLAG_RCON])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_RCON], "m flag", iClient);
 			IntToString(MFLAG_RCON, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CHEATS])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CHEATS])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CHEATS], "n flag", iClient);
 			IntToString(MFLAG_CHEATS, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CUSTOM1])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CUSTOM1])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CUSTOM1], "o flag", iClient);
 			IntToString(MFLAG_CUSTOM1, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CUSTOM2])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CUSTOM2])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CUSTOM2], "p flag", iClient);
 			IntToString(MFLAG_CUSTOM2, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CUSTOM3])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CUSTOM3])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CUSTOM3], "q flag", iClient);
 			IntToString(MFLAG_CUSTOM3, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CUSTOM4])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CUSTOM4])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CUSTOM4], "r flag", iClient);
 			IntToString(MFLAG_CUSTOM4, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CUSTOM5])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CUSTOM5])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CUSTOM5], "s flag", iClient);
 			IntToString(MFLAG_CUSTOM5, sOption, sizeof(sOption));
 			Mmenu.AddItem(sOption, sTitle);
 		}
-		if (!g_bAddAdminFlag[MFLAG_CUSTOM6])
+		if (!g_bAddAdminFlag[iClient][MFLAG_CUSTOM6])
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%s - %T", g_sAddAdminFlag[MFLAG_CUSTOM6], "t flag", iClient);
 			IntToString(MFLAG_CUSTOM6, sOption, sizeof(sOption));
@@ -1335,7 +1342,7 @@ public int MenuHandler_AddAdninFlagMenu(Menu Mmenu, MenuAction mAction, int iCli
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
 			
 			int iNum = StringToInt(sInfo);
-			if (iNum < 1)
+			if (iNum <= 0)
 			{
 				if (!iNum)
 					g_bAddAdminFlag[iClient][iNum] = true;
@@ -1398,7 +1405,7 @@ public int MenuHandler_DelAdminMenu(Menu Mmenu, MenuAction mAction, int iClient,
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
 			
 			int iTarget	= GetClientOfUserId(StringToInt(sInfo));
-			if(iTarget)
+			if(iTarget && IsClientAuthorized(iTarget))
 			{
 				GetClientName(iTarget, g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]));
 				GetClientAuthId(iTarget, TYPE_STEAM, g_sAddAdminInfo[iClient][ADDSTEAM], sizeof(g_sAddAdminInfo[][]));
@@ -1445,3 +1452,4 @@ public int MenuHandler_DelAdminTypMenu(Menu Mmenu, MenuAction mAction, int iClie
 		}
 	}
 }
+#endif

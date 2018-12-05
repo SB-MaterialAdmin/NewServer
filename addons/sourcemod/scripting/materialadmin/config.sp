@@ -174,13 +174,6 @@ public SMCResult KeyValueConfig(SMCParser Smc, const char[] sKey, const char[] s
 		else
 			g_bUnMuteUnBan = true;
 	}
-	else if(!strcmp("UpdatePlugin", sKey, false))
-	{
-		if(!StringToInt(sValue))
-			g_bUpdatePlugin = false;
-		else
-			g_bUpdatePlugin = true;
-	}
 	else if(!strcmp("MassBan", sKey, false))
 		g_iMassBan = StringToInt(sValue);
 	else if(!strcmp("ServerBanTime", sKey, false))

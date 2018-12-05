@@ -19,9 +19,11 @@ void RegComands()
 	AddCommandListener(LCommandRehashAdm, "sm_reloadadmins");
 	
 	// добавлене и удаление админа
+#if SETTINGADMIN
 	RegAdminCmd("ma_addadmin", 		CommandAddAdmin, 	ADMFLAG_ROOT, 	"Add admin");
 	RegAdminCmd("ma_addadminoff", 	CommandAddAdminOff, ADMFLAG_ROOT, 	"Add admin off");
 	RegAdminCmd("ma_deladmin", 		CommandDelAdmin, 	ADMFLAG_ROOT, 	"Del admin");
+#endif
 
 	RegServerCmd("ma_wb_ban", CommandWBan, "Ban player by command from web site");
 	RegServerCmd("ma_wb_mute", CommandWMute, "Mute player by command from web site");
@@ -92,6 +94,7 @@ public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[
 		OnlineClientSet(iClient);
 		return Plugin_Handled;
 	}
+#if SETTINGADMIN
 	if (g_bAdminAdd[iClient][ADDIMUN])
 	{
 		int iImun = StringToInt(sArgs);
@@ -134,6 +137,7 @@ public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[
 
 		return Plugin_Handled;
 	}
+#endif
 	
 	return Plugin_Continue;
 }
@@ -173,6 +177,7 @@ public Action CommandConnectBd(int iClient, int iArgc)
 }
 //------------------------------------------------------------------------------------------------------------------
 // добавление и удаление админа
+#if SETTINGADMIN
 public Action CommandAddAdmin(int iClient, int iArgc)
 {
 	int iFlag = GetAdminWebFlag(iClient, 1);
@@ -253,7 +258,11 @@ public Action CommandAddAdmin(int iClient, int iArgc)
 	}
 	
 	GetClientName(iTarget, g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]));
-	GetClientAuthId(iTarget, TYPE_STEAM, g_sAddAdminInfo[iClient][ADDSTEAM], sizeof(g_sAddAdminInfo[][]));
+	if (GetSteamAuthorized(iTarget, g_sAddAdminInfo[iClient][ADDSTEAM]))
+	{
+		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed Steam Authorized", iClient);
+		return Plugin_Handled;
+	}
 	strcopy(g_sAddAdminInfo[iClient][ADDPASS], sizeof(g_sAddAdminInfo[][]), sPass);
 	g_iAddAdmin[iClient][ADDIMUN] = iImun;
 	g_iAddAdmin[iClient][ADDTIME] = iTime;
@@ -400,7 +409,11 @@ public Action CommandDelAdmin(int iClient, int iArgc)
 		}
 		
 		GetClientName(iTarget, g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]));
-		GetClientAuthId(iTarget, TYPE_STEAM, g_sAddAdminInfo[iClient][ADDSTEAM], sizeof(g_sAddAdminInfo[][]));
+		if (GetSteamAuthorized(iTarget, g_sAddAdminInfo[iClient][ADDSTEAM]))
+		{
+			ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed Steam Authorized", iClient);
+			return Plugin_Handled;
+		}
 	}
 	else
 	{
@@ -429,6 +442,7 @@ public Action CommandDelAdmin(int iClient, int iArgc)
 	BDCheckAdmins(iClient, (StringToInt(sType) == 0)?2:1);
 	return Plugin_Handled;
 }
+#endif
 //------------------------------------------------------------------------------------------------------------------
 public Action CommandGag(int iClient, int iArgc)
 {
@@ -441,7 +455,7 @@ public Action CommandGag(int iClient, int iArgc)
 		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
-	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
+	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_gag <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
 		return Plugin_Handled;
@@ -472,7 +486,7 @@ public Action CommandMute(int iClient, int iArgc)
 		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
-	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
+	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_mute <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
 		return Plugin_Handled;
@@ -504,7 +518,7 @@ public Action CommandSil(int iClient, int iArgc)
 		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
-	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
+	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_silence <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
 		return Plugin_Handled;
@@ -535,7 +549,7 @@ public Action CommandUnGag(int iClient, int iArgc)
 	char sArg[64],
 		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	SBGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
+	MAGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
 	
 	g_iTargetType[iClient] = TYPE_UNGAG;
 	int iTyp = GetTypeClient(sArg);
@@ -559,7 +573,7 @@ public Action CommandUnMute(int iClient, int iArgc)
 	char sArg[64],
 		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	SBGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
+	MAGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
 	
 	g_iTargetType[iClient] = TYPE_UNMUTE;
 	int iTyp = GetTypeClient(sArg);
@@ -583,7 +597,7 @@ public Action CommandUnSil(int iClient, int iArgc)
 	char sArg[64],
 		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	SBGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
+	MAGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
 	
 	g_iTargetType[iClient] = TYPE_UNSILENCE;
 	int iTyp = GetTypeClient(sArg);
@@ -609,7 +623,7 @@ public Action CommandBan(int iClient, int iArgc)
 		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
-	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
+	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_ban <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
 		return Plugin_Handled;
@@ -641,7 +655,7 @@ public Action CommandBanIp(int iClient, int iArgc)
 		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
-	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
+	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_banip <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
 		return Plugin_Handled;
@@ -676,7 +690,7 @@ public Action CommandAddBan(int iClient, int iArgc)
 		sBuffer[356];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	
-	if (!SBGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
+	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_addban <steamid|ip> <time> [reason]", MAPREFIX);
 		return Plugin_Handled;
@@ -748,7 +762,7 @@ public Action CommandUnBan(int iClient, int iArgc)
 	char sArg[64],
 		sBuffer[512];	
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	SBGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
+	MAGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
 	
 	if (sArg[0] == 'S' || sArg[0] == '[')
 	{
@@ -930,7 +944,7 @@ public Action CommandWBan(int iArgc)
 	}
 	
 	int iClient;
-	if (strncmp(sArg[0], "STEAM_", 6) == 0)
+	if (!strncmp(sArg[0], "STEAM_", 6))
 		iClient = FindTargetSteam(sArg[0]);
 	else
 		iClient = FindTargetIp(sArg[0]);

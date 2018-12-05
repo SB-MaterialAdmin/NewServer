@@ -6,9 +6,6 @@
 #include <sdktools>
 #include <regex>
 
-#undef REQUIRE_EXTENSIONS
-#include <SteamWorks>
-
 #undef REQUIRE_PLUGIN
 #include <adminmenu>
 #include <basecomm>
@@ -24,6 +21,7 @@
 
 #define TYPE_STEAM 	AuthId_Steam2 // вид стим
 #define FORMAT_TIME NULL_STRING	// формат времени показывающий игроку при бане, NULL_STRING = sm_datetime_format
+#define SETTINGADMIN 		1	// функция управления админами.
 
 #define	BDCONNECT			0
 #define	BDCONNECT_ADMIN		1
@@ -62,6 +60,7 @@ int g_iTargetMuteType[MAXPLAYERS+1];
 #define TYPEGAG 		2  	// чат
 #define TYPESILENCE 	3	// мут и чат
 
+#if SETTINGADMIN
 char g_sAddAdminInfo[MAXPLAYERS+1][4][256];
 #define ADDNAME 	0	// ник
 #define ADDSTEAM 	1	// стим
@@ -95,6 +94,7 @@ bool g_bAdminAdd[MAXPLAYERS+1][4];
 #define ADDIMUN 	1	// имун
 #define ADDPASS 	2	// пароль
 #define ADDMENU 	3 	// меню
+#endif
 
 int	g_iServerID = -1,
 	g_iOffMaxPlayers,
@@ -164,7 +164,6 @@ bool g_bSayReason[MAXPLAYERS+1],
 	g_bServerBanTyp,
 	g_bSourceSleuth,
 	g_bUnMuteUnBan,
-	g_bUpdatePlugin,
 	g_bNewConnect[MAXPLAYERS+1],
 	g_bOnileTarget[MAXPLAYERS+1],
 	g_bReportReason[MAXPLAYERS+1],
@@ -177,10 +176,11 @@ char g_sGroupsLoc[128],
 	
 int g_iGameTyp;
 #define GAMETYP_CCS 	1 //css
-#define GAMETYP_TF2 	2 //tf2
-#define GAMETYP_CSGO 	3 //csgo
-#define GAMETYP_l4d 	4 //Left4Dead
-#define GAMETYP_l4d2 	5 //Left4Dead2
+#define GAMETYP_CCS34 	2 //css 34
+#define GAMETYP_TF2 	3 //tf2
+#define GAMETYP_CSGO 	4 //csgo
+#define GAMETYP_l4d 	5 //Left4Dead
+#define GAMETYP_l4d2 	6 //Left4Dead2
 
 #include "materialadmin/config.sp"
 #include "materialadmin/admin.sp"
@@ -189,13 +189,12 @@ int g_iGameTyp;
 #include "materialadmin/commands.sp"
 #include "materialadmin/database.sp"
 #include "materialadmin/native.sp"
-#include "materialadmin/update.sp"
 
 public Plugin myinfo = 
 {
 	name = "Material Admin",
 	author = "Material Admin Dev Team",
-	description = "For to sm 1.7",
+	description = "For to sm 1.9",
 	version = MAVERSION,
 	url = "https://github.com/CrazyHackGUT/SB_Material_Design/"
 };
@@ -207,11 +206,12 @@ public void OnPluginStart()
 
 	switch(GetEngineVersion())
 	{
-		case Engine_CSS: 		g_iGameTyp = GAMETYP_CCS;
-		case Engine_CSGO: 		g_iGameTyp = GAMETYP_CSGO;
-		case Engine_TF2: 		g_iGameTyp = GAMETYP_TF2;
-		case Engine_Left4Dead: 	g_iGameTyp = GAMETYP_l4d;
-		case Engine_Left4Dead2: g_iGameTyp = GAMETYP_l4d2;
+		case Engine_CSS: 			g_iGameTyp = GAMETYP_CCS;
+		case Engine_SourceSDK2006: 	g_iGameTyp = GAMETYP_CCS34;
+		case Engine_CSGO: 			g_iGameTyp = GAMETYP_CSGO;
+		case Engine_TF2: 			g_iGameTyp = GAMETYP_TF2;
+		case Engine_Left4Dead: 		g_iGameTyp = GAMETYP_l4d;
+		case Engine_Left4Dead2: 	g_iGameTyp = GAMETYP_l4d2;
 	}
 
 	RegComands();
@@ -346,12 +346,14 @@ public void OnConfigsExecuted()
 		ClearHistories();
 	
 	CheckBekapTime();
-	
-	if (g_bUpdatePlugin)
-	{
-		if (LibraryExists("SteamWorks"))
-			UpdateVersion();
-	}
+}
+
+public void OnClientAuthorized(int iClient, const char[] sSteamID)
+{
+	if (sSteamID[0] == 'B' || sSteamID[9] == 'L' || g_bNewConnect[iClient] || g_iGameTyp != GAMETYP_CSGO) 
+		return;
+
+	CheckClientBan(iClient);
 }
 
 public void OnClientPostAdminCheck(int iClient)
@@ -361,17 +363,20 @@ public void OnClientPostAdminCheck(int iClient)
 
 	if(!g_bNewConnect[iClient])
 	{
-		if (g_dDatabase != null)
-			CheckClientBan(iClient);
-		else
+		if (g_iGameTyp != GAMETYP_CSGO)
 		{
-			char sSteamID[MAX_STEAMID_LENGTH];
-			GetClientAuthId(iClient, TYPE_STEAM, sSteamID, sizeof(sSteamID));
-			CheckClientAdmin(iClient, sSteamID);
+			if (g_dDatabase != null)
+				CheckClientBan(iClient);
+			else
+			{
+				char sSteamID[MAX_STEAMID_LENGTH];
+				GetClientAuthId(iClient, TYPE_STEAM, sSteamID, sizeof(sSteamID));
+				CheckClientAdmin(iClient, sSteamID);
+			}
 		}
 	}
 	else
-	{
+	{	
 		if (g_iTargetMuteType[iClient] == TYPEMUTE || g_iTargetMuteType[iClient] == TYPESILENCE)
 			FunMute(iClient);
 	}
@@ -387,7 +392,9 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 		return;
 	}
 
+#if SETTINGADMIN
 	ResetFlagAddAdmin(iClient);
+#endif
 	g_bNewConnect[iClient] = false;
 	g_bSayReason[iClient] = false;
 	g_bSayReasonReport[iClient] = false;
@@ -400,7 +407,8 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	KillTimerGag(iClient);
 	
 	char sSteamID[MAX_STEAMID_LENGTH];
-	GetClientAuthId(iClient, TYPE_STEAM, sSteamID, sizeof(sSteamID));
+	if (!GetSteamAuthorized(iClient, sSteamID))
+		return;
 	
 	if (GetUserAdmin(iClient) == INVALID_ADMIN_ID) 
 	{
@@ -414,7 +422,7 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	#if MADEBUG
 		char sTime[64];
 		FormatTime(sTime, sizeof(sTime), g_sOffFormatTime, GetTime());
-		LogToFile(g_sLogAction,"New: %s %s - %s ; %s.", sName, sSteamID, sIP, sTime);
+		LogToFile(g_sLogAction, "New: %s %s - %s ; %s.", sName, sSteamID, sIP, sTime);
 	#endif
 	}
 	/*else

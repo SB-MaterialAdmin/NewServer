@@ -124,13 +124,6 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("UpdatePlugin", sSetting, false))
-	{
-		if(g_bUpdatePlugin)
-			sValue = "1";
-		else
-			sValue = "0";
-	}
 	else if(StrEqual("AdminUpdateCache", sSetting, false))
 		IntToString(g_iAdminUpdateCache, sValue, sizeof(sValue));
 	else if(StrEqual("IgnoreBanServer", sSetting, false))
@@ -184,6 +177,9 @@ public int Native_OffBan(Handle plugin, int numParams)
 			return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player does not have BAN flag.");
 	}
 	
+	if (!ValidSteam(g_sTarget[iClient][TSTEAMID]))
+		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: invalid steam.");
+	
 	CheckBanInBd(iClient, 0, 1, g_sTarget[iClient][TSTEAMID]);
 	return true;
 }
@@ -209,10 +205,11 @@ public int Native_BanPlayer(Handle plugin, int numParams)
 		if (!CheckAdminFlags(iClient, ADMFLAG_BAN))
 			return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player does not have BAN flag.");
 	}
-	if (!iTarget || !IsClientInGame(iTarget))
+	if (!iTarget || !IsClientInGame(iTarget) || IsFakeClient(iTarget))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player no game.");
 	
-	GetClientAuthId(iTarget, TYPE_STEAM, g_sTarget[iClient][TSTEAMID], sizeof(g_sTarget[][]));
+	if (!GetSteamAuthorized(iClient, g_sTarget[iClient][TSTEAMID]))
+		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player no Steam Authorized.");
 	GetClientIP(iTarget, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
 	GetClientName(iTarget, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
 
@@ -239,6 +236,13 @@ public int Native_UnBanPlayer(Handle plugin, int numParams)
 		if (!CheckAdminFlags(iClient, ADMFLAG_UNBAN))
 			return ThrowNativeError(SP_ERROR_NATIVE, "UnBan Error: Player does not have UNBAN flag.");
 	}
+	
+	if (!ValidSteam(sId))
+	{
+		if (SimpleRegexMatch(g_sTarget[iClient][TIP], "\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}?") < 1)
+			return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: invalid id.");
+	}
+	
 	g_iTargetType[iClient] = TYPE_UNBAN;
 	
 	CheckBanInBd(iClient, 0, 0, sId);
@@ -272,7 +276,7 @@ public int Native_SetClientMuteType(Handle plugin, int numParams)
 		if (!CheckAdminFlags(iClient, ADMFLAG_CHAT))
 			return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Player does not have CHAT flag.");
 	}
-	if (!iTarget || !IsClientInGame(iTarget))
+	if (!iTarget || !IsClientInGame(iTarget) || IsFakeClient(iTarget))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Player no game.");
 	
 	DoCreateDB(iClient, iTarget);
@@ -302,6 +306,12 @@ public int Native_OffSetClientMuteType(Handle plugin, int numParams)
 		if (!CheckAdminFlags(iClient, ADMFLAG_CHAT))
 			return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Player does not have CHAT flag.");
 	}
+	
+	if (!ValidSteam(g_sTarget[iClient][TSTEAMID]))
+		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: invalid steam.");
+	
+	if (SimpleRegexMatch(g_sTarget[iClient][TIP], "\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}?") < 1)
+		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: invalid ip.");
 	
 	DoCreateDB(iClient, 0);
 	return true;
@@ -501,7 +511,7 @@ Action FireOnClientConnectBan(int iClient)
 
 public void BaseComm_OnClientMute(int iClient, bool bState)
 {
-	if (!iClient || !IsClientInGame(iClient))
+	if (!iClient || !IsClientInGame(iClient) || IsFakeClient(iClient))
 		return;
 
 	if (bState)
@@ -526,7 +536,7 @@ public void BaseComm_OnClientMute(int iClient, bool bState)
 
 public void BaseComm_OnClientGag(int iClient, bool bState)
 {
-	if (!iClient || !IsClientInGame(iClient))
+	if (!iClient || !IsClientInGame(iClient) || IsFakeClient(iClient))
 		return;
 
 	if (bState)

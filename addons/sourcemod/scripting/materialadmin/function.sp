@@ -1,20 +1,17 @@
 //получение айпи и порта сервера
 void InsertServerInfo()
 {
-	int iPieces[4], 
-		iLongIP;
-	ConVar cvarHostIp,
-		cvarPort;	
-	cvarHostIp = FindConVar("hostip");
-	cvarPort = FindConVar("hostport");
-	
-	iLongIP = cvarHostIp.IntValue;
-	iPieces[0] = (iLongIP >> 24) & 0x000000FF;
-	iPieces[1] = (iLongIP >> 16) & 0x000000FF;
-	iPieces[2] = (iLongIP >> 8) & 0x000000FF;
-	iPieces[3] = iLongIP & 0x000000FF;
-	FormatEx(g_sServerIP, sizeof(g_sServerIP), "%d.%d.%d.%d", iPieces[0], iPieces[1], iPieces[2], iPieces[3]);
-	cvarPort.GetString(g_sServerPort, sizeof(g_sServerPort));
+    int iPieces[4], 
+        iLongIP;
+    
+    iLongIP = FindConVar("hostip").IntValue;
+    iPieces[0] = (iLongIP >> 24) & 0x000000FF;
+    iPieces[1] = (iLongIP >> 16) & 0x000000FF;
+    iPieces[2] = (iLongIP >> 8) & 0x000000FF;
+    iPieces[3] = iLongIP & 0x000000FF;
+    FormatEx(g_sServerIP, sizeof(g_sServerIP), "%d.%d.%d.%d", iPieces[0], iPieces[1], iPieces[2], iPieces[3]);
+
+    FindConVar("hostport").GetString(g_sServerPort, sizeof(g_sServerPort));
 }
 
 void GetColor(char[] sBuffer, int iMaxlin)
@@ -32,7 +29,7 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 	char sBufer[256];
 	VFormat(sBufer, sizeof(sBufer), sMesag, 3);
 	
-	// del name ???
+	// del name 
 	if (g_sNameReples[0][0])
 		ReplaceString(sBufer, sizeof(sBufer), g_sNameReples[0], sNameD[0]);
 	if (g_sNameReples[1][0])
@@ -42,7 +39,7 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 
 	GetColor(sBufer, sizeof(sBufer));
 	
-	// add name ????
+	// add name 
 	ReplaceString(sBufer, sizeof(sBufer), sNameD[0], g_sNameReples[0]);
 	ReplaceString(sBufer, sizeof(sBufer), sNameD[1], g_sNameReples[1]);
 	
@@ -53,20 +50,6 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 		PrintToChat(iClient, " \x01%s.", sBufer);
 	else
 		PrintToChat(iClient, "\x01%s.", sBufer);
-}
-
-void PrintToChatAdmin(const char[] sMesag, any ...)
-{
-	char sBufer[256];
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if (IsClientInGame(i) && CheckAdminFlags(i, ADMFLAG_GENERIC))
-		{
-			SetGlobalTransTarget(i);
-			VFormat(sBufer, sizeof(sBufer), sMesag, 2);
-			PrintToChat2(i, "%s", sBufer);
-		}
-	}
 }
 
 void ShowAdminAction(int iClient, const char[] sMesag, any ...)
@@ -154,13 +137,8 @@ int GetImmuneAdmin(int iClient)
 	if (idAdmin == INVALID_ADMIN_ID)
 		return 0;
 	
-#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-	int iAdminImun = GetAdminImmunityLevel(idAdmin);
-	int iCount = GetAdminGroupCount(idAdmin);
-#else
 	int iAdminImun = idAdmin.ImmunityLevel;
 	int iCount = idAdmin.GroupCount;
-#endif
 	int iGroupImun,
 		iImune = 0;
 
@@ -169,13 +147,8 @@ int GetImmuneAdmin(int iClient)
 		for (int i = 0; i < iCount; i++)
 		{
 			char sNameGroup[64];
-		#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-			GroupId idGroup = GetAdminGroup(idAdmin, i, sNameGroup, sizeof(sNameGroup));
-			iGroupImun = GetAdmGroupImmunityLevel(idGroup);
-		#else
 			GroupId idGroup = idAdmin.GetGroup(i, sNameGroup, sizeof(sNameGroup));
 			iGroupImun = idGroup.ImmunityLevel;
-		#endif
 			if (iImune < iAdminImun && iImune < iGroupImun)
 			{
 				if (iAdminImun >= iGroupImun)
@@ -230,7 +203,7 @@ bool CheckAdminImune(int iAdminClient, int iAdminTarget)
 bool IsUnMuteUnBan(int iAdmin, char[] sSteamID)
 {
 	char sAdmin_SteamID[MAX_STEAMID_LENGTH];
-	if (iAdmin && IsClientInGame(iAdmin))
+	if (iAdmin && IsClientInGame(iAdmin) && IsClientAuthorized(iAdmin))
 		GetClientAuthId(iAdmin, TYPE_STEAM, sAdmin_SteamID, sizeof(sAdmin_SteamID));
 	else // от сервера
 	{
@@ -393,6 +366,7 @@ int[] GetWebFlag(int iFlag, int iFlagGoup)
 	}
 }
 
+#if SETTINGADMIN
 void ResetFlagAddAdmin(int iClient)
 {
 	for (int i = 0; i < 21; i++)
@@ -402,8 +376,9 @@ void ResetFlagAddAdmin(int iClient)
 		g_bAddAdminFlag[iClient][i] = false;
 	}
 }
+#endif
 //-------------------------------------------------------------------------------
-void SBGetCmdArg1(int iClient, char[] sBuffer, char[] sArg, int iMaxLin)
+void MAGetCmdArg1(int iClient, char[] sBuffer, char[] sArg, int iMaxLin)
 {
 	int iLen;
 	
@@ -416,7 +391,7 @@ void SBGetCmdArg1(int iClient, char[] sBuffer, char[] sArg, int iMaxLin)
 	strcopy(g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]), sBuffer[iLen]);
 }
 
-bool SBGetCmdArg2(int iClient, char[] sBuffer, char[] sArg, int iMaxLin)
+bool MAGetCmdArg2(int iClient, char[] sBuffer, char[] sArg, int iMaxLin)
 {
 	char sTime[56];	
 	int iLen,
@@ -424,6 +399,12 @@ bool SBGetCmdArg2(int iClient, char[] sBuffer, char[] sArg, int iMaxLin)
 	
 	if ((iLen = BreakString(sBuffer, sArg, iMaxLin)) == -1)
 		return false;
+	
+	if (g_iMassBan < 2 && (GetTypeClient(sArg) != -4))
+	{
+		ReplyToCommand(iClient, "%sUsage: No Access to #all|#ct|#t|#blue|#red", MAPREFIX);
+		return false;
+	}
 
 	iTotelLen += iLen;
 	if ((iLen = BreakString(sBuffer[iTotelLen], sTime, sizeof(sTime))) != -1)
@@ -506,23 +487,14 @@ bool ValidTime(int iClient)
 	return true;
 }
 
-bool ValidSteam(char[] sSteamID)
+int ValidSteam(const char[] sSteamID)
 {
-	if (sSteamID[0] == '[')
-	{
-		if (strncmp(sSteamID, "[U:", 3) != 0)
-			return false;
-	}
-	else
-	{
-		if (strlen(sSteamID) < 10)
-			return false;
+	if (!strncmp(sSteamID, "[U:", 3))
+		return 1;
+	else if (!strncmp(sSteamID, "STEAM_", 6))
+		return 2;
 
-		if (strncmp(sSteamID, "STEAM_", 6) != 0)
-			return false;
-	}
-
-	return true;
+	return 0;
 }
 
 // взято с этого плагина https://forums.alliedmods.net/showpost.php?p=2353704&postcount=10
@@ -541,6 +513,26 @@ void ConvecterSteam3ToSteam2(char[] sSteamID)
 		Format(sSteamID, MAX_STEAMID_LENGTH, "STEAM_%d:%d:%d", 0, iSteamid32 & (1 << 0), iSteamid32 >>> 1);
 	else
 		Format(sSteamID, MAX_STEAMID_LENGTH, "STEAM_%d:%d:%d", iUniverse, iSteamid32 & (1 << 0), iSteamid32 >>> 1);
+}
+
+bool GetSteamAuthorized(int iClient, char[] sSteam)
+{
+	if (!iClient)
+	{
+		strcopy(sSteam, MAX_STEAMID_LENGTH, "STEAM_ID_SERVER");
+		return true;
+	}
+
+	if (IsClientAuthorized(iClient))
+	{
+		GetClientAuthId(iClient, TYPE_STEAM, sSteam, MAX_STEAMID_LENGTH);
+		return true;
+	}
+	else
+	{
+		
+		return false;
+	}
 }
 
 void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
@@ -626,7 +618,7 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 			LogToFile(g_sLogAction,"Command get target: UserId %d.", iUserId);
 		#endif
 			int iTarget = GetClientOfUserId(iUserId);
-			if (iTarget)
+			if (iTarget && !IsFakeClient(iTarget))
 			{
 				if(CheckAdminImune(iClient, iTarget))
 					DoCreateDB(iClient, iTarget);
@@ -671,6 +663,8 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 
 				for (int i = 0; i < iTargetCount; i++)
 				{
+					if (IsFakeClient(iTargetList[i]))
+						continue;
 					if (CheckAdminImune(iClient, iTargetList[i]))
 						DoCreateDB(iClient, iTargetList[i], 1, hTxn);
 					else
@@ -729,21 +723,6 @@ int FindTargetIp(char[] sIp)
 	}
 	return 0;
 }
-
-/*int FindTargetName(char[] sName)
-{
-	char sNames[MAX_NAME_LENGTH];
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if (IsClientInGame(i))
-		{
-			GetClientName(i, sNames, sizeof(sNames));
-			if(StrEqual(sName, sNames))
-				return i;
-		}
-	}
-	return 0;
-}*/
 //---------------------------------------------------------------------------------------------
 public void ConVarChange_Alltalk(ConVar convar, const char[] oldValue, const char[] newValue)
 {
@@ -882,9 +861,9 @@ public void Event_PlayerDeath(Event eEvent, const char[] sName, bool bDontBroadc
 void CheckClientAdmin(int iClient, char[] sSteamID)
 {
 	g_bNewConnect[iClient] = true;
-
-	AdminId idAdmin = GetUserAdmin(iClient);
-	if(idAdmin != INVALID_ADMIN_ID)
+	
+	AdminId idAdmin = FindAdminByIdentity(AUTHMETHOD_STEAM, sSteamID);
+	if (idAdmin != INVALID_ADMIN_ID)
 	{
 		int iExpire = GetAdminExpire(idAdmin);
 		if (iExpire)
@@ -1191,7 +1170,7 @@ void CreateSayBanned(char[] sAdminName, int iClient, int iCreated, int iTime, ch
 	char sCreated[128];
 	FormatTime(sCreated, sizeof(sCreated), FORMAT_TIME, iCreated);
 
-	if(g_bBanSayPanel)
+	if(g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO)
 	{
 		char sEnds[128];
 		if(!iTime)
@@ -1224,7 +1203,7 @@ void CreateTeaxtDialog(int iClient, const char[] sMesag, any ...)
 		LogToFile(g_sLogAction, "CreateTeaxtDialog %N", iClient);
 	#endif
 		CreateDialog(iClient, kvKey, DialogType_Text);
-		CreateTimer(0.1, TimerKick, GetClientUserId(iClient));
+		CreateTimer(0.2, TimerKick, GetClientUserId(iClient));
 	}
 	delete kvKey;
 }
@@ -1232,7 +1211,7 @@ void CreateTeaxtDialog(int iClient, const char[] sMesag, any ...)
 public Action TimerKick(Handle timer, any iUserId)
 {
 	int iClient = GetClientOfUserId(iUserId);
-	if (iClient && IsClientInGame(iClient))
+	if (iClient)
 		KickClient(iClient, "%T", "Banneds", iClient);
 }
 

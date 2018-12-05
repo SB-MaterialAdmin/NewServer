@@ -33,11 +33,7 @@ static int g_iCurFlags,
 
 static SMCParser g_smcOverrideParser;
 
-#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-public int OnRebuildAdminCache(AdminCachePart acPart)
-#else
 public void OnRebuildAdminCache(AdminCachePart acPart)
-#endif
 {
 	switch(acPart)
 	{
@@ -102,11 +98,7 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 					if (!FindFlagByChar(sValue[i], admFlag))
 						continue;
 
-				#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-					SetAdmGroupAddFlag(g_idGroup, admFlag, true);
-				#else
  					g_idGroup.SetFlag(admFlag, true);
-				#endif
 				}
 			#if MADEBUG
 				LogToFile(g_sLogAdmin, "Load group flag override (grup %d, %s %s)", g_idGroup, sKey, sValue);
@@ -128,17 +120,9 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 				overRule = Command_Allow;
 			
 			if (sKey[0] == '@')
-			#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-				AddAdmGroupCmdOverride(g_idGroup, sKey[1], Override_CommandGroup, overRule);
-			#else
  				g_idGroup.AddCommandOverride(sKey[1], Override_CommandGroup, overRule);
-			#endif
  			else
-			#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-				AddAdmGroupCmdOverride(g_idGroup, sKey, Override_Command, overRule);
-			#else
  				g_idGroup.AddCommandOverride(sKey, Override_Command, overRule);
-			#endif
 			
 		#if MADEBUG
 			LogToFile(g_sLogAdmin, "Load group command override (group %d, %s, %s)", g_idGroup, sKey, sValue);
@@ -152,26 +136,14 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 		{
 			/* If it's a sValue we know about, use it */
 			if (StrEqual(sValue, "*"))
-			#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-				SetAdmGroupImmunityLevel(g_idGroup, 2);
-			#else
  				g_idGroup.ImmunityLevel = 2;
-			#endif
 			else if (StrEqual(sValue, "$"))
-			#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-				SetAdmGroupImmunityLevel(g_idGroup, 1);
-			#else
  				g_idGroup.ImmunityLevel = 1;
-			#endif
 			else
 			{
 				int iLevel;
 				if (StringToIntEx(sValue, iLevel))
-				#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-					SetAdmGroupImmunityLevel(g_idGroup, iLevel);
-				#else
  					g_idGroup.ImmunityLevel = iLevel;
-				#endif
 				else
 				{
 					GroupId idGroup;
@@ -181,11 +153,7 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 						idGroup = FindAdmGroup(sValue);
 					
 					if (idGroup != INVALID_GROUP_ID)
-					#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-						SetAdmGroupImmuneFrom(g_idGroup, idGroup);
-					#else
  						g_idGroup.AddGroupImmunity(idGroup);
-					#endif
 					else
 						LogToFile(g_sLogAdmin, "Unable to find group: \"%s\"", sValue);
 				}
@@ -358,11 +326,7 @@ public SMCResult ReadUsers_EndSection(SMCParser smc)
 			#if MADEBUG
 				LogToFile(g_sLogAdmin, "Create new admin %s (%d, auth %s, %s)", g_sCurName, idAdmin, g_sCurAuth, g_sCurIdent);
 			#endif
-			#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-				if (!BindAdminIdentity(idAdmin, g_sCurAuth, g_sCurIdent))
-			#else
  				if (!idAdmin.BindIdentity(g_sCurAuth, g_sCurIdent))
-			#endif
 				{
 					RemoveAdmin(idAdmin);
 					LogToFile(g_sLogAdmin, "Failed to bind auth \"%s\" to identity \"%s\"", g_sCurAuth, g_sCurIdent);
@@ -418,20 +382,12 @@ public SMCResult ReadUsers_EndSection(SMCParser smc)
 						iMaxMuteTime = -1;
 						
 				#if MADEBUG
-					#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-					if (AdminInheritGroup(idAdmin, idGroup))
-					#else
 					if (idAdmin.InheritGroup(idGroup))
-					#endif
 						LogToFile(g_sLogAdmin, "Admin %s add group %d", g_sCurName, idGroup);
 					else
 						LogToFile(g_sLogAdmin, "Admin %s no add group %d", g_sCurName, idGroup);
 				#else
-					#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-					AdminInheritGroup(idAdmin, idGroup);
-					#else
 					idAdmin.InheritGroup(idGroup);
-					#endif
 				#endif
 				}
 			}
@@ -442,27 +398,14 @@ public SMCResult ReadUsers_EndSection(SMCParser smc)
 			g_tWebFlagUnBanMute.SetValue(sAdminID, g_iWebFlagUnBanMute, false);
 
 			if(g_sCurPass[0])
-			#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-				SetAdminPassword(idAdmin, g_sCurPass);
-			#else
  				idAdmin.SetPassword(g_sCurPass);
-			#endif
 
-		#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-			if (GetAdminImmunityLevel(idAdmin) < g_iCurImmunity)
-				SetAdminImmunityLevel(idAdmin, g_iCurImmunity);
-		#else
 			if (idAdmin.ImmunityLevel < g_iCurImmunity)
 				idAdmin.ImmunityLevel = g_iCurImmunity;
-		#endif
 			
 			int iFlags = FlagBitsToArray(g_iCurFlags, admFlags, sizeof(admFlags));
 			for (int i = 0; i < iFlags; i++)
-			#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
-				SetAdminFlag(idAdmin, admFlags[i], true);
-			#else
  				idAdmin.SetFlag(admFlags[i], true);
-			#endif
 			
 		#if MADEBUG
 			LogToFile(g_sLogAdmin, "Load yes admin (name %s, auth %s, ident %s, flag %d, imuni %d, expire %d, max ban time %d, max mute time %d, web flag setings %d, web flag un ban mute %d)", 
@@ -516,7 +459,7 @@ void ReadUsers()
 		{
 			for (int i = 1; i <= MaxClients; i++)
 			{
-				if (IsClientInGame(i) && !IsFakeClient(i))
+				if (IsClientInGame(i) && IsClientAuthorized(i) && !IsFakeClient(i))
 				{
 					RunAdminCacheChecks(i);
 					NotifyPostAdminCheck(i);
