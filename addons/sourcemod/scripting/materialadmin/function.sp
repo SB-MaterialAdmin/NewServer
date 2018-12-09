@@ -400,7 +400,7 @@ bool MAGetCmdArg2(int iClient, char[] sBuffer, char[] sArg, int iMaxLin)
 	if ((iLen = BreakString(sBuffer, sArg, iMaxLin)) == -1)
 		return false;
 	
-	if (g_iMassBan < 2 && (GetTypeClient(sArg) != -4))
+	if (g_iMassBan < 2 && (GetTypeClient(sArg) <= -4))
 	{
 		ReplyToCommand(iClient, "%sUsage: No Access to #all|#ct|#t|#blue|#red", MAPREFIX);
 		return false;
@@ -659,6 +659,11 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 
 			if (bTnIsMl)
 			{
+				if (g_iMassBan < 2)
+				{
+					ReplyToCommand(iClient, "%sUsage: No Access to mass select", MAPREFIX);
+					return;
+				}
 				Transaction hTxn = new Transaction();
 
 				for (int i = 0; i < iTargetCount; i++)
