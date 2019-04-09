@@ -167,7 +167,7 @@ public void ShowTargetOffline(Database db, DBResultSet dbRs, const char[] sError
 		return;
 	}
 
-	if(!IsClientInGame(iClient))
+	if(!(iClient = GetClientOfUserId(iClient)))
 		return;
 	
 	Menu Mmenu = new Menu(MenuHandler_OfflineList);
@@ -193,8 +193,10 @@ public void ShowTargetOffline(Database db, DBResultSet dbRs, const char[] sError
 			ReplaceString(sTitle, sizeof(sTitle), "{NICK}", sName);
 			ReplaceString(sTitle, sizeof(sTitle), "{STEAMID}", sSteamID);
 			ReplaceString(sTitle, sizeof(sTitle), "{TIME}", sTime);
-			
-			Mmenu.AddItem(sID, sTitle);
+
+			AdminId AID = FindAdminByIdentity(AUTHMETHOD_STEAM, sSteamID);
+			if (AID == INVALID_ADMIN_ID || CanAdminTarget(GetUserAdmin(iClient), AID))
+				Mmenu.AddItem(sID, sTitle);
 		#if MADEBUG
 			LogToFile(g_sLogAction,"Menu: %s, %s - %s", sID, sSteamID, sTitle);
 		#endif

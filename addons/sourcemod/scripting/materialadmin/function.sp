@@ -1227,18 +1227,21 @@ public Action TimerBan(Handle timer, any data)
 	char sBuffer[MAX_IP_LENGTH];
 	dPack.ReadString(sBuffer, sizeof(sBuffer));
 	delete dPack;
-	
-	if (g_bServerBanTyp)
-		ServerCommand("banid %d %s", g_iServerBanTime, sBuffer);
-	else
-		ServerCommand("addip %d %s", g_iServerBanTime, sBuffer);
+
+	if (g_iServerBanTime < 1)
+	{
+		if (g_bServerBanTyp)
+			ServerCommand("banid %d %s", g_iServerBanTime, sBuffer);
+		else
+			ServerCommand("addip %d %s", g_iServerBanTime, sBuffer);
 	
 #if MADEBUG
-	if (g_bServerBanTyp)
-		LogToFile(g_sLogAction, "banid %d %s", g_iServerBanTime, sBuffer);
-	else
-		LogToFile(g_sLogAction, "addip %d %s", g_iServerBanTime, sBuffer);
+		if (g_bServerBanTyp)
+			LogToFile(g_sLogAction, "banid %d %s", g_iServerBanTime, sBuffer);
+		else
+			LogToFile(g_sLogAction, "addip %d %s", g_iServerBanTime, sBuffer);
 #endif
+	}
 }
 //-------------------------------------------------------------------------------------------------------------
 void LogOn()

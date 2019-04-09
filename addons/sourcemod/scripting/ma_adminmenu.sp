@@ -35,6 +35,8 @@
 
 #include <sourcemod>
 #include <topmenus>
+
+#undef REQUIRE_PLUGIN
 #include <materialadmin>
 
 //#pragma newdecls required
@@ -141,7 +143,7 @@ public void DefaultCategoryHandler(TopMenu topmenu,
 	{
 		if (object_id == INVALID_TOPMENUOBJECT)
 		{
-			GetFormatVrema(param, buffer, maxlength);
+			LibraryExists("materialadmin") ? GetFormatVrema(param, buffer, maxlength) : Format(buffer, maxlength, "%T:", "Admin Menu", param);
 		}
 		else if (object_id == obj_playercmds)
 		{
