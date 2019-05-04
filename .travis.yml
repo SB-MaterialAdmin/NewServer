@@ -2,15 +2,11 @@ language: c
 dist: precise
 
 env:
-    - SMVERSION=1.7
-    - SMVERSION=1.8
     - SMVERSION=1.9
     - SMVERSION=1.10
 
 matrix:
     fast_finish: true
-    allow_failures:
-    - env: SMVERSION=1.7
 
 before_install:
     - sudo apt-get update
