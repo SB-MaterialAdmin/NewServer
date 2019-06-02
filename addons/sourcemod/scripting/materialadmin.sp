@@ -410,21 +410,21 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	if (!GetSteamAuthorized(iClient, sSteamID))
 		return;
 	
-	if (GetUserAdmin(iClient) == INVALID_ADMIN_ID) 
-	{
-		char sName[MAX_NAME_LENGTH],
-			 sIP[MAX_IP_LENGTH];
+	//if (GetUserAdmin(iClient) == INVALID_ADMIN_ID) 
+	//{
+	char sName[MAX_NAME_LENGTH],
+		 sIP[MAX_IP_LENGTH];
 
-		GetClientName(iClient, sName, sizeof(sName));
-		GetClientIP(iClient, sIP, sizeof(sIP));
-		SetOflineInfo(sSteamID, sName, sIP);
+	GetClientName(iClient, sName, sizeof(sName));
+	GetClientIP(iClient, sIP, sizeof(sIP));
+	SetOflineInfo(sSteamID, sName, sIP);
 
-	#if MADEBUG
-		char sTime[64];
-		FormatTime(sTime, sizeof(sTime), g_sOffFormatTime, GetTime());
-		LogToFile(g_sLogAction, "New: %s %s - %s ; %s.", sName, sSteamID, sIP, sTime);
-	#endif
-	}
+#if MADEBUG
+	char sTime[64];
+	FormatTime(sTime, sizeof(sTime), g_sOffFormatTime, GetTime());
+	LogToFile(g_sLogAction, "New: %s %s - %s ; %s.", sName, sSteamID, sIP, sTime);
+#endif
+	//}
 	/*else
 	{
 		if (ChekBD(g_dDatabase, "BDSetActivityAdmin"))
