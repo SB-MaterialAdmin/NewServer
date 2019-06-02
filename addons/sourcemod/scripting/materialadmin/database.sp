@@ -1855,7 +1855,7 @@ void SetBdReport(int iClient, const char[] sReason)
 	
 	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 			INSERT INTO  `%!s_submissions` (`submitted`, `SteamId`, `name`, `email`, `ModID`, `reason`, `ip`, `subname`, `sip`, `archiv`, `server`) \
-			VALUES (UNIX_TIMESTAMP(), '%s', '%s', '%s', %s, '%s', '%s', '%s', '%s', 0, %!s)", 
+			VALUES (UNIX_TIMESTAMP(), '%s', '%s', '%s', %!s, '%s', '%s', '%s', '%s', 0, %!s)", 
 		g_sDatabasePrefix, sReport_SteamID, sReportName, sSteamID, sModId, sReason, sIp, sName, sReportIp, sServer);
 	
 	if (ChekBD(g_dDatabase, "SetBdReport"))
