@@ -106,6 +106,7 @@ int	g_iServerID = -1,
 	g_iIgnoreBanServer,
 	g_iIgnoreMuteServer,
 	g_iAdminUpdateCache,
+	g_iIgnoreFlagOfflineBan,
 	g_iTargetReport[MAXPLAYERS+1]; // репорт юзер
 
 Database g_dSQLite = null,
@@ -410,10 +411,10 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	if (!GetSteamAuthorized(iClient, sSteamID))
 		return;
 	
-	if (GetUserAdmin(iClient) == INVALID_ADMIN_ID) 
+	if(!(GetUserFlagBits(iClient) & g_iIgnoreFlagOfflineBan))
 	{
 		char sName[MAX_NAME_LENGTH],
-			 sIP[MAX_IP_LENGTH];
+		sIP[MAX_IP_LENGTH];
 
 		GetClientName(iClient, sName, sizeof(sName));
 		GetClientIP(iClient, sIP, sizeof(sIP));
