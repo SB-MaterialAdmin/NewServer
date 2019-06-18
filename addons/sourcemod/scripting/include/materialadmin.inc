@@ -31,8 +31,14 @@ public __pl_materialadmin_SetNTVOptional()
 #endif
 
 #define MAPREFIX 		"[MA] "
-#define MAVERSION 		"0.7.7"
 #define MADEBUG 		0
+
+#define MACOREVERSION 	"0.7.7"
+#if defined GIT_COMMIT_ABBREVIATEDHASH
+  #define MAVERSION	MACOREVERSION ... "-" ... GIT_COMMIT_ABBREVIATEDHASH
+#else
+  #define MAVERSION MACOREVERSION
+#endif
 
 /*********************************************************
 ********RU******

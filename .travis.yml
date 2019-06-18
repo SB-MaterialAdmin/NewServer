@@ -16,9 +16,14 @@ before_install:
 before_script:
     - wget -q "http://www.sourcemod.net/latest.php?version=$SMVERSION&os=linux" -O sourcemod.tar.gz
     - tar -xzf sourcemod.tar.gz
+    - chmod +x git.sh
+    - ./git.sh > addons/sourcemod/scripting/materialadmin.git.sp
     - cd addons/sourcemod/scripting
     - chmod +x spcomp
     - chmod +x compile.sh
 
 script:
-    - ./compile.sh materialadmin.sp ma_adminmenu.sp ma_basecomm.sp ma_checker.sp
+    - ./spcomp materialadmin.git.sp materialadmin.sp -omaterialadmin
+    - ./spcomp materialadmin.git.sp ma_adminmenu.sp -oma_adminmenu
+    - ./spcomp materialadmin.git.sp ma_basecomm.sp -oma_basecomm
+    - ./spcomp materialadmin.git.sp ma_checker.sp -oma_checker
