@@ -1269,3 +1269,21 @@ void LogOn()
 	LogToFile(g_sLogAction, "plugin version %s game %i", MAVERSION, g_iGameTyp);
 #endif
 }
+
+int GetFixedClientName(int iClient, char[] szBuffer, int iMaxLength) {
+  char sName[MAX_NAME_LENGTH * 2 + 1];
+  GetClientName(iClient, sName, sizeof(sName));
+
+  for (int i = 0, len = strlen(sName), CharBytes; i < len;) {
+    if ((CharBytes = GetCharBytes(sName[i])) == 4){
+      len -= 4;
+      for (int u = i; u <= len; u++) {
+        sName[u] = sName[u+4];
+      }
+    } else {
+      i += CharBytes;
+    }
+  }
+
+  return strcopy(szBuffer, iMaxLength, sName);
+}

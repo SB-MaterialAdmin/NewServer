@@ -143,7 +143,10 @@ public void DefaultCategoryHandler(TopMenu topmenu,
 	{
 		if (object_id == INVALID_TOPMENUOBJECT)
 		{
-			LibraryExists("materialadmin") ? GetFormatVrema(param, buffer, maxlength) : Format(buffer, maxlength, "%T:", "Admin Menu", param);
+			if (LibraryExists("materialadmin")) 
+				GetFormatVrema(param, buffer, maxlength);
+			else
+				Format(buffer, maxlength, "%T:", "Admin Menu", param);
 		}
 		else if (object_id == obj_playercmds)
 		{

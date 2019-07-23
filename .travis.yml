@@ -2,15 +2,11 @@ language: c
 dist: precise
 
 env:
-    - SMVERSION=1.7
-    - SMVERSION=1.8
     - SMVERSION=1.9
     - SMVERSION=1.10
 
 matrix:
     fast_finish: true
-    allow_failures:
-    - env: SMVERSION=1.7
 
 before_install:
     - sudo apt-get update
@@ -20,9 +16,14 @@ before_install:
 before_script:
     - wget -q "http://www.sourcemod.net/latest.php?version=$SMVERSION&os=linux" -O sourcemod.tar.gz
     - tar -xzf sourcemod.tar.gz
+    - chmod +x git.sh
+    - ./git.sh > addons/sourcemod/scripting/materialadmin.git.sp
     - cd addons/sourcemod/scripting
     - chmod +x spcomp
     - chmod +x compile.sh
 
 script:
-    - ./compile.sh materialadmin.sp ma_adminmenu.sp ma_basecomm.sp ma_checker.sp
+    - ./spcomp materialadmin.git.sp materialadmin.sp -E -omaterialadmin
+    - ./spcomp materialadmin.git.sp ma_adminmenu.sp -E -oma_adminmenu
+    - ./spcomp materialadmin.git.sp ma_basecomm.sp -E -oma_basecomm
+    - ./spcomp materialadmin.git.sp ma_checker.sp -E -oma_checker

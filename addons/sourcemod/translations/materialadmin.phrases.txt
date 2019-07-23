@@ -68,7 +68,7 @@
 	"ReloadConnect"
 	{
 		"en"    		"Reload connect"
-		"ru"    		"Переподключится к бд"
+		"ru"    		"Переподключиться к бд"
 	}
 	"SetMute"
 	{
@@ -153,7 +153,7 @@
 	"Clients"
 	{
 		"en"			"Clients"
-		"ru"			"Выполнить на выделеных"
+		"ru"			"Выполнить на выделенных"
 	}
 	"no target"
 	{
@@ -450,7 +450,7 @@
 	{
 		"#format"		"{1:s}"
 		"en"			"Validity privileges expire {1}"
-		"ru"			"Срок действия привелегий истекает через {1}"
+		"ru"			"Срок действия привилегий истекает через {1}"
 	}
 	"Clear history"
 	{
@@ -476,7 +476,7 @@
 	{
 		"#format"		"{1:s}"
 		"en"    		"Failed to add to the database {1}. Operation is written to the backup, when you resume connections, data will send into the database"
-		"ru"    		"Не получилось добавить в бд {1}, операция записана в бекап, при возобновления соеденения данные занесутся в бд"
+		"ru"    		"Не получилось добавить в бд {1}, операция записана в бэкап, при возобновления соединения данные занесутся в бд"
 	}
 	"Added to bd"
 	{
@@ -519,7 +519,7 @@
 	"No admin"
 	{
 		"en"    		"This Admin immunity"
-		"ru"    		"Команда запрещена на испольнение над админом"
+		"ru"    		"Команда запрещена на исполнение над админом"
 	
 	}
 	"No Access unban time 0"
@@ -536,7 +536,7 @@
 	{
 		"#format"		"{1:d}"
 		"en" 			"Maximum ban/mute time {1}" 
-		"ru" 			"Вам не разрешено время веше {1}"
+		"ru" 			"Вам не разрешено время выше {1}"
 	}
 	"No Access all"
 	{
@@ -565,19 +565,19 @@
 	{
 		"#format"		"{1:s}"
 		"en"    		"You don't have permissions to mute {1}"
-		"ru"    		"У вас не достаточно прав для мута {1}"
+		"ru"    		"У вас недостаточно прав для мута {1}"
 	}
 	"No access un mute"
 	{
 		"#format"		"{1:s}"
 		"en"    		"You don't have permissions to unmute {1}"
-		"ru"    		"У вас не достаточно прав для размута {1}"
+		"ru"    		"У вас недостаточно прав для размута {1}"
 	}
 	"No access un ban"
 	{
 		"#format"		"{1:s}"
 		"en"    		"You don't have permissions to unban {1}"
-		"ru"    		"У вас не достаточно прав для разбана {1}"
+		"ru"    		"У вас недостаточно прав для разбана {1}"
 	}
 	"No matching client"
 	{

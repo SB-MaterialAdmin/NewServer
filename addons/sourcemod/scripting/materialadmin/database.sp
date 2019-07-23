@@ -501,7 +501,7 @@ void DoCreateDB(int iClient, int iTarget, int iTrax = 0, Transaction hTxn = null
 				if (iTarget && IsClientInGame(iTarget))
 				{
 					char sName[MAX_NAME_LENGTH];
-					GetClientName(iTarget, sName, sizeof(sName));
+					GetFixedClientName(iTarget, sName, sizeof(sName));
 					switch(g_iTargetType[iClient])
 					{
 						case TYPE_GAG, TYPE_MUTE, TYPE_SILENCE:			PrintToChat2(iClient, "%T", "No access mute", iClient, sName);
@@ -575,7 +575,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 	if (iClient && IsClientInGame(iClient) && IsClientAuthorized(iClient))
 	{
 		GetClientAuthId(iClient, TYPE_STEAM, sAdmin_SteamID, sizeof(sAdmin_SteamID));
-		GetClientName(iClient, sAdminName, sizeof(sAdminName));
+		GetFixedClientName(iClient, sAdminName, sizeof(sAdminName));
 		FormatEx(sQueryAdmin, sizeof(sQueryAdmin), "\
 				IFNULL((SELECT aid FROM %s_admins a INNER JOIN %s_admins_servers_groups asg ON (a.aid = asg.admin_id AND asg.server_id = %s) \
 				WHERE (a.authid REGEXP '^STEAM_[0-9]:%s$') LIMIT 1), 0)", 
@@ -595,7 +595,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 	{
 		GetClientAuthId(iTarget, TYPE_STEAM, g_sTarget[iClient][TSTEAMID], sizeof(g_sTarget[][]));
 		GetClientIP(iTarget, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
-		GetClientName(iTarget, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
+		GetFixedClientName(iTarget, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
 	}
 	else
 	{
@@ -662,7 +662,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 			{
 				g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 						INSERT INTO `%!s_bans` (`type`, `ip`, `authid`, `name`, `created`, `ends`, `length`, `reason`, `aid`, `adminIp`, `sid`, `country`) \
-						VALUES (%d, '%s', '%s', '%s', UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + %d, %d, '%s', %s, '%s', %!s, ' ')", 
+						VALUES (%d, '%s', '%s', '%s', UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + %d, %d, '%s', %!s, '%s', %!s, ' ')", 
 					g_sDatabasePrefix, iTyp, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], iTime, iTime, g_sTarget[iClient][TREASON], sQueryAdmin, sAdmin_SteamID, sServer);
 				
 				FireOnClientBanned(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
@@ -1196,7 +1196,7 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 		}
 		
 		FormatTime(sCreated, sizeof(sCreated), FORMAT_TIME, iCreated);
-		GetClientName(iClient, sName, sizeof(sName));
+		GetFixedClientName(iClient, sName, sizeof(sName));
 
 		if(g_iServerID == -1)
 			FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
@@ -1211,7 +1211,7 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 		g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 				INSERT INTO `%!s_banlog` (`sid` ,`time` ,`name` ,`bid`) \
 				VALUES (%!s, UNIX_TIMESTAMP(), '%s', \
-				(SELECT `bid` FROM `%!s_bans` WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%!s$') OR (`type` = 1 AND `ip` = '%!s')%s) AND `RemoveType` IS NULL LIMIT 1))", 
+				(SELECT `bid` FROM `%s_bans` WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')%!s) AND `RemoveType` IS NULL LIMIT 1))", 
 			g_sDatabasePrefix, sServer, sName, g_sDatabasePrefix, sSteamID[8], sIP, sSourceSleuth);
 
 	#if MADEBUG
@@ -1836,11 +1836,11 @@ void SetBdReport(int iClient, const char[] sReason)
 
 	GetClientAuthId(iClient, TYPE_STEAM, sSteamID, sizeof(sSteamID));
 	GetClientIP(iClient, sIp, sizeof(sIp));
-	GetClientName(iClient, sName, sizeof(sName));
+	GetFixedClientName(iClient, sName, sizeof(sName));
 	
 	GetClientAuthId(iTarget, TYPE_STEAM, sReport_SteamID, sizeof(sReport_SteamID));
 	GetClientIP(iTarget, sReportIp, sizeof(sReportIp));
-	GetClientName(iTarget, sReportName, sizeof(sReportName));
+	GetFixedClientName(iTarget, sReportName, sizeof(sReportName));
 
 	if(g_iServerID == -1)
 	{
@@ -1908,7 +1908,7 @@ public Action OnBanClient(int iClient, int iTime, int iFlags, const char[] sReas
 		if (!GetSteamAuthorized(iClient, g_sTarget[0][TSTEAMID]))
 			return Plugin_Continue;
 		GetClientIP(iClient, g_sTarget[0][TIP], sizeof(g_sTarget[][]));
-		GetClientName(iClient, g_sTarget[0][TNAME], sizeof(g_sTarget[][]));
+		GetFixedClientName(iClient, g_sTarget[0][TNAME], sizeof(g_sTarget[][]));
 		strcopy(g_sTarget[0][TREASON], sizeof(g_sTarget[][]), sReason);
 		g_iTarget[0][TTIME] = iTime;
 		
