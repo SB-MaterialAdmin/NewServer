@@ -819,6 +819,11 @@ public Action CommandRehashAdm(int iClient, int iArgc)
 
 public Action LCommandRehashAdm(int iClient, const char[] sCommand, int iArgc)
 {
+	if (!CheckCommandAccess(iClient, sCommand, ADMFLAG_BAN))
+	{
+		return Plugin_Continue;
+	}
+
 	g_bReshashAdmin = true;
 #if MADEBUG
 	LogToFile(g_sLogAction, "Rehash Admin cl com.");
