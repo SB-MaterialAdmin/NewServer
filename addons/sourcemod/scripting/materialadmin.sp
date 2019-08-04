@@ -411,7 +411,7 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	if (!GetSteamAuthorized(iClient, sSteamID))
 		return;
 	
-	if(!((GetUserFlagBits(iClient) & g_iIgnoreFlagOfflineBan) == g_iIgnoreFlagOfflineBan))
+	if(g_iIgnoreFlagOfflineBan && !((GetUserFlagBits(iClient) & g_iIgnoreFlagOfflineBan) == g_iIgnoreFlagOfflineBan))
 	{
 		char sName[MAX_NAME_LENGTH],
 		sIP[MAX_IP_LENGTH];
