@@ -1,9 +1,12 @@
 language: c
-dist: precise
+dist: bionic
 
 env:
-    - SMVERSION=1.9
-    - SMVERSION=1.10
+    matrix:
+        - SMVERSION=1.9
+        - SMVERSION=1.10
+    global:
+        - CUSTOM_POSTFIX=_
 
 matrix:
     fast_finish: true
@@ -14,10 +17,13 @@ before_install:
     - sudo apt-get install lib32stdc++6
 
 before_script:
+    - mkdir sourcemod
+    - cd sourcemod
     - wget -q "http://www.sourcemod.net/latest.php?version=$SMVERSION&os=linux" -O sourcemod.tar.gz
     - tar -xzf sourcemod.tar.gz
-    - chmod +x git.sh
-    - ./git.sh > addons/sourcemod/scripting/materialadmin.git.sp
+    - cp -Rf ../addons/sourcemod/scripting/* addons/sourcemod/scripting/
+    - chmod +x ../git.sh
+    - ./../git.sh > addons/sourcemod/scripting/materialadmin.git.sp
     - cd addons/sourcemod/scripting
     - chmod +x spcomp
     - chmod +x compile.sh
@@ -27,3 +33,21 @@ script:
     - ./spcomp materialadmin.git.sp ma_adminmenu.sp -E -oma_adminmenu
     - ./spcomp materialadmin.git.sp ma_basecomm.sp -E -oma_basecomm
     - ./spcomp materialadmin.git.sp ma_checker.sp -E -oma_checker
+
+before_deploy:
+    - export CUSTOM_POSTFIX=$CUSTOM_POSTFIX$SMVERSION
+    - mkdir -p $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY
+    - cp -Rf $TRAVIS_BUILD_DIR/addons $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons
+    - rm -Rf $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/*
+    - mkdir -p $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional
+    - cp materialadmin.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/materialadmin.smx
+    - cp ma_adminmenu.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_adminmenu.smx
+    - cp ma_basecomm.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_basecomm.smx
+    - cp ma_checker.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_checker.smx
+    - cd $TRAVIS_BUILD_DIR
+    - wget --user=$HTTP_USER --password=$HTTP_PASSWORD $BASE_URL/travis.sh
+
+deploy:
+    - provider: script
+      skip_cleanup: true
+      script: bash travis.sh
