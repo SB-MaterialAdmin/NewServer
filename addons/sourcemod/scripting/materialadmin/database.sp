@@ -233,7 +233,7 @@ public void SQL_Callback_GetInfoOffline(Database db, DBResultSet dbRs, const cha
 		PrintToChat2(iClient, "%T", "Failed to player", iClient);
 	}
 
-	if (dbRs.FetchRow())
+	if (dbRs.HasResults && dbRs.FetchRow())
 	{
 		dbRs.FetchString(0, g_sTarget[iClient][TSTEAMID], sizeof(g_sTarget[][]));
 		dbRs.FetchString(1, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
@@ -289,7 +289,7 @@ public void SQL_Callback_GetMuteType(Database db, DBResultSet dbRs, const char[]
 		return;
 	}
 
-	if (dbRs.FetchRow())
+	if (dbRs.HasResults && dbRs.FetchRow())
 	{
 		g_iTargetMuteType[iTarget] = dbRs.FetchInt(0);
 		dbRs.FetchString(1, g_sTargetMuteSteamAdmin[iTarget], sizeof(g_sTargetMuteSteamAdmin[]));
@@ -352,7 +352,7 @@ public void SQL_Callback_GetInfoMute(Database db, DBResultSet dbRs, const char[]
 	char sReason[256],
 		sNameAdmin[MAX_NAME_LENGTH];
 
-	if (dbRs.FetchRow())
+	if (dbRs.HasResults && dbRs.FetchRow())
 	{
 		iCreated = dbRs.FetchInt(0);
 		iEnds = dbRs.FetchInt(1);
@@ -454,7 +454,7 @@ public void SQL_Callback_CheckBanInBd(Database db, DBResultSet dbRs, const char[
 			}
 			else
 			{
-				if (dbRs.FetchRow())
+				if (dbRs.HasResults && dbRs.FetchRow())
 				{
 					char sSteamID[MAX_STEAMID_LENGTH];
 
@@ -1149,7 +1149,7 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 	if (!iClient)
 		return;
 
-	if (dbRs.RowCount && dbRs.FetchRow())
+	if (dbRs.HasResults && dbRs.RowCount && dbRs.FetchRow())
 	{
 		switch (FireOnClientConnectBan(iClient))
 		{
@@ -1302,7 +1302,7 @@ public void VerifyMute(Database db, DBResultSet dbRs, const char[] sError, any i
 	if (!iClient)
 		return;
 
-	if (dbRs.RowCount && dbRs.FetchRow())
+	if (dbRs.HasResults && dbRs.RowCount && dbRs.FetchRow())
 	{
 		int iEndTime = dbRs.FetchInt(0);
 		int iType = dbRs.FetchInt(1);
@@ -1376,10 +1376,29 @@ void AdminHash()
 
 public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
+	// Start loading groups.
+	// TODO: migrate this code block to function.
+	char sQuery[254];
+
+	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
+			SELECT `name`, `flags`, `immunity`, `maxbantime`, `maxmutetime` \
+			FROM `%!s_srvgroups` ORDER BY `id`", 
+		g_sDatabasePrefix);
+#if MADEBUG
+	LogToFile(g_sLogDateBase, "GroupsDone:QUERY: %s", sQuery);
+#endif
+	FixDatabaseCharset();
+	g_dDatabase.Query(GroupsDone, sQuery, _, DBPrio_High);
+
 	if (!dbRs || sError[0])
 		LogToFile(g_sLogDateBase, "Failed to retrieve overrides from the database, %s", sError);
 	else
 	{
+		if (!dbRs.HasResults)
+		{
+			return;
+		}
+
 		KeyValues kvOverrides = new KeyValues("overrides");
 		
 		char sFlags[32], 
@@ -1416,26 +1435,32 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 	}
 	
 	ReadOverrides();
-	
-	char sQuery[254];
-
-	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-			SELECT `name`, `flags`, `immunity`, `maxbantime`, `maxmutetime` \
-			FROM `%!s_srvgroups` ORDER BY `id`", 
-		g_sDatabasePrefix);
-#if MADEBUG
-	LogToFile(g_sLogDateBase, "GroupsDone:QUERY: %s", sQuery);
-#endif
-	FixDatabaseCharset();
-	g_dDatabase.Query(GroupsDone, sQuery, _, DBPrio_High);
 }
 
 public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
+	// Load the group overrides
+	// TODO: move this code to custom function.
+	char sQuery[512];
+
+	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
+			SELECT sg.`name`, so.`type`, so.`name`, so.`access` \
+			FROM `%!s_srvgroups_overrides` so LEFT JOIN `%!s_srvgroups` sg ON sg.`id` = so.`group_id` ORDER BY sg.`id`", 
+		g_sDatabasePrefix, g_sDatabasePrefix);
+#if MADEBUG
+	LogToFile(g_sLogDateBase, "LoadGroupsOverrides:QUERY: %s", sQuery);
+#endif
+	g_dDatabase.Query(LoadGroupsOverrides, sQuery, _, DBPrio_High);
+
 	if (!dbRs || sError[0])
 		LogToFile(g_sLogDateBase, "Failed to retrieve groups from the database, %s", sError);
 	else
 	{
+		if (!dbRs.HasResults)
+		{
+			return;
+		}
+
 		char sGrpName[128], 
 			sGrpFlags[32];
 		int iImmunity,
@@ -1491,26 +1516,43 @@ public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 		LogToFile(g_sLogDateBase, "Finished loading %i groups.", iGrpCount);
 	#endif
 	}
-	
-	// Load the group overrides
-	char sQuery[512];
-
-	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-			SELECT sg.`name`, so.`type`, so.`name`, so.`access` \
-			FROM `%!s_srvgroups_overrides` so LEFT JOIN `%!s_srvgroups` sg ON sg.`id` = so.`group_id` ORDER BY sg.`id`", 
-		g_sDatabasePrefix, g_sDatabasePrefix);
-#if MADEBUG
-	LogToFile(g_sLogDateBase, "LoadGroupsOverrides:QUERY: %s", sQuery);
-#endif
-	g_dDatabase.Query(LoadGroupsOverrides, sQuery, _, DBPrio_High);
 }
 
 public void LoadGroupsOverrides(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
+	// TODO: move this code to custom function.
+	char sQuery[1204],
+		sServer[256];
+	if(g_iServerID == -1)
+		FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
+	else
+		IntToString(g_iServerID, sServer, sizeof(sServer));
+
+	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
+			SELECT `authid`, `srv_password`, (SELECT `name` FROM `%!s_srvgroups` WHERE `name` = `srv_group`) \
+			AS `srv_group`, `srv_flags`, `user`, `immunity`, `expired`, `extraflags`,  \
+			(SELECT `flags` FROM `%!s_groups` WHERE `gid` = a.`gid`) AS `flags` \
+			FROM `%!s_admins_servers_groups` AS asg LEFT JOIN `%!s_admins` AS a ON a.`aid` = asg.`admin_id` \
+			WHERE (`expired` > UNIX_TIMESTAMP() OR `expired` = 0 OR `expired` = NULL) \
+			AND `authid` != 'STEAM_ID_SERVER' \
+			AND ((`server_id` = %!s OR `srv_group_id` = ANY (SELECT `group_id` FROM `%!s_servers_groups` \
+			WHERE `server_id` = %!s))) GROUP BY `aid`, `authid`, `srv_password`, `srv_group`, `srv_flags`, `user`", 
+		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sServer, g_sDatabasePrefix, sServer);
+#if MADEBUG
+	LogToFile(g_sLogDateBase, "AdminsDone:QUERY: %s", sQuery);
+#endif
+	FixDatabaseCharset();
+	g_dDatabase.Query(AdminsDone, sQuery, _, DBPrio_High);
+
 	if (!dbRs || sError[0])
 		LogToFile(g_sLogDateBase, "Failed to retrieve group overrides from the database, %s", sError);
 	else
 	{
+		if (!dbRs.HasResults)
+		{
+			return;
+		}
+
 		char sGroupName[128],
 			sType[16],
 			sCommand[64],
@@ -1556,29 +1598,6 @@ public void LoadGroupsOverrides(Database db, DBResultSet dbRs, const char[] sErr
 	}
 	
 	ReadGroups();
-	
-	char sQuery[1204],
-		sServer[256];
-	if(g_iServerID == -1)
-		FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
-	else
-		IntToString(g_iServerID, sServer, sizeof(sServer));
-
-	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-			SELECT `authid`, `srv_password`, (SELECT `name` FROM `%!s_srvgroups` WHERE `name` = `srv_group`) \
-			AS `srv_group`, `srv_flags`, `user`, `immunity`, `expired`, `extraflags`,  \
-			(SELECT `flags` FROM `%!s_groups` WHERE `gid` = a.`gid`) AS `flags` \
-			FROM `%!s_admins_servers_groups` AS asg LEFT JOIN `%!s_admins` AS a ON a.`aid` = asg.`admin_id` \
-			WHERE (`expired` > UNIX_TIMESTAMP() OR `expired` = 0 OR `expired` = NULL) \
-			AND `authid` != 'STEAM_ID_SERVER' \
-			AND ((`server_id` = %!s OR `srv_group_id` = ANY (SELECT `group_id` FROM `%!s_servers_groups` \
-			WHERE `server_id` = %!s))) GROUP BY `aid`, `authid`, `srv_password`, `srv_group`, `srv_flags`, `user`", 
-		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sServer, g_sDatabasePrefix, sServer);
-#if MADEBUG
-	LogToFile(g_sLogDateBase, "AdminsDone:QUERY: %s", sQuery);
-#endif
-	FixDatabaseCharset();
-	g_dDatabase.Query(AdminsDone, sQuery, _, DBPrio_High);
 }
 
 public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any iData)
@@ -1587,6 +1606,11 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 		LogToFile(g_sLogDateBase, "Failed to retrieve admins from the database, %s", sError);
 	else
 	{
+		if (dbRs.HasResults)
+		{
+			return;
+		}
+
 		char sIdentity[66],
 			sPassword[66],
 			sGroups[256],
@@ -1712,7 +1736,7 @@ public void SQL_Callback_QueryBekap(Database db, DBResultSet dbRs, const char[] 
 	if (!dbRs || sError[0])
 		LogToFile(g_sLogDateBase, "SQL_Callback_QueryBekap Query Failed: %s", sError);
 
-	if (dbRs.RowCount)
+	if (dbRs.HasResults && dbRs.RowCount)
 	{
 		char sQuery[1024];
 		int iId;
@@ -1772,7 +1796,7 @@ public void SQL_Callback_CheckBekapTime(Database db, DBResultSet dbRs, const cha
 	if (!dbRs || sError[0])
 		LogToFile(g_sLogDateBase, "SQL_Callback_CheckBekapTime Query Failed: %s", sError);
 
-	if (dbRs.RowCount)
+	if (dbRs.HasResults && dbRs.RowCount)
 	{
 		int iId,
 			iTimeBekap;
@@ -2034,7 +2058,7 @@ public void CallbackCheckAdmin(Database db, DBResultSet dbRs, const char[] sErro
 
 	if (iTyp < 3 && iTyp > 0) // удаление 1 тока с севрера, 2 полностью
 	{
-		if (dbRs.RowCount)
+		if (dbRs.HasResults && dbRs.RowCount)
 		{
 			dbRs.FetchRow();
 			int iId = dbRs.FetchInt(0);
@@ -2045,7 +2069,7 @@ public void CallbackCheckAdmin(Database db, DBResultSet dbRs, const char[] sErro
 	}
 	else // добавление
 	{
-		if (dbRs.RowCount)
+		if (dbRs.HasResults && dbRs.RowCount)
 		{
 			dbRs.FetchRow();
 			int iId = dbRs.FetchInt(0);

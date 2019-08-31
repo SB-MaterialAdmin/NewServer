@@ -971,6 +971,7 @@ void ShowInfoMuteMenu(int iClient, int iCreated, int iEnds, int iLength, char[] 
 	if (!iClient || !IsClientInGame(iClient))
 		return;
 
+	if (g_aUserId[iClient].Length < 0) return;
 	int iTarget = GetClientOfUserId(g_aUserId[iClient].Get(0));
 	char sTitle[256],
 		sBuffer[64];
