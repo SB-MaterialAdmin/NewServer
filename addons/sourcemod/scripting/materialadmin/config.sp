@@ -196,6 +196,8 @@ public SMCResult KeyValueConfig(SMCParser Smc, const char[] sKey, const char[] s
 		g_iIgnoreMuteServer = StringToInt(sValue);
 	else if(!strcmp("AdminUpdateCache", sKey, false))
 		g_iAdminUpdateCache = StringToInt(sValue);
+	else if(!strcmp("UseDatabaseFix", sKey, false))
+		g_bUseDatabaseFix = (sValue[0] != '0');
 	else if(!strcmp("IgnoreFlagOfflineBan", sKey, false))
 		g_iIgnoreFlagOfflineBan = ReadFlagString(sValue);
 #if MADEBUG

@@ -183,6 +183,8 @@ int g_iGameTyp;
 #define GAMETYP_l4d 	5 //Left4Dead
 #define GAMETYP_l4d2 	6 //Left4Dead2
 
+bool	g_bUseDatabaseFix = true; // default value, if we don't have this parameter in configuration file.
+
 #include "materialadmin/config.sp"
 #include "materialadmin/admin.sp"
 #include "materialadmin/menu.sp"
@@ -197,13 +199,32 @@ public Plugin myinfo =
 	author = "Material Admin Dev Team",
 	description = "For to sm 1.9",
 	version = MAVERSION,
-	url = "https://github.com/CrazyHackGUT/SB_Material_Design/"
+	url = "https://github.com/SB-MaterialAdmin/NewServer"
 };
+
+#if defined GIT_COMMIT_ABBREVIATEDHASH
+#if defined __TRAVIS
+stock const char	g_szCompilerHost[]	= "Travis (CI)";
+#else
+stock const char	g_szCompilerHost[]	= "Unknown";
+#endif
+
+stock const char	g_szStartDelimter[]	= "------------------------------ [ Material Admin ] ------------------------------"; // by default, 80 symbols per line.
+#endif
 
 public void OnPluginStart() 
 {
 	LoadTranslations("materialadmin.phrases");
 	LoadTranslations("common.phrases");
+
+#if defined GIT_COMMIT_ABBREVIATEDHASH
+	PrintToServer(g_szStartDelimter);
+	PrintToServer("-> Build date:  " ... __DATE__ ... " " ... __TIME__);
+	PrintToServer("-> Compiled on: %s", g_szCompilerHost);
+	PrintToServer("-> Commit hash: " ... GIT_COMMIT_FULLHASH);
+	PrintToServer("-> Version:     " ... MACOREVERSION);
+	PrintToServer(g_szStartDelimter);
+#endif
 
 	switch(GetEngineVersion())
 	{

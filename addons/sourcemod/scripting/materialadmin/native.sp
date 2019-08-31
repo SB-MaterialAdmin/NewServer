@@ -15,7 +15,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public int Native_GetDatabase(Handle plugin, int numParams)
 {
-	return view_as<int>(CloneHandle(g_dDatabase, plugin));
+	return g_dDatabase ? view_as<int>(CloneHandle(g_dDatabase, plugin)) : 0;
 }
 
 public int Native_Log(Handle plugin, int numParams)

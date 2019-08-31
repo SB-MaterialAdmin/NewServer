@@ -55,9 +55,7 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 
 	if (g_dDatabase != null)
 	{
-		SQL_LockDatabase(g_dDatabase);
-		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-		SQL_UnlockDatabase(g_dDatabase);
+		FixDatabaseCharset(true);
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "ConnectBd: yes");
 	#endif
@@ -541,9 +539,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 {
 	if (iTrax == 2)
 	{
-		SQL_LockDatabase(g_dDatabase);
-		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-		SQL_UnlockDatabase(g_dDatabase);
+		FixDatabaseCharset();
 		g_dDatabase.Execute(hTxn, SQL_TxnCallback_Success, SQL_TxnCallback_Failure);
 		return;
 	}
@@ -973,9 +969,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 	{
 		if (!iTrax)
 		{
-			SQL_LockDatabase(g_dDatabase);
-			SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-			SQL_UnlockDatabase(g_dDatabase);
+			FixDatabaseCharset();
 			g_dDatabase.Query(CreateBdCallback, sQuery, dPack, DBPrio_High);
 		}
 		else
@@ -1127,9 +1121,7 @@ void CheckClientBan(int iClient)
 		dPack.WriteString(sSteamID);
 		dPack.WriteString(sIp);
 		
-		SQL_LockDatabase(g_dDatabase);
-		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-		SQL_UnlockDatabase(g_dDatabase);
+		FixDatabaseCharset();
 		g_dDatabase.Query(VerifyBan, sQuery, dPack, DBPrio_High);
 	}
 	else
@@ -1217,9 +1209,7 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "Ban log: QUERY: %s", sQuery);
 	#endif
-		SQL_LockDatabase(g_dDatabase);
-		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-		SQL_UnlockDatabase(g_dDatabase);
+		FixDatabaseCharset();
 		g_dDatabase.Query(SQL_Callback_BanLog, sQuery, _, DBPrio_High);
 
 		g_bBanClientConnect[iClient] = true;
@@ -1295,7 +1285,7 @@ void CheckClientMute(int iClient, char[] sSteamID)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "Check Mute: %s. QUERY: %s", sSteamID, sQuery);
 #endif
-	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+	FixDatabaseCharset();
 	g_dDatabase.Query(VerifyMute, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
 
@@ -1370,9 +1360,7 @@ void AdminHash()
 				FROM `%!s_overrides`", 
 			g_sDatabasePrefix);
 
-		SQL_LockDatabase(g_dDatabase);
-		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-		SQL_UnlockDatabase(g_dDatabase);
+		FixDatabaseCharset();
 		g_dDatabase.Query(OverridesDone, sQuery, _, DBPrio_High);
 	}
 	else
@@ -1438,9 +1426,7 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "GroupsDone:QUERY: %s", sQuery);
 #endif
-	SQL_LockDatabase(g_dDatabase);
-	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-	SQL_UnlockDatabase(g_dDatabase);
+	FixDatabaseCharset();
 	g_dDatabase.Query(GroupsDone, sQuery, _, DBPrio_High);
 }
 
@@ -1591,9 +1577,7 @@ public void LoadGroupsOverrides(Database db, DBResultSet dbRs, const char[] sErr
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "AdminsDone:QUERY: %s", sQuery);
 #endif
-	SQL_LockDatabase(g_dDatabase);
-	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-	SQL_UnlockDatabase(g_dDatabase);
+	FixDatabaseCharset();
 	g_dDatabase.Query(AdminsDone, sQuery, _, DBPrio_High);
 }
 
@@ -1742,9 +1726,7 @@ public void SQL_Callback_QueryBekap(Database db, DBResultSet dbRs, const char[] 
 		#if MADEBUG
 			LogToFile(g_sLogDateBase, "QueryBekap:QUERY: %s", sQuery);
 		#endif
-			SQL_LockDatabase(g_dDatabase);
-			SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-			SQL_UnlockDatabase(g_dDatabase);
+			FixDatabaseCharset();
 			g_dDatabase.Query(CheckCallbackBekap, sQuery, iId, DBPrio_Low); // байда с зависанием скрипта
 		}
 	}
@@ -1868,9 +1850,7 @@ void SetBdReport(int iClient, const char[] sReason)
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "SetBdReport:QUERY: %s", sQuery);
 	#endif
-		SQL_LockDatabase(g_dDatabase);
-		SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-		SQL_UnlockDatabase(g_dDatabase);
+		FixDatabaseCharset();
 		g_dDatabase.Query(CheckCallbackReport, sQuery, dPack, DBPrio_High);
 	}
 	else
@@ -1997,9 +1977,7 @@ void BDAddAdmin(int iClient, bool bFlag = false)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDAddAdmin:QUERY: %s", sQuery);
 #endif
-	SQL_LockDatabase(g_dDatabase);
-	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-	SQL_UnlockDatabase(g_dDatabase);
+	FixDatabaseCharset();
 	g_dDatabase.Query(CallbackAddAdmin, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
 
@@ -2036,9 +2014,7 @@ void BDCheckAdmins(int iClient, int iTyp)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDCheckAdmins:QUERY: %s", sQuery);
 #endif
-	SQL_LockDatabase(g_dDatabase);
-	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-	SQL_UnlockDatabase(g_dDatabase);
+	FixDatabaseCharset();
 	g_dDatabase.Query(CallbackCheckAdmin, sQuery, dPack, DBPrio_High);
 }
 
@@ -2117,9 +2093,7 @@ void BDAddServerAdmin(int iClient, int iId, char[] sGroup, int iLine)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDAddServerAdmin:QUERY: %s", sQuery);
 #endif
-	SQL_LockDatabase(g_dDatabase);
-	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-	SQL_UnlockDatabase(g_dDatabase);
+	FixDatabaseCharset();
 	g_dDatabase.Query(CallbackAddServerAdmin, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
 
@@ -2167,9 +2141,7 @@ void BDDelAdmin(int iClient, int iId, int iTyp)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDDelAdmin:QUERY: %s", sQuery);
 #endif
-	SQL_LockDatabase(g_dDatabase);
-	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
-	SQL_UnlockDatabase(g_dDatabase);
+	FixDatabaseCharset();
 	g_dDatabase.Query(CallbackDelAdmin, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
 
@@ -2191,3 +2163,15 @@ public void CallbackDelAdmin(Database db, DBResultSet dbRs, const char[] sError,
 	AdminHash();
 }
 #endif
+
+void FixDatabaseCharset(bool bIgnoreConfigurationValue = false)
+{
+	if (!bIgnoreConfigurationValue && !g_bUseDatabaseFix)
+	{
+		return;
+	}
+
+	SQL_LockDatabase(g_dDatabase);
+	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+	SQL_UnlockDatabase(g_dDatabase);
+}
