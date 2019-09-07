@@ -31,10 +31,10 @@ before_script:
     - chmod +x compile.sh
 
 script:
-    - ./spcomp __TRAVIS=1 {$COMPILER_OPTIONS} materialadmin.git.sp materialadmin.sp -E -omaterialadmin
-    - ./spcomp __TRAVIS=1 {$COMPILER_OPTIONS} materialadmin.git.sp ma_adminmenu.sp -E -oma_adminmenu
-    - ./spcomp __TRAVIS=1 {$COMPILER_OPTIONS} materialadmin.git.sp ma_basecomm.sp -E -oma_basecomm
-    - ./spcomp __TRAVIS=1 {$COMPILER_OPTIONS} materialadmin.git.sp ma_checker.sp -E -oma_checker
+    - ./spcomp __TRAVIS=1 $COMPILER_OPTIONS materialadmin.git.sp materialadmin.sp -E -omaterialadmin
+    - ./spcomp __TRAVIS=1 $COMPILER_OPTIONS materialadmin.git.sp ma_adminmenu.sp -E -oma_adminmenu
+    - ./spcomp __TRAVIS=1 $COMPILER_OPTIONS materialadmin.git.sp ma_basecomm.sp -E -oma_basecomm
+    - ./spcomp __TRAVIS=1 $COMPILER_OPTIONS materialadmin.git.sp ma_checker.sp -E -oma_checker
 
 before_deploy:
     - export CUSTOM_POSTFIX=$CUSTOM_POSTFIX$SMVERSION
