@@ -4,7 +4,9 @@ dist: bionic
 env:
     matrix:
         - SMVERSION=1.9
+        - SMVERSION=1.9  COMPILER_OPTIONS="__MADEBUG=1"
         - SMVERSION=1.10
+        - SMVERSION=1.10 COMPILER_OPTIONS="__MADEBUG=1"
     global:
         - CUSTOM_POSTFIX=_
 
@@ -29,13 +31,14 @@ before_script:
     - chmod +x compile.sh
 
 script:
-    - ./spcomp __TRAVIS=1 materialadmin.git.sp materialadmin.sp -E -omaterialadmin
-    - ./spcomp __TRAVIS=1 materialadmin.git.sp ma_adminmenu.sp -E -oma_adminmenu
-    - ./spcomp __TRAVIS=1 materialadmin.git.sp ma_basecomm.sp -E -oma_basecomm
-    - ./spcomp __TRAVIS=1 materialadmin.git.sp ma_checker.sp -E -oma_checker
+    - ./spcomp __TRAVIS=1 {$COMPILER_OPTIONS} materialadmin.git.sp materialadmin.sp -E -omaterialadmin
+    - ./spcomp __TRAVIS=1 {$COMPILER_OPTIONS} materialadmin.git.sp ma_adminmenu.sp -E -oma_adminmenu
+    - ./spcomp __TRAVIS=1 {$COMPILER_OPTIONS} materialadmin.git.sp ma_basecomm.sp -E -oma_basecomm
+    - ./spcomp __TRAVIS=1 {$COMPILER_OPTIONS} materialadmin.git.sp ma_checker.sp -E -oma_checker
 
 before_deploy:
     - export CUSTOM_POSTFIX=$CUSTOM_POSTFIX$SMVERSION
+    - if [ "$COMPILER_OPTIONS" ]; then export CUSTOM_POSTFIX=$CUSTOM_POSTFIX"d"; fi
     - mkdir -p $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY
     - cp -Rf $TRAVIS_BUILD_DIR/addons $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons
     - rm -Rf $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/*

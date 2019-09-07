@@ -34,10 +34,17 @@ public __pl_materialadmin_SetNTVOptional()
 #define MADEBUG 		0
 
 #define MACOREVERSION 	"0.7.8"
+
+// Git related code.
 #if defined GIT_COMMIT_ABBREVIATEDHASH
   #define MAVERSION	MACOREVERSION ... "-" ... GIT_COMMIT_ABBREVIATEDHASH
 #else
   #define MAVERSION MACOREVERSION
+#endif
+
+#if defined __MADEBUG
+  #undef MADEBUG
+  #define MADEBUG __MADEBUG
 #endif
 
 /*********************************************************
