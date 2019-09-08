@@ -1606,7 +1606,7 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 		LogToFile(g_sLogDateBase, "Failed to retrieve admins from the database, %s", sError);
 	else
 	{
-		if (dbRs.HasResults)
+		if (!dbRs.HasResults)
 		{
 			return;
 		}
