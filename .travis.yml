@@ -7,11 +7,15 @@ env:
         - SMVERSION=1.9  COMPILER_OPTIONS="__MADEBUG=1"
         - SMVERSION=1.10
         - SMVERSION=1.10 COMPILER_OPTIONS="__MADEBUG=1"
+        - SMVERSION=1.11
+        - SMVERSION=1.11 COMPILER_OPTIONS="__MADEBUG=1"
     global:
         - CUSTOM_POSTFIX=_
 
 matrix:
     fast_finish: true
+    allow_failures:
+        - env: SMVERSION=1.11
 
 before_install:
     - sudo apt-get update

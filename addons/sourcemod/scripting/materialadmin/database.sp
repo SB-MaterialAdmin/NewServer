@@ -2195,7 +2195,19 @@ void FixDatabaseCharset(bool bIgnoreConfigurationValue = false)
 		return;
 	}
 
+	char szCharset[24];
+
+#if SOURCEMOD_V_MINOR > 9
+	strcopy(szCharset, sizeof(szCharset), "utf8mb4");
+#else
+	strcopy(szCharset, sizeof(szCharset), "utf8");
+#endif
+
 	SQL_LockDatabase(g_dDatabase);
-	SQL_FastQuery(g_dDatabase, "SET NAMES 'utf8'");
+
+	SQL_SetCharset(g_dDatabase, szCharset);
+	Format(szCharset, sizeof(szCharset), "SET NAMES '%s'", szCharset);
+	SQL_FastQuery(g_dDatabase, szCharset);
+
 	SQL_UnlockDatabase(g_dDatabase);
 }
