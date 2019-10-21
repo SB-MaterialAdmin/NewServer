@@ -2203,9 +2203,9 @@ void FixDatabaseCharset(bool bIgnoreConfigurationValue = false)
 	strcopy(szCharset, sizeof(szCharset), "utf8");
 #endif
 
+	SQL_SetCharset(g_dDatabase, szCharset);
 	SQL_LockDatabase(g_dDatabase);
 
-	SQL_SetCharset(g_dDatabase, szCharset);
 	Format(szCharset, sizeof(szCharset), "SET NAMES '%s'", szCharset);
 	SQL_FastQuery(g_dDatabase, szCharset);
 
