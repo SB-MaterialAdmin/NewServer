@@ -50,6 +50,13 @@ public Plugin myinfo =
 	url = "http://www.sourcemod.net/"
 };
 
+/** Material Admin Integration */
+bool		g_bLoadWarns = false;
+int			g_iWarnings[MAXPLAYERS + 1];
+char		g_szDatabasePrefix[12] = "sb";
+Database	g_hDatabase;
+int			g_iServerID = -1;
+
 /* Forwards */
 Handle hOnAdminMenuReady = null;
 Handle hOnAdminMenuCreated = null;
@@ -71,6 +78,95 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("AddTargetsToMenu2", __AddTargetsToMenu2);
 	RegPluginLibrary("adminmenu");
 	return APLRes_Success;
+}
+
+public void MAOnConnectDatabase(Database db)
+{
+	g_hDatabase = db;
+}
+
+public void MAOnConfigSetting()
+{
+	if (!MAGetConfigSetting("DatabasePrefix", g_szDatabasePrefix))
+		MALog(MA_LogConfig, "ma_checker: MAGetConfigSetting no");
+
+	char szDummy[12];
+	if (MAGetConfigSetting("LoadWarnCount", szDummy))
+	{
+		g_bLoadWarns = (szDummy[0] != '0');
+	}
+
+	if (MAGetConfigSetting("ServerID", szDummy))
+	{
+		g_iServerID = StringToInt(szDummy);
+	}
+}
+
+public void OnClientAuthorized(int iClient, const char[] szEngineAuthId)
+{
+	/* Do not check bots nor check player with lan steamid. */
+	if (szEngineAuthId[0] == 'B' || szEngineAuthId[9] == 'L' || szEngineAuthId[0] == '[')
+		return;
+
+	if (!g_hDatabase)
+		return;
+	
+	if (!g_bLoadWarns)
+		return;
+
+	if (g_iServerID == -1)
+	{
+		// User doesn't setup Server ID.
+		return;
+	}
+
+	char szQuery[768];
+	g_hDatabase.Format(szQuery, sizeof(szQuery), "\
+		SELECT \
+			1 \
+		FROM \
+			`%s_warns` \
+		WHERE \
+		    `arecipient` = IFNULL((\
+				SELECT \
+					`admin_id` \
+				FROM \
+					`%s_admins_servers_groups` \
+					INNER JOIN `%s_admins` \
+						ON `%s_admins`.`aid` = `%s_admins_servers_groups`.`admin_id` \
+				WHERE \
+					( \
+						`server_id` = %d \
+						OR `srv_group_id` IN (\
+							SELECT \
+								`group_id` \
+							FROM \
+								`%s_servers_groups` \
+							WHERE \
+								`server_id` = %d\
+						)\
+					) \
+					AND `authid` REGEXP '^STEAM_[0-9]:%s$' \
+				\
+			), 0) \
+			AND (`expires` > UNIX_TIMESTAMP() OR `expires` = 0);", g_szDatabasePrefix, g_szDatabasePrefix, g_szDatabasePrefix, g_szDatabasePrefix, g_szDatabasePrefix, g_iServerID, g_szDatabasePrefix, g_iServerID, szEngineAuthId);
+	g_hDatabase.Query(SQL_OnWarnsCountReceived, szQuery, GetClientUserId(iClient), DBPrio_Low);
+}
+
+public void SQL_OnWarnsCountReceived(Database hDB, DBResultSet hResults, const char[] szError, int iClient)
+{
+	if ((iClient = GetClientOfUserId(iClient)) == 0)
+	{
+		return;
+	}
+
+	if (!hResults)
+	{
+		MALog(MA_LogDateBase, "Database failure when fetching warns count for %L: %s", iClient, szError);
+		return;
+	}
+
+	g_iWarnings[iClient] = hResults.RowCount;
 }
 
 public void OnPluginStart()
@@ -144,7 +240,7 @@ public void DefaultCategoryHandler(TopMenu topmenu,
 		if (object_id == INVALID_TOPMENUOBJECT)
 		{
 			if (LibraryExists("materialadmin")) 
-				GetFormatVrema(param, buffer, maxlength);
+				GetCustomAdminMenuFormat(param, buffer, maxlength);
 			else
 				Format(buffer, maxlength, "%T:", "Admin Menu", param);
 		}
@@ -285,7 +381,7 @@ stock int UTIL_AddTargetsToMenu(Menu menu, int source_client, bool in_game_only,
 	return UTIL_AddTargetsToMenu2(menu, source_client, flags);
 }
 
-void GetFormatVrema(int iClient, char[] sLength, int iLens)
+void GetCustomAdminMenuFormat(int iClient, char[] sLength, int iLens)
 {
 	AdminId idAdmin = GetUserAdmin(iClient);
 	int iExpire	= MAGetAdminExpire(idAdmin);
@@ -310,6 +406,7 @@ void GetFormatVrema(int iClient, char[] sLength, int iLens)
 		if(iDays) iLen += Format(sLength[iLen], iLens - iLen, "%d %T", iDays, "Days", iClient);
 		if(iHours) iLen += Format(sLength[iLen], iLens - iLen, "%s%d %T", iDays ? " " : "", iHours, "Hours", iClient);
 		if(iMinutes) iLen += Format(sLength[iLen], iLens - iLen, "%s%d %T", (iDays || iHours) ? " " : "", iMinutes, "Minutes", iClient);
+		if(g_bLoadWarns) iLen += Format(sLength[iLen], iLens - iLen, "\n%T", "WarningCount", iClient, g_iWarnings[iClient]);
 		
 		Format(sLength, iLens, "%T:\n%s", "Admin Menu", iClient, sLength);
 	}

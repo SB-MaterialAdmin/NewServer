@@ -35,6 +35,8 @@ char g_sDatabasePrefix[12] = "sb",
 	g_sNameReples[MAX_NAME_LENGTH];
 Database g_dDatabase = null;
 
+bool	g_bCheckBans = true;
+
 public Plugin myinfo = 
 {
 	name = "Material Admin Checker", 
@@ -56,6 +58,12 @@ public void MAOnConfigSetting()
 {
 	if (!MAGetConfigSetting("DatabasePrefix", g_sDatabasePrefix))
 		MALog(MA_LogConfig, "ma_checker: MAGetConfigSetting no");
+
+	char szEnableState[4];
+	if (MAGetConfigSetting("CheckBans", szEnableState))
+	{
+		g_bCheckBans = (szEnableState[0] != '0');
+	}
 }
 
 public void MAOnConnectDatabase(Database db)
@@ -72,6 +80,9 @@ public void OnClientAuthorized(int iClient, const char[] sAuth)
 	if (!g_dDatabase)
 		return;
 	
+	if (!g_bCheckBans)
+		return;
+
 	char sQuery[512], 
 		sIp[MAX_IP_LENGTH];
 	GetClientIP(iClient, sIp, sizeof(sIp));
