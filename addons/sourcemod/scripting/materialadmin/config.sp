@@ -68,6 +68,7 @@ void ReadConfig()
 	g_smcConfigParser.OnKeyValue = KeyValueConfig;
 	g_smcConfigParser.OnLeaveSection = EndSection;
 	
+	g_hSettings.Clear();
 	BuildPath(Path_SM, sConfigFile, sizeof(sConfigFile), "configs/materialadmin/config.cfg");
 
 	if(FileExists(sConfigFile))
@@ -100,6 +101,8 @@ public SMCResult KeyValueConfig(SMCParser Smc, const char[] sKey, const char[] s
 {
 	if(!sKey[0] || !sValue[0])
 		return SMCParse_Continue;
+
+	g_hSettings.SetString(sKey, sValue, true);
 
 	if(!strcmp("DatabasePrefix", sKey, false)) 
 		strcopy(g_sDatabasePrefix, sizeof(g_sDatabasePrefix), sValue);

@@ -146,7 +146,7 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		IntToString(g_iBasecommTime, sValue, sizeof(sValue));
 	else if(StrEqual("BanTypMenu", sSetting, false))
 		IntToString(g_iBanTypMenu, sValue, sizeof(sValue));
-	else
+	else if(!g_hSettings.GetString(sSetting, sValue, sizeof(sValue)))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Error: Config Setting invalid.");
 
 	SetNativeString(2, sValue, sizeof(sValue), false);

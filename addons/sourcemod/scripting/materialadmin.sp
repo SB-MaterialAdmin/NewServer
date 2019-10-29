@@ -175,6 +175,8 @@ char g_sGroupsLoc[128],
 	g_sAdminsLoc[128],
 	g_sOverridesLoc[128];
 	
+StringMap	g_hSettings;
+
 int g_iGameTyp;
 #define GAMETYP_CCS 	1 //css
 #define GAMETYP_CCS34 	2 //css 34
@@ -265,6 +267,7 @@ public void OnPluginStart()
 	g_tWebFlagSetingsAdmin = new StringMap();
 	g_tWebFlagUnBanMute = new StringMap();
 	g_tMenuTime = new StringMap();
+	g_hSettings = new StringMap();
 	
 	TopMenu topmenu;
 	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
