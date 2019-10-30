@@ -997,7 +997,7 @@ void KillTimerMute(int iClient)
 	}
 }
 
-public Action TimerMute(Handle timer, any iClient)
+public Action TimerMute(Handle timer, int iClient)
 {
 #if MADEBUG
 	if (iClient && IsClientInGame(iClient))
@@ -1036,7 +1036,7 @@ void KillTimerGag(int iClient)
 	}
 }
 
-public Action TimerGag(Handle timer, any iClient)
+public Action TimerGag(Handle timer, int iClient)
 {
 #if MADEBUG
 	if (iClient && IsClientInGame(iClient))

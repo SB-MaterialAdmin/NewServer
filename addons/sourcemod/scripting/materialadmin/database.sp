@@ -225,7 +225,7 @@ void BdGetInfoOffline(int iClient, int iId)
 #endif
 }
 
-public void SQL_Callback_GetInfoOffline(Database db, DBResultSet dbRs, const char[] sError, any iClient)
+public void SQL_Callback_GetInfoOffline(Database db, DBResultSet dbRs, const char[] sError, int iClient)
 {
 	if (!dbRs || sError[0])
 	{
