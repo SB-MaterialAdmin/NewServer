@@ -400,17 +400,10 @@ void ShowTypeMenu(int iClient)
 	Mmenu.SetTitle("%T:", "SetTitle", iClient);
 	
 	FormatEx(sTitle, sizeof(sTitle), "%T", "SetBan", iClient); // ban
-	if (CheckAdminFlags(iClient, ADMFLAG_BAN))
-		Mmenu.AddItem("", sTitle);
-	else
-		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	Mmenu.AddItem(NULL_STRING, sTitle, IsBanAvailable(iClient) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
 
-	
 	FormatEx(sTitle, sizeof(sTitle), "%T", "SetMute", iClient); // mute
-	if (CheckAdminFlags(iClient, ADMFLAG_CHAT))
-		Mmenu.AddItem("", sTitle);
-	else
-		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	Mmenu.AddItem(NULL_STRING, sTitle, IsAnyCommTypeAvailable(iClient) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
 	
 	Mmenu.ExitBackButton = true;
 	Mmenu.Display(iClient, MENU_TIME_FOREVER);
@@ -460,10 +453,10 @@ void ShowTypeBanMenu(int iClient)
 	Mmenu.SetTitle("%T:", "SetTitle", iClient);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Steam", iClient); // steam
-	Mmenu.AddItem("", sTitle);
+	Mmenu.AddItem(NULL_STRING, sTitle);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Ip", iClient); // ip
-	Mmenu.AddItem("", sTitle);
+	Mmenu.AddItem(NULL_STRING, sTitle);
 
 	Mmenu.ExitBackButton = true;
 	Mmenu.Display(iClient, MENU_TIME_FOREVER);
@@ -508,22 +501,22 @@ void ShowTypeMuteMenu(int iClient)
 		else
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%T", "Mute", iClient); // мут
-			Mmenu.AddItem("", sTitle);
+			Mmenu.AddItem(NULL_STRING, sTitle, GetItemDrawModeByPermission(iClient, MA_MUTE));
 
 			FormatEx(sTitle, sizeof(sTitle), "%T", "Gag", iClient); // чат
-			Mmenu.AddItem("", sTitle);
+			Mmenu.AddItem(NULL_STRING, sTitle, GetItemDrawModeByPermission(iClient, MA_GAG));
 			
 			FormatEx(sTitle, sizeof(sTitle), "%T", "Silence", iClient); // силенце
-			Mmenu.AddItem("", sTitle);
+			Mmenu.AddItem(NULL_STRING, sTitle, GetItemDrawModeByPermission(iClient, MA_SILENCE));
 
 			FormatEx(sTitle, sizeof(sTitle), "%T", "unMute", iClient); // ун мут
-			Mmenu.AddItem("", sTitle);
+			Mmenu.AddItem(NULL_STRING, sTitle, GetItemDrawModeByPermission(iClient, MA_UNMUTE));
 			
 			FormatEx(sTitle, sizeof(sTitle), "%T", "unGag", iClient); // ун чат
-			Mmenu.AddItem("", sTitle);
+			Mmenu.AddItem(NULL_STRING, sTitle, GetItemDrawModeByPermission(iClient, MA_UNGAG));
 
 			FormatEx(sTitle, sizeof(sTitle), "%T", "unSilence", iClient); // ун силенце
-			Mmenu.AddItem("", sTitle);
+			Mmenu.AddItem(NULL_STRING, sTitle, GetItemDrawModeByPermission(iClient, MA_UNSILENCE));
 		}
 	}
 	else
@@ -546,37 +539,37 @@ void MenuTypeAdd(int iClient, int iTarget, Menu Mmenu)
 	FormatEx(sBuffer, sizeof(sBuffer), "%i %b", iTarget, bMut);
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Mute", iClient); // мут
 	if(!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] == TYPEGAG && !bMut || g_iTargetMuteType[iTarget] && bMut)
-		Mmenu.AddItem(sBuffer, sTitle);
+		Mmenu.AddItem(sBuffer, sTitle, GetItemDrawModeByPermission(iClient, MA_MUTE));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Gag", iClient); // чат
 	if(!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] == TYPEMUTE && !bMut || g_iTargetMuteType[iTarget] && bMut)
-		Mmenu.AddItem(sBuffer, sTitle);
+		Mmenu.AddItem(sBuffer, sTitle, GetItemDrawModeByPermission(iClient, MA_GAG));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Silence", iClient); // силенце
 	if(!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] && bMut)
-		Mmenu.AddItem(sBuffer, sTitle);
+		Mmenu.AddItem(sBuffer, sTitle, GetItemDrawModeByPermission(iClient, MA_SILENCE));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "unMute", iClient); // ун мут
 	if(g_iTargetMuteType[iTarget] == TYPEMUTE && bMut || g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
-		Mmenu.AddItem("", sTitle);
+		Mmenu.AddItem("", sTitle, GetItemDrawModeByPermission(iClient, MA_UNMUTE));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "unGag", iClient); // ун чат
 	if(g_iTargetMuteType[iTarget] == TYPEGAG && bMut || g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
-		Mmenu.AddItem("", sTitle);
+		Mmenu.AddItem("", sTitle, GetItemDrawModeByPermission(iClient, MA_UNGAG));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "unSilence", iClient); // ун силенце
 	if(g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
-		Mmenu.AddItem("", sTitle);
+		Mmenu.AddItem("", sTitle, GetItemDrawModeByPermission(iClient, MA_UNSILENCE));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 }

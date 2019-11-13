@@ -1287,3 +1287,43 @@ int GetFixedClientName(int iClient, char[] szBuffer, int iMaxLength) {
 
   return strcopy(szBuffer, iMaxLength, sName);
 }
+
+stock bool IsBanTypeAvailable(int iClient, int iType)
+{
+	char szCommand[16];
+	int iFlag;
+	switch (iType)
+	{
+		case MA_BAN_IP, MA_BAN_STEAM: 	strcopy(szCommand, sizeof(szCommand), "sm_ban"), iFlag = ADMFLAG_BAN;
+
+		case MA_GAG:					strcopy(szCommand, sizeof(szCommand), "sm_gag"), iFlag = ADMFLAG_CHAT;
+		case MA_MUTE:					strcopy(szCommand, sizeof(szCommand), "sm_mute"), iFlag = ADMFLAG_CHAT;
+		case MA_SILENCE:				strcopy(szCommand, sizeof(szCommand), "sm_silence"), iFlag = ADMFLAG_CHAT;
+		case MA_UNGAG:					strcopy(szCommand, sizeof(szCommand), "sm_ungag"), iFlag = ADMFLAG_CHAT;
+		case MA_UNMUTE:					strcopy(szCommand, sizeof(szCommand), "sm_unmute"), iFlag = ADMFLAG_CHAT;
+		case MA_UNSILENCE:				strcopy(szCommand, sizeof(szCommand), "sm_unsilence"), iFlag = ADMFLAG_CHAT;
+
+		default:	ThrowError("Unknown ban type");
+	}
+
+	return CheckCommandAccess(iClient, szCommand, iFlag);
+}
+
+stock int GetItemDrawModeByPermission(int iClient, int iType)
+{
+	return IsBanTypeAvailable(iClient, iType) ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED;
+}
+
+stock bool IsBanAvailable(int iClient)
+{
+	return IsBanTypeAvailable(iClient, MA_BAN_STEAM);
+}
+
+stock bool IsAnyCommTypeAvailable(int iClient)
+{
+	return (
+		IsBanTypeAvailable(iClient, MA_GAG) ||
+		IsBanTypeAvailable(iClient, MA_MUTE) ||
+		IsBanTypeAvailable(iClient, MA_SILENCE)
+	);
+}
