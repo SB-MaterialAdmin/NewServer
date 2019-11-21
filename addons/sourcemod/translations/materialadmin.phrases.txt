@@ -787,4 +787,11 @@
 		"en"			"{1} included voice and text chat {2}"
 		"ru"			"{1} включил голосовой и текстовый чат {2}"
 	}
+
+	"WarningCount"
+	{
+		"#format"		"{1:d}"
+		"en"			"Warnings: {1}"
+		"ru"			"Предупреждений: {1}"
+	}
 }
