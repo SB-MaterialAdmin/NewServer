@@ -2211,3 +2211,29 @@ void FixDatabaseCharset(bool bIgnoreConfigurationValue = false)
 
 	SQL_UnlockDatabase(g_dDatabase);
 }
+
+void FetchServerIdDynamically()
+{
+	char szQuery[256];
+	g_dDatabase.Format(szQuery, sizeof(szQuery), "SELECT IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0) AS `ServerID`", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
+	g_dDatabase.Query(CallbackFetchServerId, szQuery, _, DBPrio_High);
+}
+
+public void CallbackFetchServerId(Database hDB, DBResultSet hResults, const char[] szError, any data)
+{
+	if (!hResults)
+	{
+		SetFailState("Couldn't fetch Server ID from database: %s. Setup Server ID in configuration file manually.", szError);
+		return;
+	}
+
+	if (!hResults.HasResults || !hResults.RowCount || !hResults.FetchRow())
+	{
+		SetFailState("Couldn't fetch Server ID from database: Response is empty. Setup Server ID in configuration file manually.");
+		return;
+	}
+
+	g_iServerID = hResults.FetchInt(0);
+	g_bServerIDVerified = true;
+	FireOnConfigSetting();
+}

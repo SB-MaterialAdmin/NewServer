@@ -473,9 +473,14 @@ void FireOnConnectDatabase(Database db)
 void FireOnConfigSetting()
 {
 	static Handle hForward;
-	
+
 	if(hForward == null)
 		hForward = CreateGlobalForward("MAOnConfigSetting", ET_Ignore);
+
+	if (!g_bServerIDVerified)
+	{
+		return;
+	}
 
 	Call_StartForward(hForward);
 	Call_Finish();

@@ -109,6 +109,8 @@ int	g_iServerID = -1,
 	g_iIgnoreFlagOfflineBan,
 	g_iTargetReport[MAXPLAYERS+1]; // репорт юзер
 
+bool g_bServerIDVerified = false;
+
 Database g_dSQLite = null,
 	g_dDatabase = null;
 	

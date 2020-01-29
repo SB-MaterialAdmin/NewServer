@@ -13,6 +13,8 @@ ConfigState g_iConfigState = ConfigState_Non;
 //получение значений конфига
 void ReadConfig()
 {
+	g_bServerIDVerified = false;
+
 	if (g_smcTimeReasonParser == null)
 		g_smcTimeReasonParser = new SMCParser();
 	
@@ -83,7 +85,7 @@ void ReadConfig()
 			LogToFile(g_sLogConfig, "Parser encountered error: %s", sError);
 		}
 		else
-			FireOnConfigSetting();
+			VerifyServerID();
 	}
 	else
 	{

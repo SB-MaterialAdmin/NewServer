@@ -1327,3 +1327,26 @@ stock bool IsAnyCommTypeAvailable(int iClient)
 		IsBanTypeAvailable(iClient, MA_SILENCE)
 	);
 }
+
+stock void VerifyServerID()
+{
+	if (g_bServerIDVerified)
+	{
+		return;
+	}
+
+	if (g_iServerID == -1)
+	{
+		if (g_dDatabase != null)
+		{
+			char szQuery[256];
+			g_dDatabase.Format(szQuery, sizeof(szQuery), "SELECT IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0) AS `ServerID`", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
+			g_dDatabase.Query()
+		}
+
+		return;
+	}
+
+	g_bServerIDVerified = true;
+	FireOnConfigSetting();
+}
