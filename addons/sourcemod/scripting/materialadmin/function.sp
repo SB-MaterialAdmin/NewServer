@@ -1005,14 +1005,10 @@ public Action TimerMute(Handle timer, int iUserId)
 		return Plugin_Stop;
 
 #if MADEBUG
-	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "timer mute end: %N", iClient);
-	else
-		LogToFile(g_sLogAction, "timer mute end: %d", iClient);
 #endif
 	g_hTimerMute[iClient] = null;
-	if (iClient && IsClientInGame(iClient))
-		UnMute(iClient);
+	UnMute(iClient);
 		
 	return Plugin_Stop;
 }
@@ -1051,14 +1047,10 @@ public Action TimerGag(Handle timer, int iUserId)
 		return Plugin_Stop;
 		
 #if MADEBUG
-	if (iClient && IsClientInGame(iClient))
-		LogToFile(g_sLogAction, "timer gag end: %N", iClient);
-	else
-		LogToFile(g_sLogAction, "timer gag end: %d", iClient);
+	LogToFile(g_sLogAction, "timer gag end: %N", iClient);
 #endif
 	g_hTimerGag[iClient] = null;
-	if (iClient && IsClientInGame(iClient))
-		UnGag(iClient);
+	UnGag(iClient);
 
 	return Plugin_Stop;
 }
