@@ -1354,3 +1354,9 @@ stock void VerifyServerID()
 	g_bServerIDVerified = true;
 	FireOnConfigSetting();
 }
+
+public void OnClientDisconnect_Post(int iClient)
+{
+	KillTimerMute(iClient);
+	KillTimerGag(iClient);
+}
