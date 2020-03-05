@@ -997,17 +997,20 @@ void KillTimerMute(int iClient)
 	}
 }
 
-public Action TimerMute(Handle timer, int iClient)
+public Action TimerMute(Handle timer, int iUserId)
 {
+	int iClient = GetClientOfUserId(iUserId);
+	
+	if (!iClient)
+		return Plugin_Stop;
+
 #if MADEBUG
-	if (iClient && IsClientInGame(iClient))
 		LogToFile(g_sLogAction, "timer mute end: %N", iClient);
-	else
-		LogToFile(g_sLogAction, "timer mute end: %d", iClient);
 #endif
 	g_hTimerMute[iClient] = null;
-	if (iClient && IsClientInGame(iClient))
-		UnMute(iClient);
+	UnMute(iClient);
+		
+	return Plugin_Stop;
 }
 
 void UnGag(int iClient)
@@ -1036,17 +1039,20 @@ void KillTimerGag(int iClient)
 	}
 }
 
-public Action TimerGag(Handle timer, int iClient)
+public Action TimerGag(Handle timer, int iUserId)
 {
+	int iClient = GetClientOfUserId(iUserId);
+	
+	if (!iClient)
+		return Plugin_Stop;
+		
 #if MADEBUG
-	if (iClient && IsClientInGame(iClient))
-		LogToFile(g_sLogAction, "timer gag end: %N", iClient);
-	else
-		LogToFile(g_sLogAction, "timer gag end: %d", iClient);
+	LogToFile(g_sLogAction, "timer gag end: %N", iClient);
 #endif
 	g_hTimerGag[iClient] = null;
-	if (iClient && IsClientInGame(iClient))
-		UnGag(iClient);
+	UnGag(iClient);
+
+	return Plugin_Stop;
 }
 
 void UnSilence(int iClient)
@@ -1077,7 +1083,7 @@ void AddGag(int iClient, int iTime)
 	if (iTime > 0 && iTime < 86400)
 	{
 		if(!g_hTimerGag[iClient])
-			g_hTimerGag[iClient] = CreateTimer(float(iTime), TimerGag, iClient);
+			g_hTimerGag[iClient] = CreateTimer(float(iTime), TimerGag, GetClientUserId(iClient));
 	}
 	
 #if MADEBUG
@@ -1103,7 +1109,7 @@ void AddMute(int iClient, int iTime)
 	if (iTime > 0 && iTime < 86400)
 	{
 		if(!g_hTimerMute[iClient])
-			g_hTimerMute[iClient] = CreateTimer(float(iTime), TimerMute, iClient);
+			g_hTimerMute[iClient] = CreateTimer(float(iTime), TimerMute, GetClientUserId(iClient));
 	}
 
 #if MADEBUG
@@ -1138,9 +1144,9 @@ void AddSilence(int iClient, int iTime)
 	if (iTime > 0 && iTime < 86400)
 	{
 		if(!g_hTimerMute[iClient])
-			g_hTimerMute[iClient] = CreateTimer(float(iTime), TimerMute, iClient);
+			g_hTimerMute[iClient] = CreateTimer(float(iTime), TimerMute, GetClientUserId(iClient));
 		if(!g_hTimerGag[iClient])
-			g_hTimerGag[iClient] = CreateTimer(float(iTime), TimerGag, iClient);
+			g_hTimerGag[iClient] = CreateTimer(float(iTime), TimerGag, GetClientUserId(iClient));
 	}
 
 #if MADEBUG
@@ -1347,4 +1353,10 @@ stock void VerifyServerID()
 
 	g_bServerIDVerified = true;
 	FireOnConfigSetting();
+}
+
+public void OnClientDisconnect_Post(int iClient)
+{
+	KillTimerMute(iClient);
+	KillTimerGag(iClient);
 }
