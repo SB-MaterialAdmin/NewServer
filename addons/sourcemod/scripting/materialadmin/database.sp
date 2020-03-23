@@ -573,9 +573,9 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 		GetClientAuthId(iClient, TYPE_STEAM, sAdmin_SteamID, sizeof(sAdmin_SteamID));
 		GetFixedClientName(iClient, sAdminName, sizeof(sAdminName));
 		FormatEx(sQueryAdmin, sizeof(sQueryAdmin), "\
-				IFNULL((SELECT aid FROM %s_admins a INNER JOIN %s_admins_servers_groups asg ON (a.aid = asg.admin_id AND asg.server_id = %s) \
-				WHERE (a.authid REGEXP '^STEAM_[0-9]:%s$') LIMIT 1), 0)", 
-			g_sDatabasePrefix, g_sDatabasePrefix, sServer, sAdmin_SteamID[8]);
+				IFNULL((SELECT aid FROM %s_admins WHERE aid IN(SELECT admin_id FROM %s_admins_servers_groups WHERE server_id = %s OR srv_group_id IN(SELECT group_id FROM %s_servers_groups WHERE server_id = %s)) \
+				AND a.authid REGEXP '^STEAM_[0-9]:%s$' LIMIT 1), 0)", 
+			g_sDatabasePrefix, g_sDatabasePrefix, sServer, g_sDatabasePrefix, sServer, sAdmin_SteamID[8]);
 	}
 	else
 	{
