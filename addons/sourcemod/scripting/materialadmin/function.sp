@@ -517,22 +517,13 @@ void ConvecterSteam3ToSteam2(char[] sSteamID)
 
 bool GetSteamAuthorized(int iClient, char[] sSteam)
 {
-	if (!iClient)
-	{
-		strcopy(sSteam, MAX_STEAMID_LENGTH, "STEAM_ID_SERVER");
-		return true;
-	}
-
 	if (IsClientAuthorized(iClient))
 	{
 		GetClientAuthId(iClient, TYPE_STEAM, sSteam, MAX_STEAMID_LENGTH);
 		return true;
 	}
-	else
-	{
 		
-		return false;
-	}
+	return false;
 }
 
 void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
