@@ -517,7 +517,7 @@ void ConvecterSteam3ToSteam2(char[] sSteamID)
 
 bool GetSteamAuthorized(int iClient, char[] sSteam)
 {
-	if (IsClientAuthorized(iClient))
+	if (iClient && IsClientAuthorized(iClient))
 	{
 		GetClientAuthId(iClient, TYPE_STEAM, sSteam, MAX_STEAMID_LENGTH);
 		return true;
