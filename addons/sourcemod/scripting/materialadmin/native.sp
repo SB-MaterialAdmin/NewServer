@@ -208,7 +208,7 @@ public int Native_BanPlayer(Handle plugin, int numParams)
 	if (!iTarget || !IsClientInGame(iTarget) || IsFakeClient(iTarget))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player no game.");
 	
-	if (!GetSteamAuthorized(iClient, g_sTarget[iClient][TSTEAMID]))
+	if (!GetSteamAuthorized(iTarget, g_sTarget[iClient][TSTEAMID]))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player no Steam Authorized.");
 	GetClientIP(iTarget, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
 	GetClientName(iTarget, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
