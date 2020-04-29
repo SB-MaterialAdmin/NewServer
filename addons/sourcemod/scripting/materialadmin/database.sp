@@ -672,7 +672,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 			{
 				g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 						INSERT INTO `%!s_bans` (`type`, `ip`, `authid`, `created`, `ends`, `length`, `reason`, `aid`, `adminIp`, `sid`, `country`) \
-						VALUES (%d, '%s', '%s', UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + %d, %d, '%s', %s, '%s', %!s, ' ')", 
+						VALUES (%d, '%s', '%s', UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + %d, %d, '%s', %!s, '%s', %!s, ' ')", 
 					g_sDatabasePrefix, iTyp, iTyp?sSteamIp:"", !iTyp?sSteamIp:"", iTime, iTime, g_sTarget[iClient][TREASON], sQueryAdmin, sAdmin_SteamID, sServer);
 				
 				FireOnClientAddBanned(iClient, sSteamIp, "", g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
