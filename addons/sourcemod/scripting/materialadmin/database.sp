@@ -1382,7 +1382,7 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 
 	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 			SELECT sg.`id`, sg.`name`, sg.`flags`, sg.`immunity`, sg.`maxbantime`, sg.`maxmutetime`, so.`type`, so.`name`, so.`access` \
-			FROM `!%s_srvgroups` sg LEFT JOIN `!%s_srvgroups_overrides` so ON sg.`id` = so.`group_id` ORDER BY sg.`id`, so.`id`", 
+			FROM `%!s_srvgroups` sg LEFT JOIN `%!s_srvgroups_overrides` so ON sg.`id` = so.`group_id` ORDER BY sg.`id`, so.`id`", 
 		g_sDatabasePrefix, g_sDatabasePrefix);
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "GroupsDone:QUERY: %s", sQuery);
