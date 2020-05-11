@@ -1370,7 +1370,7 @@ void SetupAdminGroupFlagsFromBits(GroupId iGroup, int iFlags)
 	for (int iFlagId = 0; iFlagId < AdminFlags_TOTAL; ++iFlagId)
 	{
 		iFlag = (1 << iFlagId);
-		if (iFlags && iFlag)
+		if (iFlags & iFlag)
 		{
 			BitToFlag(iFlag, eFlag);
 			SetAdmGroupAddFlag(iGroup, eFlag, true);

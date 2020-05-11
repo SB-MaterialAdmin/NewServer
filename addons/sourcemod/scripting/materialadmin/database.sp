@@ -1439,6 +1439,30 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 
 public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
+	// TODO: move this code to custom function.
+	char sQuery[1204],
+		sServer[256];
+	if(g_iServerID == -1)
+		FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
+	else
+		IntToString(g_iServerID, sServer, sizeof(sServer));
+
+	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
+			SELECT `authid`, `srv_password`, (SELECT `name` FROM `%!s_srvgroups` WHERE `name` = `srv_group`) \
+			AS `srv_group`, `srv_flags`, `user`, `immunity`, `expired`, `extraflags`,  \
+			(SELECT `flags` FROM `%!s_groups` WHERE `gid` = a.`gid`) AS `flags` \
+			FROM `%!s_admins_servers_groups` AS asg LEFT JOIN `%!s_admins` AS a ON a.`aid` = asg.`admin_id` \
+			WHERE (`expired` > UNIX_TIMESTAMP() OR `expired` = 0 OR `expired` = NULL) \
+			AND `authid` != 'STEAM_ID_SERVER' \
+			AND ((`server_id` = %!s OR `srv_group_id` = ANY (SELECT `group_id` FROM `%!s_servers_groups` \
+			WHERE `server_id` = %!s))) GROUP BY `aid`, `authid`, `srv_password`, `srv_group`, `srv_flags`, `user`", 
+		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sServer, g_sDatabasePrefix, sServer);
+#if MADEBUG
+	LogToFile(g_sLogDateBase, "AdminsDone:QUERY: %s", sQuery);
+#endif
+	FixDatabaseCharset();
+	g_dDatabase.Query(AdminsDone, sQuery, _, DBPrio_High);
+
 	if (!dbRs || sError[0])
 		LogToFile(g_sLogDateBase, "Failed to retrieve groups from the database, %s", sError);
 	else
@@ -1536,87 +1560,7 @@ public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 		LogToFile(g_sLogDateBase, "Finished loading %i groups.", iGrpCount);
 	#endif
 	}
-}
 
-public void LoadGroupsOverrides(Database db, DBResultSet dbRs, const char[] sError, any iData)
-{
-	// TODO: move this code to custom function.
-	char sQuery[1204],
-		sServer[256];
-	if(g_iServerID == -1)
-		FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
-	else
-		IntToString(g_iServerID, sServer, sizeof(sServer));
-
-	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-			SELECT `authid`, `srv_password`, (SELECT `name` FROM `%!s_srvgroups` WHERE `name` = `srv_group`) \
-			AS `srv_group`, `srv_flags`, `user`, `immunity`, `expired`, `extraflags`,  \
-			(SELECT `flags` FROM `%!s_groups` WHERE `gid` = a.`gid`) AS `flags` \
-			FROM `%!s_admins_servers_groups` AS asg LEFT JOIN `%!s_admins` AS a ON a.`aid` = asg.`admin_id` \
-			WHERE (`expired` > UNIX_TIMESTAMP() OR `expired` = 0 OR `expired` = NULL) \
-			AND `authid` != 'STEAM_ID_SERVER' \
-			AND ((`server_id` = %!s OR `srv_group_id` = ANY (SELECT `group_id` FROM `%!s_servers_groups` \
-			WHERE `server_id` = %!s))) GROUP BY `aid`, `authid`, `srv_password`, `srv_group`, `srv_flags`, `user`", 
-		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sServer, g_sDatabasePrefix, sServer);
-#if MADEBUG
-	LogToFile(g_sLogDateBase, "AdminsDone:QUERY: %s", sQuery);
-#endif
-	FixDatabaseCharset();
-	g_dDatabase.Query(AdminsDone, sQuery, _, DBPrio_High);
-
-	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "Failed to retrieve group overrides from the database, %s", sError);
-	else
-	{
-		if (!dbRs.HasResults)
-		{
-			return;
-		}
-
-		char sGroupName[128],
-			sType[16],
-			sCommand[64],
-			sAllowed[16];
-		
-		KeyValues kvGroups = new KeyValues("groups");
-		kvGroups.ImportFromFile(g_sGroupsLoc);
-
-		while (dbRs.FetchRow())
-		{
-			if (dbRs.IsFieldNull(0))
-				continue;
-			
-			dbRs.FetchString(0, sGroupName, sizeof(sGroupName));
-			TrimString(sGroupName);
-			if (!sGroupName[0])
-				continue;
-			
-			dbRs.FetchString(1, sType, sizeof(sType));
-			dbRs.FetchString(2, sCommand, sizeof(sCommand));
-			dbRs.FetchString(3, sAllowed, sizeof(sAllowed));
-
-			if (kvGroups.JumpToKey(sGroupName))
-			{
-				kvGroups.JumpToKey("overrides", true);
-				if (StrEqual(sType, "command"))
-					kvGroups.SetString(sCommand, sAllowed);
-				else if (StrEqual(sType, "group"))
-				{
-					Format(sCommand, sizeof(sCommand), "@%s", sCommand);
-					kvGroups.SetString(sCommand, sAllowed);
-				}
-				kvGroups.Rewind();
-			}
-			
-		#if MADEBUG
-			LogToFile(g_sLogDateBase, "Adding group %s override (%s, %s)", sGroupName, sType, sCommand);
-		#endif
-		}
-		
-		kvGroups.ExportToFile(g_sGroupsLoc);
-		delete kvGroups;
-	}
-	
 	ReadGroups();
 }
 
