@@ -1378,12 +1378,12 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 {
 	// Start loading groups.
 	// TODO: migrate this code block to function.
-	char sQuery[254];
+	char sQuery[300];
 
 	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-			SELECT `name`, `flags`, `immunity`, `maxbantime`, `maxmutetime` \
-			FROM `%!s_srvgroups` ORDER BY `id`", 
-		g_sDatabasePrefix);
+			SELECT sg.`id`, sg.`name`, sg.`flags`, sg.`immunity`, sg.`maxbantime`, sg.`maxmutetime`, so.`type`, so.`name`, so.`access` \
+			FROM `!%s_srvgroups` sg LEFT JOIN `!%s_srvgroups_overrides` so ON sg.`id` = so.`group_id` ORDER BY sg.`id`, so.`id`", 
+		g_sDatabasePrefix, g_sDatabasePrefix);
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "GroupsDone:QUERY: %s", sQuery);
 #endif
@@ -1439,19 +1439,6 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 
 public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
-	// Load the group overrides
-	// TODO: move this code to custom function.
-	char sQuery[512];
-
-	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-			SELECT sg.`name`, so.`type`, so.`name`, so.`access` \
-			FROM `%!s_srvgroups_overrides` so LEFT JOIN `%!s_srvgroups` sg ON sg.`id` = so.`group_id` ORDER BY sg.`id`", 
-		g_sDatabasePrefix, g_sDatabasePrefix);
-#if MADEBUG
-	LogToFile(g_sLogDateBase, "LoadGroupsOverrides:QUERY: %s", sQuery);
-#endif
-	g_dDatabase.Query(LoadGroupsOverrides, sQuery, _, DBPrio_High);
-
 	if (!dbRs || sError[0])
 		LogToFile(g_sLogDateBase, "Failed to retrieve groups from the database, %s", sError);
 	else
@@ -1461,56 +1448,89 @@ public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 			return;
 		}
 
-		char sGrpName[128], 
+		char sGrpName[256],
 			sGrpFlags[32];
-		int iImmunity,
-			iMaxBanTime = -1,
-			iMaxMuteTime = -1;
+
+		int iImmunity;
+		// TODO: restore writing max ban time and max mute time.
+
 	#if MADEBUG
 		int	iGrpCount = 0;
 	#endif
-		KeyValues kvGroups = new KeyValues("groups");
+		File hFile = OpenFile(g_sGroupsLoc, "wb");
+		hFile.WriteInt32(BINARY__MA_GROUPS_HEADER);
+		int iGid = -1;
+		int iOverrideCount = 0;
+		int iOverridePos = 0;
+
+		char szOverrideText[256],
+				szOverrideType[4],
+				szOverrideRule[4];
 
 		while (dbRs.MoreRows)
 		{
 			dbRs.FetchRow();
-			if (dbRs.IsFieldNull(0))
+			if (dbRs.IsFieldNull(1))
 				continue;
 
-			dbRs.FetchString(0, sGrpName, sizeof(sGrpName));
-			dbRs.FetchString(1, sGrpFlags, sizeof(sGrpFlags));
-			iImmunity = dbRs.FetchInt(2);
-			if (!dbRs.IsFieldNull(3))
-				iMaxBanTime = dbRs.FetchInt(3);
-			if (!dbRs.IsFieldNull(4))
-				iMaxMuteTime = dbRs.FetchInt(4);
-			
-			TrimString(sGrpName);
-			TrimString(sGrpFlags);
-			
-			// Ignore empty rows..
-			if (!sGrpName[0])
-				continue;
-			
-			kvGroups.JumpToKey(sGrpName, true);
-			if (sGrpFlags[0])
-				kvGroups.SetString("flags", sGrpFlags);
-			if (iImmunity)
-				kvGroups.SetNum("immunity", iImmunity);
-			
-			kvGroups.SetNum("maxbantime", iMaxBanTime);
-			kvGroups.SetNum("maxmutetime", iMaxMuteTime);
+			int iReadGid = dbRs.FetchInt(0);
+			if (iGid != iReadGid)
+			{
+				if (iGid != -1 && iOverrideCount > 0)
+				{
+					hFile.Seek(iOverridePos, SEEK_SET);
+					hFile.WriteInt16(iOverrideCount);
+					hFile.Seek(0, SEEK_END);
+				}
+
+				dbRs.FetchString(1, sGrpName, sizeof(sGrpName));
+				dbRs.FetchString(2, sGrpFlags, sizeof(sGrpFlags));
+				iImmunity = dbRs.FetchInt(3);
 				
-			kvGroups.Rewind();
-			
-		#if MADEBUG
-			LogToFile(g_sLogDateBase, "Add %s Group", sGrpName);
-			iGrpCount++;
-		#endif
+				TrimString(sGrpName);
+				TrimString(sGrpFlags);
+				
+				// Ignore empty rows..
+				if (!sGrpName[0])
+					continue;
+
+				hFile.WriteInt8(strlen(sGrpName));
+				hFile.WriteString(sGrpName, false);
+				hFile.WriteInt32(iImmunity);
+				hFile.WriteInt32(ReadFlagString(sGrpFlags));
+
+				iOverridePos = hFile.Position;
+				hFile.WriteInt16(0);
+
+			#if MADEBUG
+				LogToFile(g_sLogDateBase, "Add %s Group", sGrpName);
+				iGrpCount++;
+			#endif
+
+				iGid = iReadGid;
+				iOverrideCount = 0;
+			}
+
+			if (!dbRs.IsFieldNull(6))
+			{
+				// - Override text length
+				// - Override text
+				// - Override type
+				// - Override rule
+				dbRs.FetchString(6, szOverrideType, sizeof(szOverrideType));
+				dbRs.FetchString(7, szOverrideText, sizeof(szOverrideText));
+				dbRs.FetchString(8, szOverrideRule, sizeof(szOverrideRule));
+
+				hFile.WriteInt8(strlen(szOverrideText));
+				hFile.WriteString(szOverrideText, false);
+				hFile.WriteInt8(view_as<int>(szOverrideType[0] == 'g' ? Override_CommandGroup : Override_Command));
+				hFile.WriteInt8(view_as<int>(szOverrideRule[0] == 'd' ? Command_Deny : Command_Allow));
+
+				iOverrideCount++;
+			}
 		}
-		
-		kvGroups.ExportToFile(g_sGroupsLoc);
-		delete kvGroups;
+
+		hFile.Close();
 		
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "Finished loading %i groups.", iGrpCount);

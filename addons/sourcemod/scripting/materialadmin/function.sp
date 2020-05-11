@@ -1351,3 +1351,29 @@ public void OnClientDisconnect_Post(int iClient)
 	KillTimerMute(iClient);
 	KillTimerGag(iClient);
 }
+
+GroupId FindOrCreateAdminGroup(const char[] szName)
+{
+	GroupId iGroup = FindAdmGroup(szName);
+	if (iGroup == INVALID_GROUP_ID)
+	{
+		iGroup = CreateAdmGroup(szName);
+	}
+
+	return iGroup;
+}
+
+void SetupAdminGroupFlagsFromBits(GroupId iGroup, int iFlags)
+{
+	int iFlag;
+	AdminFlag eFlag;
+	for (int iFlagId = 0; iFlagId < AdminFlags_TOTAL; ++iFlagId)
+	{
+		iFlag = (1 << iFlagId);
+		if (iFlags && iFlag)
+		{
+			BitToFlag(iFlag, eFlag);
+			SetAdmGroupAddFlag(iGroup, eFlag, true);
+		}
+	}
+}

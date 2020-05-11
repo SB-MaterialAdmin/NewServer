@@ -189,6 +189,10 @@ int g_iGameTyp;
 
 bool	g_bUseDatabaseFix = true; // default value, if we don't have this parameter in configuration file.
 
+#define BINARY__MA_GROUPS_HEADER	0x4D414752
+#define BINARY__MA_ADMINS_HEADER	0x4D414144
+#define BINARY__MA_OVERRIDES_HEADER	0x4D414F56
+
 #include "materialadmin/config.sp"
 #include "materialadmin/admin.sp"
 #include "materialadmin/menu.sp"
@@ -246,7 +250,7 @@ public void OnPluginStart()
 	BuildPath(Path_SM, sPath, sizeof(sPath), "configs/materialadmin/admin");
 	if(!DirExists(sPath))
 		CreateDirectory(sPath, 511);
-	BuildPath(Path_SM, g_sGroupsLoc,sizeof(g_sGroupsLoc),"configs/materialadmin/admin/groups.cfg");
+	BuildPath(Path_SM, g_sGroupsLoc,sizeof(g_sGroupsLoc),"data/materialadmin/groups.bin");
 	BuildPath(Path_SM, g_sAdminsLoc,sizeof(g_sAdminsLoc),"configs/materialadmin/admin/admins.cfg");
 	BuildPath(Path_SM, g_sOverridesLoc, sizeof(g_sOverridesLoc), "configs/materialadmin/admin/overrides.cfg");
 	

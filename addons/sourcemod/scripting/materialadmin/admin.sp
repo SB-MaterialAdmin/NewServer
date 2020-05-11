@@ -13,11 +13,9 @@ enum GroupPass
 	GroupPass_Second,
 }
 
-static SMCParser g_smcGroupParser;
 static GroupId g_idGroup = INVALID_GROUP_ID;
 static GroupState g_iGroupState = GroupState_None;
 static GroupPass g_iGroupPass = GroupPass_Invalid;
-static bool g_bNeedReparse = false;
 
 
 static SMCParser g_smcUserParser;
@@ -109,8 +107,7 @@ public SMCResult ReadGroups_KeyValue(SMCParser smc, const char[] sKey, const cha
 			else if (StrEqual(sKey, "maxmutetime", false))  
 				g_tGroupMuteTimeMax.SetValue(sGroupID, iValue, false);
 			else if (StrEqual(sKey, "immunity", false))  
-				g_bNeedReparse = true;
-
+				PrintToServer("¯\\_(ツ)_/¯"); // TODO: try understand, for what reasons in SB implemented two passes for reading groups.
 		} 
 		else if (g_iGroupState == GroupState_Overrides)
 		{
@@ -182,43 +179,136 @@ public SMCResult ReadGroups_EndSection(SMCParser smc)
 	return SMCParse_Continue;
 }
 
-static void InternalReadGroups(const char[] sPath, GroupPass grPass)
+static bool Internal__ReadGroups(File hFile)
 {
-	/* Set states */
-	g_iGroupState = GroupState_None;
-	g_idGroup = INVALID_GROUP_ID;
-	g_iGroupPass = grPass;
-	g_bNeedReparse = false;
-
-	int iLine;
-	SMCError err = g_smcGroupParser.ParseFile(sPath, iLine);
-	if (err != SMCError_Okay)
+	while (!hFile.EndOfFile())
 	{
-		char sError[256];
-		g_smcGroupParser.GetErrorString(err, sError, sizeof(sError));
-		LogToFile(g_sLogAdmin, "Could not parse file (line %d, file \"%s\"):", iLine, sPath);
-		LogToFile(g_sLogAdmin, "Parser encountered error: %s", sError);
+		if (!Internal__ReadGroup(hFile))
+		{
+			return false;
+		}
 	}
+
+	return true;
+}
+
+static bool Internal__ReadGroup(File hFile)
+{
+	// - Group Name
+	// - Immunity
+	// - Admin Flags
+	// - Overrides count
+	// - OVERRIDE_ENTRY (see Internal__ReadGroupOverride for more details)
+
+	// 1. Group name.
+	int iNameLength;
+	char szName[256];
+
+	if (!hFile.ReadUint8(iNameLength) || !hFile.ReadString(szName, sizeof(szName), iNameLength))
+	{
+		return false;
+	}
+
+	// 1.5. Create entry.
+	GroupId iGID = FindOrCreateAdminGroup(szName);
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Group '%s' (%x) => created/finded in admin cache", szName, iGID);
+#endif
+
+	// 2. Immunity.
+	int iImmunity;
+	if (!hFile.ReadInt32(iImmunity))
+	{
+		return false;
+	}
+
+	SetAdmGroupImmunityLevel(iGID, iImmunity);
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Group %x => immunity %d", iGID, iImmunity);
+#endif
+
+	// 3. Admin Flags.
+	int iAdminFlags;
+	if (!hFile.ReadInt32(iAdminFlags))
+	{
+		return false;
+	}
+
+	SetupAdminGroupFlagsFromBits(iGID, iAdminFlags);
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Group %x => setup admin flags %b", iGID, iAdminFlags);
+#endif
+
+	// 4. Overrides count.
+	int iOverrides;
+	if (!hFile.ReadUint16(iOverrides))
+	{
+		return false;
+	}
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Group %x => has %d overrides", iGID, iOverrides);
+#endif
+
+	for (int iOverrideId = 0; iOverrideId < iOverrides; ++iOverrideId)
+	{
+		if (!Internal__ReadGroupOverride(hFile, iGID))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+static bool Internal__ReadGroupOverride(File hFile, GroupId iGID)
+{
+	// - Override text length
+	// - Override text
+	// - Override type
+	// - Override rule
+
+	// 1. Override text length + override text.
+	int iOverrideLength;
+	char szOverrideText[256];
+	if (!hFile.ReadUint8(iOverrideLength) || !hFile.ReadString(szOverrideText, sizeof(szOverrideText), iOverrideLength))
+	{
+		return false;
+	}
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Group %x => read override text '%s' (length %d)", iGID, szOverrideText, iOverrideLength);
+#endif
+
+	// 2. Override type + override rule.
+	OverrideType eType;
+	OverrideRule eRule;
+	if (!hFile.ReadUint8(view_as<int>(eType)) || !hFile.ReadUint8(view_as<int>(eRule)))
+	{
+		return false;
+	}
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Group %x => type %d, rule %d", iGID, eType, eRule);
+#endif
+
+	AddAdmGroupCmdOverride(iGID, szOverrideText, eType, eRule);
+
+	return true;
 }
 
 void ReadGroups()
 {
-	if (g_smcGroupParser == null)
+	File hGroups = OpenFile(g_sGroupsLoc, "rb");
+	if (hGroups)
 	{
-		g_smcGroupParser = new SMCParser();
-		g_smcGroupParser.OnEnterSection = ReadGroups_NewSection;
-		g_smcGroupParser.OnKeyValue = ReadGroups_KeyValue;
-		g_smcGroupParser.OnLeaveSection = ReadGroups_EndSection;
+		int iHeader;
+		if (hGroups.ReadInt32(iHeader) && iHeader == BINARY__MA_GROUPS_HEADER)
+		{
+			Internal__ReadGroups(hGroups);
+		}
+
+		hGroups.Close();
 	}
-		
-	if(FileExists(g_sGroupsLoc))
-	{
-		InternalReadGroups(g_sGroupsLoc, GroupPass_First);
-		if (g_bNeedReparse)
-			InternalReadGroups(g_sGroupsLoc, GroupPass_Second);
-	
-		FireOnFindLoadingAdmin(AdminCache_Groups);
-	}
+
+	FireOnFindLoadingAdmin(AdminCache_Groups);
 }
 //----------------------------------------------------------------------------------------------------
 public SMCResult ReadUsers_NewSection(SMCParser smc, const char[] sName, bool opt_quotes)
