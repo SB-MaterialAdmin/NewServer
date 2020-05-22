@@ -1415,6 +1415,8 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 			LogToFile(g_sLogDateBase, "Adding override (%s, %s, %s)", sType, sName, sFlags);
 		#endif
 		}
+
+		hFile.Close();
 	}
 	
 	ReadOverrides();
