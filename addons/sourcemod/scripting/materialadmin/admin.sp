@@ -29,8 +29,6 @@ static int g_iCurFlags,
 	g_iWebFlagSetingsAdmin,
 	g_iWebFlagUnBanMute;
 
-static SMCParser g_smcOverrideParser;
-
 public void OnRebuildAdminCache(AdminCachePart acPart)
 {
 	switch(acPart)
@@ -563,57 +561,69 @@ void ReadUsers()
 }
 //-------------------------------------------------------------------------------------------
 
-public SMCResult ReadOverrides_NewSection(SMCParser smc, const char[] sName, bool opt_quotes)
+static bool Internal__ReadOverrides(File hFile)
 {
-	return SMCParse_Continue;
+	while (!hFile.EndOfFile())
+	{
+		if (!Internal__ReadOverride(hFile))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
-public SMCResult ReadOverrides_KeyValue(SMCParser smc, const char[] sKey, const char[] sValue, bool key_quotes, bool value_quotes)
+static bool Internal__ReadOverride(File hFile)
 {
-	if(!sKey[0])
-		return SMCParse_Continue;
-	
-	int iFlags = ReadFlagString(sValue);
-	
-	if (sKey[0] == '@')
-		AddCommandOverride(sKey[1], Override_CommandGroup, iFlags);
-	else
-		AddCommandOverride(sKey, Override_Command, iFlags);
-	
-#if MADEBUG
-	LogToFile(g_sLogAdmin, "Load overrid (%s, %s)", sKey, sValue);
+	// - Value length
+	// - Value
+	// - Override type
+	// - Required flags
+	// 1, 2. Value length + value.
+	int iValueLength;
+	char szValue[256];
+
+	if (!hFile.ReadUint8(iValueLength) || !hFile.ReadString(szValue, sizeof(szValue), iValueLength))
+	{
+		return false;
+	}
+
+	// 3. Override type.
+	OverrideType eType;
+	if (!hFile.ReadUint8(view_as<int>(eType)))
+	{
+		return false;
+	}
+
+	// 4. Admin Flags.
+	int iAdminFlags;
+	if (!hFile.ReadInt32(iAdminFlags))
+	{
+		return false;
+	}
+
+	AddCommandOverride(szValue, eType, iAdminFlags);
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Readed override '%s' (type %d) %d with flags %b", szValue, eType, iAdminFlags);
 #endif
-	
-	return SMCParse_Continue;
-}
 
-public SMCResult ReadOverrides_EndSection(SMCParser smc)
-{
-	return SMCParse_Continue;
+	return true;
 }
 
 void ReadOverrides()
 {
-	if (g_smcOverrideParser == null)
+	File hOverrides = OpenFile(g_sOverridesLoc, "rb");
+	if (hOverrides)
 	{
-		g_smcOverrideParser = new SMCParser();
-		g_smcOverrideParser.OnEnterSection = ReadOverrides_NewSection;
-		g_smcOverrideParser.OnKeyValue = ReadOverrides_KeyValue;
-		g_smcOverrideParser.OnLeaveSection = ReadOverrides_EndSection;
+		int iHeader;
+		if (hOverrides.ReadInt32(iHeader) && iHeader == BINARY__MA_OVERRIDES_HEADER)
+		{
+			Internal__ReadOverrides(hOverrides);
+		}
+
+		hOverrides.Close();
 	}
 
-	if(FileExists(g_sOverridesLoc))
-	{
-		int iLine;
-		SMCError err = g_smcOverrideParser.ParseFile(g_sOverridesLoc, iLine);
-		if (err != SMCError_Okay)
-		{
-			char sError[256];
-			g_smcOverrideParser.GetErrorString(err, sError, sizeof(sError));
-			LogToFile(g_sLogAdmin, "Could not parse file (line %d, file \"%s\"):", iLine, g_sOverridesLoc);
-			LogToFile(g_sLogAdmin, "Parser encountered error: %s", sError);
-		}
-		
-		FireOnFindLoadingAdmin(AdminCache_Overrides);
-	}
+	FireOnFindLoadingAdmin(AdminCache_Overrides);
 }

@@ -1394,44 +1394,27 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 		LogToFile(g_sLogDateBase, "Failed to retrieve overrides from the database, %s", sError);
 	else
 	{
-		if (!dbRs.HasResults)
-		{
-			return;
-		}
+		File hFile = OpenFile(g_sOverridesLoc, "wb");
+		hFile.WriteInt32(BINARY__MA_OVERRIDES_HEADER);
 
-		KeyValues kvOverrides = new KeyValues("overrides");
-		
 		char sFlags[32], 
-			 sName[64],
-			 sType[64];
+			 sName[256],
+			 sType[16];
 		while (dbRs.FetchRow())
 		{
 			dbRs.FetchString(0, sType, sizeof(sType));
 			dbRs.FetchString(1, sName, sizeof(sName));
 			dbRs.FetchString(2, sFlags, sizeof(sFlags));
 
-			if (!sFlags[0])
-			{
-				sFlags[0] = ' ';
-				sFlags[1] = '\0';
-			}
-
-			if (StrEqual(sType, "command"))
-				kvOverrides.SetString(sName, sFlags);
-			else if (StrEqual(sType, "group"))
-			{
-				Format(sName, sizeof(sName), "@%s", sName);
-				kvOverrides.SetString(sName, sFlags);
-			}
+			hFile.WriteInt8(strlen(sName));
+			hFile.WriteString(sName, false);
+			hFile.WriteInt8(view_as<int>(sType[0] == 'c' ? Override_Command : Override_CommandGroup));
+			hFile.WriteInt32(ReadFlagString(sFlags));
 			
 		#if MADEBUG
 			LogToFile(g_sLogDateBase, "Adding override (%s, %s, %s)", sType, sName, sFlags);
 		#endif
 		}
-		
-		kvOverrides.Rewind();
-		kvOverrides.ExportToFile(g_sOverridesLoc);
-		delete kvOverrides;
 	}
 	
 	ReadOverrides();
