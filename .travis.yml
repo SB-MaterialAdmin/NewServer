@@ -40,6 +40,7 @@ script:
     - ./spcomp __TRAVIS=1 $COMPILER_OPTIONS materialadmin.git.sp ma_adminmenu.sp -E -oma_adminmenu
     - ./spcomp __TRAVIS=1 $COMPILER_OPTIONS materialadmin.git.sp ma_basecomm.sp -E -oma_basecomm
     - ./spcomp __TRAVIS=1 $COMPILER_OPTIONS materialadmin.git.sp ma_checker.sp -E -oma_checker
+    - ./spcomp __TRAVIS=1 $COMPILER_OPTIONS materialadmin.git.sp ma_basevotes.sp -E -oma_basevotes
 
 before_deploy:
     - export CUSTOM_POSTFIX=$CUSTOM_POSTFIX$SMVERSION
@@ -52,6 +53,7 @@ before_deploy:
     - cp ma_adminmenu.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_adminmenu.smx
     - cp ma_basecomm.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_basecomm.smx
     - cp ma_checker.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_checker.smx
+    - cp ma_basevotes.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_basevotes.smx
     - cd $TRAVIS_BUILD_DIR
     - wget --user=$HTTP_USER --password=$HTTP_PASSWORD $BASE_URL/travis.sh
 
