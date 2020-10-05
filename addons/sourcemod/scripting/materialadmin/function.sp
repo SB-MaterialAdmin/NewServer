@@ -65,7 +65,7 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 	{
 		if ((iNextPos = FindCharInString(sBufer[iPos], '\n')) != -1)
 		{
-			sBufer[iNextPos] = 0;
+			sBufer[iPos+iNextPos] = 0;
 			iNextPos += iPos;
 		}
 
