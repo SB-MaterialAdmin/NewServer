@@ -1406,8 +1406,7 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 			dbRs.FetchString(1, sName, sizeof(sName));
 			dbRs.FetchString(2, sFlags, sizeof(sFlags));
 
-			hFile.WriteInt8(strlen(sName));
-			hFile.WriteString(sName, false);
+			UTIL_WriteFileString(hFile, sName);
 			hFile.WriteInt8(view_as<int>(sType[0] == 'c' ? Override_Command : Override_CommandGroup));
 			hFile.WriteInt32(ReadFlagString(sFlags));
 			
@@ -1503,8 +1502,7 @@ public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 				if (!sGrpName[0])
 					continue;
 
-				hFile.WriteInt8(strlen(sGrpName));
-				hFile.WriteString(sGrpName, false);
+				UTIL_WriteFileString(hFile, sGrpName);
 				hFile.WriteInt32(iImmunity);
 				hFile.WriteInt32(ReadFlagString(sGrpFlags));
 
@@ -1530,8 +1528,7 @@ public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 				dbRs.FetchString(7, szOverrideText, sizeof(szOverrideText));
 				dbRs.FetchString(8, szOverrideRule, sizeof(szOverrideRule));
 
-				hFile.WriteInt8(strlen(szOverrideText));
-				hFile.WriteString(szOverrideText, false);
+				UTIL_WriteFileString(hFile, szOverrideText);
 				hFile.WriteInt8(view_as<int>(szOverrideType[0] == 'g' ? Override_CommandGroup : Override_Command));
 				hFile.WriteInt8(view_as<int>(szOverrideRule[0] == 'd' ? Command_Deny : Command_Allow));
 

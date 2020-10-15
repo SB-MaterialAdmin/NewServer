@@ -198,10 +198,8 @@ static bool Internal__ReadGroup(File hFile)
 	// - OVERRIDE_ENTRY (see Internal__ReadGroupOverride for more details)
 
 	// 1. Group name.
-	int iNameLength;
 	char szName[256];
-
-	if (!hFile.ReadUint8(iNameLength) || !hFile.ReadString(szName, sizeof(szName), iNameLength))
+	if (!UTIL_ReadFileString(hFile, szName, sizeof(szName)))
 	{
 		return false;
 	}
@@ -265,14 +263,13 @@ static bool Internal__ReadGroupOverride(File hFile, GroupId iGID)
 	// - Override rule
 
 	// 1. Override text length + override text.
-	int iOverrideLength;
 	char szOverrideText[256];
-	if (!hFile.ReadUint8(iOverrideLength) || !hFile.ReadString(szOverrideText, sizeof(szOverrideText), iOverrideLength))
+	if (!UTIL_ReadFileString(hFile, szOverrideText, sizeof(szOverrideText)))
 	{
 		return false;
 	}
 #if defined MADEBUG
-	LogToFile(g_sLogAdmin, "Group %x => read override text '%s' (length %d)", iGID, szOverrideText, iOverrideLength);
+	LogToFile(g_sLogAdmin, "Group %x => read override text '%s'", iGID, szOverrideText);
 #endif
 
 	// 2. Override type + override rule.
@@ -729,10 +726,8 @@ static bool Internal__ReadOverride(File hFile)
 	// - Override type
 	// - Required flags
 	// 1, 2. Value length + value.
-	int iValueLength;
 	char szValue[256];
-
-	if (!hFile.ReadUint8(iValueLength) || !hFile.ReadString(szValue, sizeof(szValue), iValueLength))
+	if (!UTIL_ReadFileString(hFile, szValue, sizeof(szValue)))
 	{
 		return false;
 	}
