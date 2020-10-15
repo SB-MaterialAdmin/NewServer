@@ -18,7 +18,6 @@ static GroupState g_iGroupState = GroupState_None;
 static GroupPass g_iGroupPass = GroupPass_Invalid;
 
 
-static SMCParser g_smcUserParser;
 static char g_sCurAuth[64],
 	g_sCurIdent[64],
 	g_sCurName[64],
@@ -513,51 +512,200 @@ public SMCResult ReadUsers_EndSection(SMCParser smc)
 	return SMCParse_Continue;
 }
 
-void ReadUsers()
+static bool Internal__ReadAdmins(File hFile)
 {
-	if (g_smcUserParser == null)
+	while (!hFile.EndOfFile())
 	{
-		g_smcUserParser = new SMCParser();
-		g_smcUserParser.OnEnterSection = ReadUsers_NewSection;
-		g_smcUserParser.OnKeyValue = ReadUsers_KeyValue;
-		g_smcUserParser.OnLeaveSection = ReadUsers_EndSection;
+		if (!Internal__ReadAdmin(hFile))
+		{
+			return false;
+		}
 	}
 
-	if(FileExists(g_sAdminsLoc))
+	return true;
+}
+
+static bool Internal__ReadAdmin(File hFile)
+{
+	// 1. Nickname.
+	// 2. Authentication method (should be "steam").
+	// 3. Authentication identifier (SteamID).
+	// 4. Adminflags.
+	// 5. Immunity.
+	// 6. Group.
+	// 7. Password.
+	// 8. Web permissions.
+	// 9. Expiration date.
+
+	// 1. Nickname.
+	char szData[256],
+		szName[64];
+	if (!UTIL_ReadFileString(hFile, szName, sizeof(szName)))
 	{
-		g_tAdminBanTimeMax.Clear();
-		g_tAdminMuteTimeMax.Clear();
-		g_tWebFlagSetingsAdmin.Clear();
-		g_tWebFlagUnBanMute.Clear();
-		g_tAdminsExpired.Clear();
-		int iLine;
-		SMCError err = g_smcUserParser.ParseFile(g_sAdminsLoc, iLine);
-		if (err != SMCError_Okay)
-		{
-			char sError[256];
-			g_smcUserParser.GetErrorString(err, sError, sizeof(sError));
-			LogToFile(g_sLogAdmin, "Could not parse file (line %d, file \"%s\"):", iLine, g_sAdminsLoc);
-			LogToFile(g_sLogAdmin, "Parser encountered error: %s", sError);
-		}
-		
-		g_tGroupBanTimeMax.Clear();
-		g_tGroupMuteTimeMax.Clear();
-		
-		if (g_bReshashAdmin)
-		{
-			for (int i = 1; i <= MaxClients; i++)
-			{
-				if (IsClientInGame(i) && IsClientAuthorized(i) && !IsFakeClient(i))
-				{
-					RunAdminCacheChecks(i);
-					NotifyPostAdminCheck(i);
-				}
-			}
-			g_bReshashAdmin = false;
-		}
-		
-		FireOnFindLoadingAdmin(AdminCache_Admins);
+		return false;
 	}
+
+	// 2. Continue read file (authentication method and identifier).
+	char szAuthenticationProvider[16],
+		szAuthenticationIdentifier[32];
+	if (!UTIL_ReadFileString(hFile, szAuthenticationProvider, sizeof(szAuthenticationProvider)))
+	{
+		return false;
+	}
+
+	if (!UTIL_ReadFileString(hFile, szAuthenticationIdentifier, sizeof(szAuthenticationIdentifier)))
+	{
+		return false;
+	}
+
+	// 3. Try find administrator identifier by provider + identifier, or create new.
+	AdminId iAID = FindAdminByIdentity(szAuthenticationProvider, szAuthenticationIdentifier);
+	if (iAID == INVALID_ADMIN_ID)
+	{
+		iAID = CreateAdmin(szName);
+		if (iAID == INVALID_ADMIN_ID)
+		{
+			return false;
+		}
+
+		if (!BindAdminIdentity(iAID, szAuthenticationProvider, szAuthenticationIdentifier))
+		{
+			return false;
+		}
+	}
+
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => created/finded in admin cache", szData, iAID);
+#endif
+
+	// 4. Setup administrator flags and immunity.
+	int iFlags;
+	if (!hFile.ReadInt32(iFlags))
+	{
+		return false;
+	}
+
+	int iImmunity;
+	if (!hFile.ReadInt32(iImmunity))
+	{
+		return false;
+	}
+
+	SetupAdminFlagsFromBits(iAID, iFlags);
+	SetAdminImmunityLevel(iAID, iImmunity);
+
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => setup immunity (%d) and flags (%b)", szName, iAID, iImmunity, iFlags);
+#endif
+
+	// 5. Setup administrator group (if required).
+	if (!UTIL_ReadFileString(hFile, szData, sizeof(szData)))
+	{
+		return false;
+	}
+
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => read group '%s'", szName, iAID, szData);
+#endif
+
+	if (szData[0])
+	{
+		GroupId iGID = FindAdmGroup(szData);
+		if (iGID == INVALID_GROUP_ID)
+		{
+			LogToFile(g_sLogAdmin, "Can't setup admin group for '%s' - group '%s' not found", szName, szData);
+		}
+		else
+		{
+			AdminInheritGroup(iAID, iGID);
+		}
+	}
+
+	// 6. Setup administrator password (if required).
+	if (!UTIL_ReadFileString(hFile, szData, sizeof(szData)))
+	{
+		return false;
+	}
+
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => read password '%s'", szName, iAID, szData);
+#endif
+
+	if (szData[0])
+	{
+		SetAdminPassword(iAID, szData);
+	}
+
+	// 7. Set up web permissions in cache (TODO).
+	int iWebPermissions;
+	if (!hFile.ReadInt32(iWebPermissions))
+	{
+		return false;
+	}
+	Internal__ReadAdmin_SetupWebPermissions(iAID, iWebPermissions);
+
+	// 8. Read expiration date.
+	int iExpiresAfter;
+	if (!hFile.ReadInt32(iWebPermissions))
+	{
+		return false;
+	}
+
+	// If expiration date is reached - then delete admin entry.
+	if (iExpiresAfter < GetTime())
+	{
+		RemoveAdmin(iAID);
+	}
+
+	return true;
+}
+
+static void Internal__ReadAdmin_SetupWebPermissions(AdminId iAID, int iWebPermissions)
+{
+	char szAdminId[16];
+	FormatEx(szAdminId, sizeof(szAdminId), "%s", iAID);
+
+	int iCanManageAdmins = 0;
+	int iCanUnmuteUnban = 0;
+	if (iWebPermissions & (1<<24))
+	{
+		iCanUnmuteUnban = 5;
+		iCanManageAdmins = 2;
+	}
+	else
+	{
+		if (iWebPermissions & (1 << 26))
+			iCanUnmuteUnban = 5; // all
+		else if (iWebPermissions & (1 << 30))
+			iCanUnmuteUnban = 6; // only own
+
+		if ((iWebPermissions & (1<<1)) && (iWebPermissions & (1<<3)))
+			iCanManageAdmins = 2; // add + delete
+		else if (iWebPermissions & (1<<1))
+			iCanManageAdmins = 3; // only add
+		else if (iWebPermissions & (1<<3))
+			iCanManageAdmins = 4; // only delete
+	}
+
+	g_tWebFlagSetingsAdmin.SetValue(szAdminId, iCanManageAdmins, false);
+	g_tWebFlagUnBanMute.SetValue(szAdminId, iCanUnmuteUnban, false);
+}
+
+void ReadUsers()
+{
+	File hAdmins = OpenFile(g_sAdminsLoc, "rb");
+	if (hAdmins)
+	{
+		int iHeader;
+		if (hAdmins.ReadInt32(iHeader) && iHeader == BINARY__MA_ADMINS_HEADER)
+		{
+			Internal__ReadAdmins(hAdmins);
+		}
+
+		hAdmins.Close();
+	}
+
+	FireOnFindLoadingAdmin(AdminCache_Admins);
 }
 //-------------------------------------------------------------------------------------------
 

@@ -279,93 +279,6 @@ int GetAdminWebFlag(int iClient, int iTipe)
 	return 0; // нет прав
 }
 
-int GetAdminWebAcces(int iFlag, int iTipe)
-{
-	if (iFlag)
-	{
-		if (iFlag & (1<<24))
-			return 1; // полные права
-			
-		if (iTipe) // управление админами 1
-		{
-			if (iFlag & (1<<1) && iFlag & (1<<3))
-				return 2; // есть на добавление и на удаление
-			else if (iFlag & (1<<1))
-				return 3; // добавление
-			else if (iFlag & (1<<3))
-				return 4; // удаление
-		}
-		else // снатия мута и разбан 0
-		{
-			if (iFlag & (1<<26))
-				return 5; // разбан всех
-			else if (iFlag & (1<<30))
-				return 6; // разбан своих
-		}
-	}
-
-	return 0; // нет прав
-}
-
-int[] GetWebFlag(int iFlag, int iFlagGoup)
-{
-	int iFlags[2];
-	if (!iFlag && !iFlagGoup)
-	{
-		iFlags[0] = 0;
-		iFlags[1] = 0;
-	#if MADEBUG
-		LogToFile(g_sLogAction,"GetWebFlag: unbanmute %d, setingsadmin %d.", iFlags[0], iFlags[1]);
-	#endif
-		return iFlags;
-	}
-	else if (!iFlag && iFlagGoup)
-	{
-		iFlags[0] = GetAdminWebAcces(iFlagGoup, 0);
-		iFlags[1] = GetAdminWebAcces(iFlagGoup, 1);
-	#if MADEBUG
-		LogToFile(g_sLogAction,"GetWebFlag: unbanmute %d, setingsadmin %d.", iFlags[0], iFlags[1]);
-	#endif
-		return iFlags;
-	}
-	else if (iFlag && !iFlagGoup)
-	{
-		iFlags[0] = GetAdminWebAcces(iFlag, 0);
-		iFlags[1] = GetAdminWebAcces(iFlag, 1);
-	#if MADEBUG
-		LogToFile(g_sLogAction,"GetWebFlag: unbanmute %d, setingsadmin %d.", iFlags[0], iFlags[1]);
-	#endif
-		return iFlags;
-	}
-	else
-	{
-		int iFlagAdmin[2],
-			iFlagUnBanMute[2];
-			
-		iFlagUnBanMute[0] = GetAdminWebAcces(iFlagGoup, 0);
-		iFlagAdmin[0] = GetAdminWebAcces(iFlagGoup, 1);
-		iFlagUnBanMute[1] = GetAdminWebAcces(iFlag, 0);
-		iFlagAdmin[1] = GetAdminWebAcces(iFlag, 1);
-		
-		if (iFlagUnBanMute[1] >= iFlagUnBanMute[0])
-			iFlags[0] = iFlagUnBanMute[1];
-		else
-			iFlags[0] = iFlagUnBanMute[0];
-		
-		if (iFlagAdmin[1] >= iFlagAdmin[0])
-			iFlags[1] = iFlagAdmin[1];
-		else
-			iFlags[1] = iFlagAdmin[0];
-		
-	#if MADEBUG
-		LogToFile(g_sLogAction,"GetWebFlag: unbanmute %d, setingsadmin %d, FlagUnBanMuteG %d, FlagUnBanMute %d, FlagAdminG %d, FlagAdmin %d.", 
-					iFlags[0], iFlags[1], iFlagUnBanMute[0], iFlagUnBanMute[1], iFlagAdmin[0], iFlagAdmin[1]);
-	#endif
-		
-		return iFlags;
-	}
-}
-
 #if SETTINGADMIN
 void ResetFlagAddAdmin(int iClient)
 {
@@ -1376,4 +1289,47 @@ void SetupAdminGroupFlagsFromBits(GroupId iGroup, int iFlags)
 			SetAdmGroupAddFlag(iGroup, eFlag, true);
 		}
 	}
+}
+
+void SetupAdminFlagsFromBits(AdminId iAdmin, int iFlags)
+{
+	int iFlag;
+	AdminFlag eFlag;
+	for (int iFlagId = 0; iFlagId < AdminFlags_TOTAL; ++iFlagId)
+	{
+		iFlag = (1 << iFlagId);
+		if (iFlags & iFlag)
+		{
+			BitToFlag(iFlag, eFlag);
+			SetAdminFlag(iAdmin, eFlag, true);
+		}
+	}
+}
+
+void UTIL_WriteFileString(File hFile, const char[] szString)
+{
+	hFile.WriteInt8(strlen(szString));
+	hFile.WriteString(szString, false);
+}
+
+bool UTIL_ReadFileString(File hFile, char[] szBuffer, int iBufferLength)
+{
+	int iValueLength;
+	if (!hFile.ReadUint8(iValueLength))
+	{
+		return false;
+	}
+
+	if (iValueLength >= iBufferLength)
+	{
+		return false;
+	}
+
+	if (iValueLength == 0)
+	{
+		szBuffer[0] = 0;
+		return true;
+	}
+
+	return hFile.ReadString(szBuffer, iBufferLength, iValueLength) == iValueLength;
 }

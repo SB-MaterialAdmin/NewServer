@@ -251,7 +251,7 @@ public void OnPluginStart()
 	if(!DirExists(sPath))
 		CreateDirectory(sPath, 511);
 	BuildPath(Path_SM, g_sGroupsLoc,sizeof(g_sGroupsLoc),"data/materialadmin/groups.bin");
-	BuildPath(Path_SM, g_sAdminsLoc,sizeof(g_sAdminsLoc),"configs/materialadmin/admin/admins.cfg");
+	BuildPath(Path_SM, g_sAdminsLoc,sizeof(g_sAdminsLoc),"data/materialadmin/admins.bin");
 	BuildPath(Path_SM, g_sOverridesLoc, sizeof(g_sOverridesLoc), "data/materialadmin/overrides.bin");
 	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "logs/materialadmin");

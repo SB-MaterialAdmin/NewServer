@@ -1571,9 +1571,10 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 		int iImmunity,
 			iExpire,
 			iExtraflags,
-			iExtraflagsGroup,
-			iWebFlag[2];
-		KeyValues kvAdmins = new KeyValues("admins");
+			iExtraflagsGroup;
+
+		File hFile = OpenFile(g_sAdminsLoc, "wb");
+		hFile.WriteInt32(BINARY__MA_ADMINS_HEADER);
 		
 		while (dbRs.MoreRows)
 		{
@@ -1597,7 +1598,6 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 				iExtraflagsGroup = 0;
 			
 			TrimString(sName);
-			ReplaceString(sName, sizeof(sName), "/", "_"); // костыль из-за бага
 			TrimString(sIdentity);
 			if (ValidSteam(sIdentity) < 2) // против говна GameCMS
 			{
@@ -1606,34 +1606,16 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 			}
 			TrimString(sGroups);
 			TrimString(sFlags);
-			
-			kvAdmins.JumpToKey(sName, true);
-				
-			kvAdmins.SetString("auth", "steam");
-			
-			kvAdmins.SetString("identity", sIdentity);
-				
-			if (sFlags[0])
-				kvAdmins.SetString("flags", sFlags);
-				
-			if (sGroups[0])
-				kvAdmins.SetString("group", sGroups);
-				
-			if (sPassword[0])
-				kvAdmins.SetString("password", sPassword);
-				
-			if (iImmunity)
-				kvAdmins.SetNum("immunity", iImmunity);
-			
-			if (iExpire)
-				kvAdmins.SetNum("expire", iExpire);
-			
-			
-			iWebFlag = GetWebFlag(iExtraflags, iExtraflagsGroup);
-			kvAdmins.SetNum("setingsadmin", iWebFlag[1]);
-			kvAdmins.SetNum("unbanmute", iWebFlag[0]);
-				
-			kvAdmins.Rewind();
+
+			UTIL_WriteFileString(hFile, sName);
+			UTIL_WriteFileString(hFile, AUTHMETHOD_STEAM); // TODO: implement support for IP and name authorization?
+			UTIL_WriteFileString(hFile, sIdentity);
+			hFile.WriteInt32(ReadFlagString(sFlags));
+			hFile.WriteInt32(iImmunity);
+			UTIL_WriteFileString(hFile, sGroups);
+			UTIL_WriteFileString(hFile, sPassword);
+			hFile.WriteInt32(iExtraflags | iExtraflagsGroup);
+			hFile.WriteInt32(iExpire);
 			
 		#if MADEBUG
 			LogToFile(g_sLogDateBase, "Add %s (%s) admin (Flags %s, Groups %s, Immunity %i, Expire %i, setingsadmin %i, unbanmute %i, Extraflags %i, ExtraflagsGroup %i)", 
@@ -1642,8 +1624,7 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 		#endif
 		}
 		
-		kvAdmins.ExportToFile(g_sAdminsLoc);
-		delete kvAdmins;
+		hFile.Close();
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "Finished loading %i admins.", iAdmCount);
 	#endif
