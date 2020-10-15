@@ -26,7 +26,7 @@ void GetColor(char[] sBuffer, int iMaxlin)
 void PrintToChat2(int iClient, const char[] sMesag, any ...)
 {
 	static const char sNameD[][] = {"name1", "name2"};
-	char sBufer[256];
+	char sBufer[1024];
 	VFormat(sBufer, sizeof(sBufer), sMesag, 3);
 	
 	// del name 
@@ -46,10 +46,38 @@ void PrintToChat2(int iClient, const char[] sMesag, any ...)
 	if (!IsClientInGame(iClient))
 		return;
 
+	// TODO: move to global variable and calculate once.
+	char szChatPrefix[4];
 	if (GetUserMessageType() == UM_Protobuf)
-		PrintToChat(iClient, " \x01%s.", sBufer);
+	{
+		strcopy(szChatPrefix, sizeof(szChatPrefix), " \x01");
+	}
 	else
-		PrintToChat(iClient, "\x01%s.", sBufer);
+	{
+		strcopy(szChatPrefix, sizeof(szChatPrefix), "\x01");
+	}
+
+	// В сраной CS:GO `\n` не работает, как везде. Вместо переносов, красит текст. Так что сделаем немного хитрее.
+	// Эта реализация пока что не поддерживает перенос и прошлого активного цвета.
+	int iPos = 0;
+	int iNextPos = 0;
+	do
+	{
+		if ((iNextPos = FindCharInString(sBufer[iPos], '\n')) != -1)
+		{
+			sBufer[iPos+iNextPos] = 0;
+			iNextPos += iPos;
+		}
+
+		PrintToChat(iClient, "%s%s", szChatPrefix, sBufer[iPos]);
+		if (iNextPos == -1)
+		{
+			break;
+		}
+
+		iPos = iNextPos + 1;
+	}
+	while (sBufer[iPos] != 0);
 }
 
 void ShowAdminAction(int iClient, const char[] sMesag, any ...)
