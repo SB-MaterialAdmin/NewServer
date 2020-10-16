@@ -649,7 +649,7 @@ static bool Internal__ReadAdmin(File hFile)
 	}
 
 	// If expiration date is reached - then delete admin entry.
-	if (iExpiresAfter < GetTime())
+	if (iExpiresAfter != 0 && iExpiresAfter < GetTime())
 	{
 		RemoveAdmin(iAID);
 	}
@@ -748,7 +748,7 @@ static bool Internal__ReadOverride(File hFile)
 
 	AddCommandOverride(szValue, eType, iAdminFlags);
 #if defined MADEBUG
-	LogToFile(g_sLogAdmin, "Readed override '%s' (type %d) %d with flags %b", szValue, eType, iAdminFlags);
+	LogToFile(g_sLogAdmin, "Readed override '%s' (type %d) with flags %b", szValue, eType, iAdminFlags);
 #endif
 
 	return true;

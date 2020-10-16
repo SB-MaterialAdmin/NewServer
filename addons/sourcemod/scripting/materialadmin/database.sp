@@ -1615,8 +1615,8 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 			hFile.WriteInt32(iExpire);
 			
 		#if MADEBUG
-			LogToFile(g_sLogDateBase, "Add %s (%s) admin (Flags %s, Groups %s, Immunity %i, Expire %i, setingsadmin %i, unbanmute %i, Extraflags %i, ExtraflagsGroup %i)", 
-						sName, sIdentity, sFlags, sGroups, iImmunity, iExpire, iWebFlag[1], iWebFlag[0], iExtraflags, iExtraflagsGroup);
+			LogToFile(g_sLogDateBase, "Add %s (%s) admin (Flags %s, Groups %s, Immunity %i, Expire %i, Extraflags %i, ExtraflagsGroup %i)", 
+						sName, sIdentity, sFlags, sGroups, iImmunity, iExpire, iExtraflags, iExtraflagsGroup);
 			++iAdmCount;
 		#endif
 		}
