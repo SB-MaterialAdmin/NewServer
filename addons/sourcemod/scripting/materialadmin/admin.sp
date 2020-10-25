@@ -194,6 +194,8 @@ static bool Internal__ReadGroup(File hFile)
 	// - Group Name
 	// - Immunity
 	// - Admin Flags
+	// - Ban time limit (v2)
+	// - Mute time limit (v2)
 	// - Overrides count
 	// - OVERRIDE_ENTRY (see Internal__ReadGroupOverride for more details)
 
@@ -234,7 +236,10 @@ static bool Internal__ReadGroup(File hFile)
 	LogToFile(g_sLogAdmin, "Group %x => setup admin flags %b", iGID, iAdminFlags);
 #endif
 
-	// 4. Overrides count.
+	// 4. Limitations.
+	Internal__ReadGroupLimitations(hFile, iGID);
+
+	// 5. Overrides count.
 	int iOverrides;
 	if (!hFile.ReadUint16(iOverrides))
 	{
@@ -253,6 +258,19 @@ static bool Internal__ReadGroup(File hFile)
 	}
 
 	return true;
+}
+
+static void Internal__ReadGroupLimitations(File hFile, GroupId iGID)
+{
+	int iBanTime, iMuteTime;
+	hFile.ReadInt32(iBanTime);
+	hFile.ReadInt32(iMuteTime);
+
+	char szGroupID[16];
+	FormatEx(szGroupID, sizeof(szGroupID), "%d", iGID);
+
+	g_tGroupBanTimeMax.SetValue(szGroupID, iBanTime, false);
+	g_tGroupMuteTimeMax.SetValue(szGroupID, iMuteTime, false);
 }
 
 static bool Internal__ReadGroupOverride(File hFile, GroupId iGID)
@@ -605,9 +623,12 @@ static bool Internal__ReadAdmin(File hFile)
 	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => read group '%s'", szName, iAID, szData);
 #endif
 
+	int iBanTime = -1;
+	int iMuteTime = -1;
 	if (szData[0])
 	{
 		GroupId iGID = FindAdmGroup(szData);
+
 		if (iGID == INVALID_GROUP_ID)
 		{
 			LogToFile(g_sLogAdmin, "Can't setup admin group for '%s' - group '%s' not found", szName, szData);
@@ -615,8 +636,10 @@ static bool Internal__ReadAdmin(File hFile)
 		else
 		{
 			AdminInheritGroup(iAID, iGID);
+			Internal__ReadAdminGroupLimitationsById(iGID, iBanTime, iMuteTime);
 		}
 	}
+	Internal__SetupAdminLimitations(iAID, iBanTime, iMuteTime);
 
 	// 6. Setup administrator password (if required).
 	if (!UTIL_ReadFileString(hFile, szData, sizeof(szData)))
@@ -654,7 +677,26 @@ static bool Internal__ReadAdmin(File hFile)
 		RemoveAdmin(iAID);
 	}
 
+	AddAdminExpire(iAID, iExpiresAfter);
 	return true;
+}
+
+static void Internal__SetupAdminLimitations(AdminId iAID, int iBanTime, int iMuteTime)
+{
+	char szAdminID[16];
+	FormatEx(szAdminID, sizeof(szAdminID), "%d", iAID);
+
+	g_tAdminBanTimeMax.SetValue(szAdminID, iBanTime, false);
+	g_tAdminMuteTimeMax.SetValue(szAdminID, iMuteTime, false);
+}
+
+static void Internal__ReadAdminGroupLimitationsById(GroupId iGID, int &iBanTime, int &iMuteTime)
+{
+	char szGroupID[16];
+	FormatEx(szGroupID, sizeof(szGroupID), "%d", iGID);
+
+	g_tGroupBanTimeMax.GetValue(szGroupID, iBanTime);
+	g_tGroupMuteTimeMax.GetValue(szGroupID, iMuteTime);
 }
 
 static void Internal__ReadAdmin_SetupWebPermissions(AdminId iAID, int iWebPermissions)

@@ -189,7 +189,7 @@ int g_iGameTyp;
 
 bool	g_bUseDatabaseFix = true; // default value, if we don't have this parameter in configuration file.
 
-#define BINARY__MA_GROUPS_HEADER	0x4D414752
+#define BINARY__MA_GROUPS_HEADER	0x4E414752
 #define BINARY__MA_ADMINS_HEADER	0x4D414144
 #define BINARY__MA_OVERRIDES_HEADER	0x4D414F56
 
