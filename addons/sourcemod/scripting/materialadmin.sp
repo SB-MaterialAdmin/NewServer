@@ -115,7 +115,6 @@ Database g_dSQLite = null,
 	g_dDatabase = null;
 	
 ArrayList g_aUserId[MAXPLAYERS+1],
-	g_aGroupArray,
 	g_aTimeMenuSorting;
 StringMap g_tAdminsExpired,
 	g_tGroupBanTimeMax,
@@ -262,8 +261,7 @@ public void OnPluginStart()
 	
 	for (int i = 1; i <= MAXPLAYERS; i++)
 		g_aUserId[i] = new ArrayList(ByteCountToCells(12));
-	
-	g_aGroupArray = new ArrayList(ByteCountToCells(12));
+
 	g_aTimeMenuSorting = new ArrayList(ByteCountToCells(12));
 	g_tAdminsExpired = new StringMap();
 	g_tGroupBanTimeMax = new StringMap();
