@@ -246,7 +246,7 @@ public void OnPluginStart()
 	RegComands();
 
 	char sPath[56];
-	BuildPath(Path_SM, sPath, sizeof(sPath), "configs/materialadmin/admin");
+	BuildPath(Path_SM, sPath, sizeof(sPath), "data/materialadmin");
 	if(!DirExists(sPath))
 		CreateDirectory(sPath, 511);
 	BuildPath(Path_SM, g_sGroupsLoc,sizeof(g_sGroupsLoc),"data/materialadmin/groups.bin");
