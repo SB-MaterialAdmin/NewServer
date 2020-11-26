@@ -1378,12 +1378,12 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 {
 	// Start loading groups.
 	// TODO: migrate this code block to function.
-	char sQuery[254];
+	char sQuery[300];
 
 	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-			SELECT `name`, `flags`, `immunity`, `maxbantime`, `maxmutetime` \
-			FROM `%s_srvgroups` ORDER BY `id`", 
-		g_sDatabasePrefix);
+			SELECT sg.`id`, sg.`name`, sg.`flags`, sg.`immunity`, sg.`maxbantime`, sg.`maxmutetime`, so.`type`, so.`name`, so.`access` \
+			FROM `%!s_srvgroups` sg LEFT JOIN `%!s_srvgroups_overrides` so ON sg.`id` = so.`group_id` ORDER BY sg.`id`, so.`id`", 
+		g_sDatabasePrefix, g_sDatabasePrefix);
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "GroupsDone:QUERY: %s", sQuery);
 #endif
@@ -1394,131 +1394,34 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 		LogToFile(g_sLogDateBase, "Failed to retrieve overrides from the database, %s", sError);
 	else
 	{
-		if (!dbRs.HasResults)
-		{
-			return;
-		}
+		File hFile = OpenFile(g_sOverridesLoc, "wb");
+		hFile.WriteInt32(BINARY__MA_OVERRIDES_HEADER);
 
-		KeyValues kvOverrides = new KeyValues("overrides");
-		
 		char sFlags[32], 
-			 sName[64],
-			 sType[64];
+			 sName[256],
+			 sType[16];
 		while (dbRs.FetchRow())
 		{
 			dbRs.FetchString(0, sType, sizeof(sType));
 			dbRs.FetchString(1, sName, sizeof(sName));
 			dbRs.FetchString(2, sFlags, sizeof(sFlags));
 
-			if (!sFlags[0])
-			{
-				sFlags[0] = ' ';
-				sFlags[1] = '\0';
-			}
-
-			if (StrEqual(sType, "command"))
-				kvOverrides.SetString(sName, sFlags);
-			else if (StrEqual(sType, "group"))
-			{
-				Format(sName, sizeof(sName), "@%s", sName);
-				kvOverrides.SetString(sName, sFlags);
-			}
+			UTIL_WriteFileString(hFile, sName);
+			hFile.WriteInt8(view_as<int>(sType[0] == 'c' ? Override_Command : Override_CommandGroup));
+			hFile.WriteInt32(ReadFlagString(sFlags));
 			
 		#if MADEBUG
 			LogToFile(g_sLogDateBase, "Adding override (%s, %s, %s)", sType, sName, sFlags);
 		#endif
 		}
-		
-		kvOverrides.Rewind();
-		kvOverrides.ExportToFile(g_sOverridesLoc);
-		delete kvOverrides;
+
+		hFile.Close();
 	}
 	
 	ReadOverrides();
 }
 
 public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any iData)
-{
-	// Load the group overrides
-	// TODO: move this code to custom function.
-	char sQuery[512];
-
-	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-			SELECT sg.`name`, so.`type`, so.`name`, so.`access` \
-			FROM `%s_srvgroups_overrides` so LEFT JOIN `%s_srvgroups` sg ON sg.`id` = so.`group_id` ORDER BY sg.`id`", 
-		g_sDatabasePrefix, g_sDatabasePrefix);
-#if MADEBUG
-	LogToFile(g_sLogDateBase, "LoadGroupsOverrides:QUERY: %s", sQuery);
-#endif
-	g_dDatabase.Query(LoadGroupsOverrides, sQuery, _, DBPrio_High);
-
-	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "Failed to retrieve groups from the database, %s", sError);
-	else
-	{
-		if (!dbRs.HasResults)
-		{
-			return;
-		}
-
-		char sGrpName[128], 
-			sGrpFlags[32];
-		int iImmunity,
-			iMaxBanTime = -1,
-			iMaxMuteTime = -1;
-	#if MADEBUG
-		int	iGrpCount = 0;
-	#endif
-		KeyValues kvGroups = new KeyValues("groups");
-
-		while (dbRs.MoreRows)
-		{
-			dbRs.FetchRow();
-			if (dbRs.IsFieldNull(0))
-				continue;
-
-			dbRs.FetchString(0, sGrpName, sizeof(sGrpName));
-			dbRs.FetchString(1, sGrpFlags, sizeof(sGrpFlags));
-			iImmunity = dbRs.FetchInt(2);
-			if (!dbRs.IsFieldNull(3))
-				iMaxBanTime = dbRs.FetchInt(3);
-			if (!dbRs.IsFieldNull(4))
-				iMaxMuteTime = dbRs.FetchInt(4);
-			
-			TrimString(sGrpName);
-			TrimString(sGrpFlags);
-			
-			// Ignore empty rows..
-			if (!sGrpName[0])
-				continue;
-			
-			kvGroups.JumpToKey(sGrpName, true);
-			if (sGrpFlags[0])
-				kvGroups.SetString("flags", sGrpFlags);
-			if (iImmunity)
-				kvGroups.SetNum("immunity", iImmunity);
-			
-			kvGroups.SetNum("maxbantime", iMaxBanTime);
-			kvGroups.SetNum("maxmutetime", iMaxMuteTime);
-				
-			kvGroups.Rewind();
-			
-		#if MADEBUG
-			LogToFile(g_sLogDateBase, "Add %s Group", sGrpName);
-			iGrpCount++;
-		#endif
-		}
-		
-		kvGroups.ExportToFile(g_sGroupsLoc);
-		delete kvGroups;
-		
-	#if MADEBUG
-		LogToFile(g_sLogDateBase, "Finished loading %i groups.", iGrpCount);
-	#endif
-	}
-}
-
-public void LoadGroupsOverrides(Database db, DBResultSet dbRs, const char[] sError, any iData)
 {
 	// TODO: move this code to custom function.
 	char sQuery[1204],
@@ -1545,7 +1448,7 @@ public void LoadGroupsOverrides(Database db, DBResultSet dbRs, const char[] sErr
 	g_dDatabase.Query(AdminsDone, sQuery, _, DBPrio_High);
 
 	if (!dbRs || sError[0])
-		LogToFile(g_sLogDateBase, "Failed to retrieve group overrides from the database, %s", sError);
+		LogToFile(g_sLogDateBase, "Failed to retrieve groups from the database, %s", sError);
 	else
 	{
 		if (!dbRs.HasResults)
@@ -1553,50 +1456,95 @@ public void LoadGroupsOverrides(Database db, DBResultSet dbRs, const char[] sErr
 			return;
 		}
 
-		char sGroupName[128],
-			sType[16],
-			sCommand[64],
-			sAllowed[16];
-		
-		KeyValues kvGroups = new KeyValues("groups");
-		kvGroups.ImportFromFile(g_sGroupsLoc);
+		char sGrpName[256],
+			sGrpFlags[32];
 
-		while (dbRs.FetchRow())
+		int iImmunity;
+		// TODO: restore writing max ban time and max mute time.
+
+	#if MADEBUG
+		int	iGrpCount = 0;
+	#endif
+		File hFile = OpenFile(g_sGroupsLoc, "wb");
+		hFile.WriteInt32(BINARY__MA_GROUPS_HEADER);
+		int iGid = -1;
+		int iOverrideCount = 0;
+		int iOverridePos = 0;
+
+		char szOverrideText[256],
+				szOverrideType[4],
+				szOverrideRule[4];
+
+		while (dbRs.MoreRows)
 		{
-			if (dbRs.IsFieldNull(0))
+			dbRs.FetchRow();
+			if (dbRs.IsFieldNull(1))
 				continue;
-			
-			dbRs.FetchString(0, sGroupName, sizeof(sGroupName));
-			TrimString(sGroupName);
-			if (!sGroupName[0])
-				continue;
-			
-			dbRs.FetchString(1, sType, sizeof(sType));
-			dbRs.FetchString(2, sCommand, sizeof(sCommand));
-			dbRs.FetchString(3, sAllowed, sizeof(sAllowed));
 
-			if (kvGroups.JumpToKey(sGroupName))
+			int iReadGid = dbRs.FetchInt(0);
+			if (iGid != iReadGid)
 			{
-				kvGroups.JumpToKey("overrides", true);
-				if (StrEqual(sType, "command"))
-					kvGroups.SetString(sCommand, sAllowed);
-				else if (StrEqual(sType, "group"))
+				if (iGid != -1 && iOverrideCount > 0)
 				{
-					Format(sCommand, sizeof(sCommand), "@%s", sCommand);
-					kvGroups.SetString(sCommand, sAllowed);
+					hFile.Seek(iOverridePos, SEEK_SET);
+					hFile.WriteInt16(iOverrideCount);
+					hFile.Seek(0, SEEK_END);
 				}
-				kvGroups.Rewind();
+
+				dbRs.FetchString(1, sGrpName, sizeof(sGrpName));
+				dbRs.FetchString(2, sGrpFlags, sizeof(sGrpFlags));
+				iImmunity = dbRs.FetchInt(3);
+				
+				TrimString(sGrpName);
+				TrimString(sGrpFlags);
+				
+				// Ignore empty rows..
+				if (!sGrpName[0])
+					continue;
+
+				UTIL_WriteFileString(hFile, sGrpName);
+				hFile.WriteInt32(iImmunity);
+				hFile.WriteInt32(ReadFlagString(sGrpFlags));
+				hFile.WriteInt32(dbRs.FetchInt(5)); // ban
+				hFile.WriteInt32(dbRs.FetchInt(6)); // mute
+
+				iOverridePos = hFile.Position;
+				hFile.WriteInt16(0);
+
+			#if MADEBUG
+				LogToFile(g_sLogDateBase, "Add %s Group", sGrpName);
+				iGrpCount++;
+			#endif
+
+				iGid = iReadGid;
+				iOverrideCount = 0;
 			}
-			
-		#if MADEBUG
-			LogToFile(g_sLogDateBase, "Adding group %s override (%s, %s)", sGroupName, sType, sCommand);
-		#endif
+
+			if (!dbRs.IsFieldNull(6))
+			{
+				// - Override text length
+				// - Override text
+				// - Override type
+				// - Override rule
+				dbRs.FetchString(6, szOverrideType, sizeof(szOverrideType));
+				dbRs.FetchString(7, szOverrideText, sizeof(szOverrideText));
+				dbRs.FetchString(8, szOverrideRule, sizeof(szOverrideRule));
+
+				UTIL_WriteFileString(hFile, szOverrideText);
+				hFile.WriteInt8(view_as<int>(szOverrideType[0] == 'g' ? Override_CommandGroup : Override_Command));
+				hFile.WriteInt8(view_as<int>(szOverrideRule[0] == 'd' ? Command_Deny : Command_Allow));
+
+				iOverrideCount++;
+			}
 		}
+
+		hFile.Close();
 		
-		kvGroups.ExportToFile(g_sGroupsLoc);
-		delete kvGroups;
+	#if MADEBUG
+		LogToFile(g_sLogDateBase, "Finished loading %i groups.", iGrpCount);
+	#endif
 	}
-	
+
 	ReadGroups();
 }
 
@@ -1622,9 +1570,10 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 		int iImmunity,
 			iExpire,
 			iExtraflags,
-			iExtraflagsGroup,
-			iWebFlag[2];
-		KeyValues kvAdmins = new KeyValues("admins");
+			iExtraflagsGroup;
+
+		File hFile = OpenFile(g_sAdminsLoc, "wb");
+		hFile.WriteInt32(BINARY__MA_ADMINS_HEADER);
 		
 		while (dbRs.MoreRows)
 		{
@@ -1648,7 +1597,6 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 				iExtraflagsGroup = 0;
 			
 			TrimString(sName);
-			ReplaceString(sName, sizeof(sName), "/", "_"); // костыль из-за бага
 			TrimString(sIdentity);
 			if (ValidSteam(sIdentity) < 2) // против говна GameCMS
 			{
@@ -1657,44 +1605,25 @@ public void AdminsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 			}
 			TrimString(sGroups);
 			TrimString(sFlags);
-			
-			kvAdmins.JumpToKey(sName, true);
-				
-			kvAdmins.SetString("auth", "steam");
-			
-			kvAdmins.SetString("identity", sIdentity);
-				
-			if (sFlags[0])
-				kvAdmins.SetString("flags", sFlags);
-				
-			if (sGroups[0])
-				kvAdmins.SetString("group", sGroups);
-				
-			if (sPassword[0])
-				kvAdmins.SetString("password", sPassword);
-				
-			if (iImmunity)
-				kvAdmins.SetNum("immunity", iImmunity);
-			
-			if (iExpire)
-				kvAdmins.SetNum("expire", iExpire);
-			
-			
-			iWebFlag = GetWebFlag(iExtraflags, iExtraflagsGroup);
-			kvAdmins.SetNum("setingsadmin", iWebFlag[1]);
-			kvAdmins.SetNum("unbanmute", iWebFlag[0]);
-				
-			kvAdmins.Rewind();
+
+			UTIL_WriteFileString(hFile, sName);
+			UTIL_WriteFileString(hFile, AUTHMETHOD_STEAM); // TODO: implement support for IP and name authorization?
+			UTIL_WriteFileString(hFile, sIdentity);
+			hFile.WriteInt32(ReadFlagString(sFlags));
+			hFile.WriteInt32(iImmunity);
+			UTIL_WriteFileString(hFile, sGroups);
+			UTIL_WriteFileString(hFile, sPassword);
+			hFile.WriteInt32(iExtraflags | iExtraflagsGroup);
+			hFile.WriteInt32(iExpire);
 			
 		#if MADEBUG
-			LogToFile(g_sLogDateBase, "Add %s (%s) admin (Flags %s, Groups %s, Immunity %i, Expire %i, setingsadmin %i, unbanmute %i, Extraflags %i, ExtraflagsGroup %i)", 
-						sName, sIdentity, sFlags, sGroups, iImmunity, iExpire, iWebFlag[1], iWebFlag[0], iExtraflags, iExtraflagsGroup);
+			LogToFile(g_sLogDateBase, "Add %s (%s) admin (Flags %s, Groups %s, Immunity %i, Expire %i, Extraflags %i, ExtraflagsGroup %i)", 
+						sName, sIdentity, sFlags, sGroups, iImmunity, iExpire, iExtraflags, iExtraflagsGroup);
 			++iAdmCount;
 		#endif
 		}
 		
-		kvAdmins.ExportToFile(g_sAdminsLoc);
-		delete kvAdmins;
+		hFile.Close();
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "Finished loading %i admins.", iAdmCount);
 	#endif
