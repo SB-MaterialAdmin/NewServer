@@ -294,7 +294,7 @@ static bool Internal__ReadAdmin(File hFile)
 
 	// 8. Read expiration date.
 	int iExpiresAfter;
-	if (!hFile.ReadInt32(iWebPermissions))
+	if (!hFile.ReadInt32(iExpiresAfter))
 	{
 		return false;
 	}
