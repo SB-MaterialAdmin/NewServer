@@ -218,7 +218,7 @@ static bool Internal__ReadAdmin(File hFile)
 	}
 
 #if defined MADEBUG
-	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => created/finded in admin cache", szData, iAID);
+	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => created/finded in admin cache", szName, iAID);
 #endif
 
 	// 4. Setup administrator flags and immunity.

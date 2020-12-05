@@ -385,7 +385,7 @@ public void OnClientAuthorized(int iClient, const char[] sSteamID)
 	CheckClientBan(iClient);
 }
 
-public void OnClientPreAdminCheck(int iClient)
+public Action OnClientPreAdminCheck(int iClient)
 {
 	return g_bReshashAdmin ?
 		Plugin_Handled :
