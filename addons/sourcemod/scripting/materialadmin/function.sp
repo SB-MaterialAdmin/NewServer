@@ -1284,7 +1284,7 @@ stock void VerifyServerID()
 	}
 
 	g_bServerIDVerified = true;
-	FireOnConfigSetting();
+	RequestFrame(view_as<RequestFrameCallback>(FireOnConfigSetting));
 }
 
 public void OnClientDisconnect_Post(int iClient)
