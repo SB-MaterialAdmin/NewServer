@@ -1,5 +1,10 @@
 public void OnRebuildAdminCache(AdminCachePart acPart)
 {
+	if (g_bReshashAdmin)
+	{
+		return;
+	}
+
 	switch(acPart)
 	{
 		case AdminCache_Overrides: 	ReadOverrides();
@@ -330,7 +335,7 @@ static void Internal__ReadAdminGroupLimitationsById(GroupId iGID, int &iBanTime,
 static void Internal__ReadAdmin_SetupWebPermissions(AdminId iAID, int iWebPermissions)
 {
 	char szAdminId[16];
-	FormatEx(szAdminId, sizeof(szAdminId), "%s", iAID);
+	FormatEx(szAdminId, sizeof(szAdminId), "%d", iAID);
 
 	int iCanManageAdmins = 0;
 	int iCanUnmuteUnban = 0;
@@ -354,6 +359,10 @@ static void Internal__ReadAdmin_SetupWebPermissions(AdminId iAID, int iWebPermis
 			iCanManageAdmins = 4; // only delete
 	}
 
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "Admin %x => read web flags (%d / %d)", iAID, iCanUnmuteUnban, iCanManageAdmins);
+#endif
+
 	g_tWebFlagSetingsAdmin.SetValue(szAdminId, iCanManageAdmins, false);
 	g_tWebFlagUnBanMute.SetValue(szAdminId, iCanUnmuteUnban, false);
 }
@@ -366,6 +375,12 @@ void ReadUsers()
 		int iHeader;
 		if (hAdmins.ReadInt32(iHeader) && iHeader == BINARY__MA_ADMINS_HEADER)
 		{
+			g_tAdminBanTimeMax.Clear();
+			g_tAdminMuteTimeMax.Clear();
+			g_tWebFlagSetingsAdmin.Clear();
+			g_tWebFlagUnBanMute.Clear();
+			g_tAdminsExpired.Clear();
+
 			Internal__ReadAdmins(hAdmins);
 		}
 
@@ -383,6 +398,10 @@ void ReadUsers()
 		{
 			if (IsClientInGame(i) && IsClientAuthorized(i) && !IsFakeClient(i))
 			{
+#if defined MADEBUG
+				LogToFile(g_sLogAdmin, "ReadUsers(): triggering OnClientPostAdminCheck() for %L...", i);
+#endif
+
 				RunAdminCacheChecks(i);
 				NotifyPostAdminCheck(i);
 			}

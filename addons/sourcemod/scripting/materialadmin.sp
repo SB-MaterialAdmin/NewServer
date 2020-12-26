@@ -284,6 +284,9 @@ public void OnPluginStart()
 	MACreateMenu();
 	ReadConfig();
 	MAConnectDB();
+
+	// After start, force rehashing for correct logging all existing admins, if this is late loading.
+	g_bReshashAdmin = true;
 }
 
 /*public void OnPluginEnd()
@@ -387,6 +390,10 @@ public void OnClientAuthorized(int iClient, const char[] sSteamID)
 
 public Action OnClientPreAdminCheck(int iClient)
 {
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "OnClientPreAdminCheck(): %L (in admincache updating cycle? %s)", iClient, g_bReshashAdmin ? "Yes" : "No");
+#endif
+
 	return g_bReshashAdmin ?
 		Plugin_Handled :
 		Plugin_Continue;
@@ -394,6 +401,10 @@ public Action OnClientPreAdminCheck(int iClient)
 
 public void OnClientPostAdminCheck(int iClient)
 {
+#if defined MADEBUG
+	LogToFile(g_sLogAdmin, "OnClientPostAdminCheck(): %L (in admincache updating cycle? %s)", iClient, g_bReshashAdmin ? "Yes" : "No");
+#endif
+
 	if (!IsClientInGame(iClient) || IsFakeClient(iClient)) 
 		return;
 
