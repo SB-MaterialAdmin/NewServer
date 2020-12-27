@@ -1359,5 +1359,12 @@ bool UTIL_ReadFileString(File hFile, char[] szBuffer, int iBufferLength)
 		return true;
 	}
 
-	return hFile.ReadString(szBuffer, iBufferLength, iValueLength) == iValueLength;
+	int iReadBytes = hFile.ReadString(szBuffer, iBufferLength, iValueLength);
+	if (iReadBytes == iBufferLength)
+	{
+		iReadBytes--;
+	}
+
+	szBuffer[iReadBytes] = 0;
+	return (iReadBytes == iValueLength);
 }
