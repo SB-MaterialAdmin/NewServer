@@ -1202,9 +1202,8 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 
 		g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 				INSERT INTO `%s_banlog` (`sid` ,`time` ,`name` ,`bid`) \
-				VALUES (%!s, UNIX_TIMESTAMP(), '%s', \
-				(SELECT `bid` FROM `%s_bans` WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')%!s) AND `RemoveType` IS NULL LIMIT 1))", 
-			g_sDatabasePrefix, sServer, sName, g_sDatabasePrefix, sSteamID[8], sIP, sSourceSleuth);
+				VALUES (%!s, UNIX_TIMESTAMP(), '%s', %d)", 
+			g_sDatabasePrefix, sServer, sName, SQL_FetchInt(dbRs, 0));
 
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "Ban log: QUERY: %s", sQuery);

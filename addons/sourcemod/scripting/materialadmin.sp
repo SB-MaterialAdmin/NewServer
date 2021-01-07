@@ -390,7 +390,7 @@ public void OnClientAuthorized(int iClient, const char[] sSteamID)
 
 public Action OnClientPreAdminCheck(int iClient)
 {
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "OnClientPreAdminCheck(): %L (in admincache updating cycle? %s)", iClient, g_bReshashAdmin ? "Yes" : "No");
 #endif
 
@@ -401,7 +401,7 @@ public Action OnClientPreAdminCheck(int iClient)
 
 public void OnClientPostAdminCheck(int iClient)
 {
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "OnClientPostAdminCheck(): %L (in admincache updating cycle? %s)", iClient, g_bReshashAdmin ? "Yes" : "No");
 #endif
 
