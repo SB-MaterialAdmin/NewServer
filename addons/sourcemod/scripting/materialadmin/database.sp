@@ -1504,8 +1504,8 @@ public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 				UTIL_WriteFileString(hFile, sGrpName);
 				hFile.WriteInt32(iImmunity);
 				hFile.WriteInt32(ReadFlagString(sGrpFlags));
-				hFile.WriteInt32(dbRs.FetchInt(5)); // ban
-				hFile.WriteInt32(dbRs.FetchInt(6)); // mute
+				hFile.WriteInt32(dbRs.FetchInt(4)); // ban
+				hFile.WriteInt32(dbRs.FetchInt(5)); // mute
 
 				iOverridePos = hFile.Position;
 				hFile.WriteInt16(0);
