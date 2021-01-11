@@ -45,7 +45,7 @@ static bool Internal__ReadGroup(File hFile)
 
 	// 1.5. Create entry.
 	GroupId iGID = FindOrCreateAdminGroup(szName);
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Group '%s' (%x) => created/finded in admin cache", szName, iGID);
 #endif
 
@@ -57,7 +57,7 @@ static bool Internal__ReadGroup(File hFile)
 	}
 
 	SetAdmGroupImmunityLevel(iGID, iImmunity);
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Group %x => immunity %d", iGID, iImmunity);
 #endif
 
@@ -69,7 +69,7 @@ static bool Internal__ReadGroup(File hFile)
 	}
 
 	SetupAdminGroupFlagsFromBits(iGID, iAdminFlags);
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Group %x => setup admin flags %b", iGID, iAdminFlags);
 #endif
 
@@ -82,7 +82,7 @@ static bool Internal__ReadGroup(File hFile)
 	{
 		return false;
 	}
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Group %x => has %d overrides", iGID, iOverrides);
 #endif
 
@@ -123,7 +123,7 @@ static bool Internal__ReadGroupOverride(File hFile, GroupId iGID)
 	{
 		return false;
 	}
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Group %x => read override text '%s'", iGID, szOverrideText);
 #endif
 
@@ -134,7 +134,7 @@ static bool Internal__ReadGroupOverride(File hFile, GroupId iGID)
 	{
 		return false;
 	}
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Group %x => type %d, rule %d", iGID, eType, eRule);
 #endif
 
@@ -222,7 +222,7 @@ static bool Internal__ReadAdmin(File hFile)
 		}
 	}
 
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => created/finded in admin cache", szName, iAID);
 #endif
 
@@ -242,7 +242,7 @@ static bool Internal__ReadAdmin(File hFile)
 	SetupAdminFlagsFromBits(iAID, iFlags);
 	SetAdminImmunityLevel(iAID, iImmunity);
 
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => setup immunity (%d) and flags (%b)", szName, iAID, iImmunity, iFlags);
 #endif
 
@@ -252,7 +252,7 @@ static bool Internal__ReadAdmin(File hFile)
 		return false;
 	}
 
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => read group '%s'", szName, iAID, szData);
 #endif
 
@@ -280,7 +280,7 @@ static bool Internal__ReadAdmin(File hFile)
 		return false;
 	}
 
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Admin '%s' (%x) => read password '%s'", szName, iAID, szData);
 #endif
 
@@ -359,7 +359,7 @@ static void Internal__ReadAdmin_SetupWebPermissions(AdminId iAID, int iWebPermis
 			iCanManageAdmins = 4; // only delete
 	}
 
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Admin %x => read web flags (%d / %d)", iAID, iCanUnmuteUnban, iCanManageAdmins);
 #endif
 
@@ -398,7 +398,7 @@ void ReadUsers()
 		{
 			if (IsClientInGame(i) && IsClientAuthorized(i) && !IsFakeClient(i))
 			{
-#if defined MADEBUG
+#if MADEBUG
 				LogToFile(g_sLogAdmin, "ReadUsers(): triggering OnClientPostAdminCheck() for %L...", i);
 #endif
 
@@ -453,7 +453,7 @@ static bool Internal__ReadOverride(File hFile)
 	}
 
 	AddCommandOverride(szValue, eType, iAdminFlags);
-#if defined MADEBUG
+#if MADEBUG
 	LogToFile(g_sLogAdmin, "Readed override '%s' (type %d) with flags %b", szValue, eType, iAdminFlags);
 #endif
 
