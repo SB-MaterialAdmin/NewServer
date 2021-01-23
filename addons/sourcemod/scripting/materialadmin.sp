@@ -106,7 +106,7 @@ int	g_iServerID = -1,
 	g_iIgnoreBanServer,
 	g_iIgnoreMuteServer,
 	g_iAdminUpdateCache,
-	g_iIgnoreFlagOfflineBan,
+	g_iIgnoreFlagOfflineBan = ADMFLAG_BAN, // the default value
 	g_iTargetReport[MAXPLAYERS+1]; // репорт юзер
 
 bool g_bServerIDVerified = false;
