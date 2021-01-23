@@ -9,7 +9,7 @@
 ### [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/blob/master/LICENSE) [![GitHub forks](https://img.shields.io/github/forks/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/network) [![GitHub stars](https://img.shields.io/github/stars/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/stargazers) [![GitHub issues](https://img.shields.io/github/issues/SB-MaterialAdmin/NewServer.svg?style=flat-square)](https://github.com/SB-MaterialAdmin/NewServer/issues) [![Travis Build](https://travis-ci.org/SB-MaterialAdmin/NewServer.svg?branch=master)](https://travis-ci.org/SB-MaterialAdmin/NewServer)
 
 ### Ссылки
-- [Скачать этот плагин](https://builds.kruzya.me/SB-MaterialAdmin/NewServer/)
+- [Скачать этот плагин (исходники)](https://builds.kruzya.me/SB-MaterialAdmin/NewServer/) | [(билды)](https://builds.kruzya.me/products/1/view)
 - [Ищете старый?](https://github.com/SB-MaterialAdmin/OldServer)
 - [Веб-панель](https://github.com/SB-MaterialAdmin/Web)
 - [FAQ](https://github.com/SB-MaterialAdmin/Web/wiki/FAQ)

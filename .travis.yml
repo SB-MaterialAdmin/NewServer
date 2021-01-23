@@ -4,11 +4,11 @@ dist: bionic
 env:
     matrix:
         - SMVERSION=1.9
-        - SMVERSION=1.9  COMPILER_OPTIONS="__MADEBUG=1"
+        - SMVERSION=1.9  COMPILER_OPTIONS="__MADEBUG=1" ADDITIONAL_TAGS=",Debug"
         - SMVERSION=1.10
-        - SMVERSION=1.10 COMPILER_OPTIONS="__MADEBUG=1"
+        - SMVERSION=1.10 COMPILER_OPTIONS="__MADEBUG=1" ADDITIONAL_TAGS=",Debug"
         - SMVERSION=1.11
-        - SMVERSION=1.11 COMPILER_OPTIONS="__MADEBUG=1"
+        - SMVERSION=1.11 COMPILER_OPTIONS="__MADEBUG=1" ADDITIONAL_TAGS=",Debug"
     global:
         - CUSTOM_POSTFIX=_
 
@@ -16,7 +16,7 @@ matrix:
     fast_finish: true
     allow_failures:
         - env: SMVERSION=1.11
-        - env: SMVERSION=1.11 COMPILER_OPTIONS="__MADEBUG=1"
+        - env: SMVERSION=1.11 COMPILER_OPTIONS="__MADEBUG=1" ADDITIONAL_TAGS=",Debug"
 
 before_install:
     - sudo apt-get update
@@ -43,21 +43,22 @@ script:
     - ./spcomp __TRAVIS=1 $COMPILER_OPTIONS materialadmin.git.sp ma_basevotes.sp -E -oma_basevotes
 
 before_deploy:
-    - export CUSTOM_POSTFIX=$CUSTOM_POSTFIX$SMVERSION
-    - if [ "$COMPILER_OPTIONS" ]; then export CUSTOM_POSTFIX=$CUSTOM_POSTFIX"d"; fi
-    - mkdir -p $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY
-    - cp -Rf $TRAVIS_BUILD_DIR/addons $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons
-    - rm -Rf $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/*
-    - mkdir -p $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional
-    - cp materialadmin.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/materialadmin.smx
-    - cp ma_adminmenu.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_adminmenu.smx
-    - cp ma_basecomm.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_basecomm.smx
-    - cp ma_checker.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_checker.smx
-    - cp ma_basevotes.smx $TRAVIS_BUILD_DIR/../$SFTP_SOURCE_DIRECTORY/addons/sourcemod/plugins/optional/ma_basevotes.smx
+    - if [ "$COMPILER_OPTIONS" ]; then export CUSTOM_POSTFIX="d"; fi
+    - export FILENAME=sbma-newplugin.${TRAVIS_COMMIT:0:7}.${SMVERSION}${CUSTOM_POSTFIX}.tar.gz
+    - export PACKAGE_PATH=${TRAVIS_BUILD_DIR}/../package
+    - mkdir -p ${PACKAGE_PATH}
+    - cp -Rf $TRAVIS_BUILD_DIR/addons ${PACKAGE_PATH}/addons
+    - rm -Rf ${PACKAGE_PATH}/addons/sourcemod/plugins/*
+    - mkdir -p ${PACKAGE_PATH}/addons/sourcemod/plugins/optional
+    - cp materialadmin.smx ${PACKAGE_PATH}/addons/sourcemod/plugins/materialadmin.smx
+    - cp ma_adminmenu.smx ${PACKAGE_PATH}/addons/sourcemod/plugins/optional/ma_adminmenu.smx
+    - cp ma_basecomm.smx ${PACKAGE_PATH}/addons/sourcemod/plugins/optional/ma_basecomm.smx
+    - cp ma_checker.smx ${PACKAGE_PATH}/addons/sourcemod/plugins/optional/ma_checker.smx
+    - cp ma_basevotes.smx ${PACKAGE_PATH}/addons/sourcemod/plugins/optional/ma_basevotes.smx
     - cd $TRAVIS_BUILD_DIR
-    - wget --user=$HTTP_USER --password=$HTTP_PASSWORD $BASE_URL/travis.sh
+    - tar -cvf ../${FILENAME} ${PACKAGE_PATH}
 
 deploy:
     - provider: script
       skip_cleanup: true
-      script: bash travis.sh
+      script: curl "${API_URL}?secret_key=${API_KEY}&tags=SourceMod%20${SMVERSION}${ADDITIONAL_TAGS}" -F "artifact=@./../${FILENAME}"
