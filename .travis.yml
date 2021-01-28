@@ -22,6 +22,7 @@ before_install:
     - sudo apt-get update
     - sudo apt-get install gcc-multilib
     - sudo apt-get install lib32stdc++6
+    - sudo npm install markdown-to-html -g
 
 before_script:
     - mkdir sourcemod
@@ -56,6 +57,7 @@ before_deploy:
     - cp ma_checker.smx ${PACKAGE_PATH}/addons/sourcemod/plugins/optional/ma_checker.smx
     - cp ma_basevotes.smx ${PACKAGE_PATH}/addons/sourcemod/plugins/optional/ma_basevotes.smx
     - cd $TRAVIS_BUILD_DIR
+    - github-markdown --context SB-MaterialAdmin/NewServer README.md > ${PACKAGE_PATH}/README.html
     - tar -cvf ../${FILENAME} ${PACKAGE_PATH}
 
 deploy:

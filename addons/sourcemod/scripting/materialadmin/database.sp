@@ -1878,6 +1878,7 @@ public Action OnBanIdentity(const char[] sIdentity, int iTime, int flags, const 
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "OnBanIdentity: set CheckBanInBd");
 #endif
+	g_bOnileTarget[0] = false;
 	CheckBanInBd(0, 0, 1, sBuffer);
 	
 	return Plugin_Continue;
@@ -1897,6 +1898,7 @@ public Action OnRemoveBan(const char[] sIdentity, int flags, const char[] comman
 	LogToFile(g_sLogDateBase, "OnRemoveBan: set CheckBanInBd");
 #endif	
 	CheckBanInBd(0, 0, 0, sBuffer);
+	g_bOnileTarget[0] = false;
 
 	return Plugin_Continue;
 }
