@@ -1287,7 +1287,7 @@ stock void VerifyServerID()
 	RequestFrame(FireOnConfigSettingLate);
 }
 
-static void FireOnConfigSettingLate()
+static void FireOnConfigSettingLate(any dontUsed)
 {
 	FireOnConfigSetting();
 }
