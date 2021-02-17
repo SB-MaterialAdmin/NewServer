@@ -39,6 +39,9 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+// Comment if you don't want triggers on mute/unmute events from core (MA)
+#define MA_CONVERT_FORWARDS
+
 public Plugin myinfo =
 {
 	name = "Basic Comm Control",
@@ -186,3 +189,30 @@ public int Native_SetClientMute(Handle hPlugin, int numParams)
 	
 	return true;
 }
+
+#if defined MA_CONVERT_FORWARDS
+
+public void MAOnClientMuted(int iClient, int iTarget, char[] sIp, char[] sSteamID, char[] sName, int iType, int iTime, char[] sReason)
+{
+	UTIL_ConvertCallForward(iClient, iType, true);
+}
+
+public void MAOnClientUnMuted(int iClient, int iTarget, char[] sIp, char[] sSteamID, char[] sName, int iType, char[] sReason)
+{
+	UTIL_ConvertCallForward(iClient, iType, false);
+}
+
+void UTIL_ConvertCallForward(int iClient, int iType, bool bState)
+{
+	if (iType == 1 || iType == 3)
+	{
+		FireOnClientMute(iClient, bState);
+	}
+
+	if (iType == 2 || iType == 3)
+	{
+		FireOnClientGag(iClient, bState);
+	}
+}
+
+#endif
