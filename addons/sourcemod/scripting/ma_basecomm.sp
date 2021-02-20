@@ -194,12 +194,12 @@ public int Native_SetClientMute(Handle hPlugin, int numParams)
 
 public void MAOnClientMuted(int iClient, int iTarget, char[] sIp, char[] sSteamID, char[] sName, int iType, int iTime, char[] sReason)
 {
-	UTIL_ConvertCallForward(iClient, iType, true);
+	UTIL_ConvertCallForward(iTarget, iType, true);
 }
 
 public void MAOnClientUnMuted(int iClient, int iTarget, char[] sIp, char[] sSteamID, char[] sName, int iType, char[] sReason)
 {
-	UTIL_ConvertCallForward(iClient, iType, false);
+	UTIL_ConvertCallForward(iTarget, iType, false);
 }
 
 void UTIL_ConvertCallForward(int iClient, int iType, bool bState)
