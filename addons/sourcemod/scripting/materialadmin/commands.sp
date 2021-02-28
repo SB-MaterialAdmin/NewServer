@@ -733,7 +733,10 @@ public Action CommandAddBan(int iClient, int iArgc)
 	if(iTarget)
 	{
 		if(GetUserAdmin(iTarget) == INVALID_ADMIN_ID)
+		{
+			g_bOnileTarget[iClient] = true;
 			CheckBanInBd(iClient, iTarget, 1, sArg);
+		}
 		else
 		{
 			if (iClient)
@@ -743,7 +746,10 @@ public Action CommandAddBan(int iClient, int iArgc)
 		}
 	}
 	else
-		CheckBanInBd(iClient, iTarget, 1, sArg);
+	{
+		g_bOnileTarget[iClient] = false;
+		CheckBanInBd(iClient, 0, 1, sArg);
+	}
 
 	return Plugin_Handled;
 }
@@ -796,6 +802,7 @@ public Action CommandUnBan(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_unban, arg %s, reason %s.", sArg, g_sTarget[iClient][TREASON]);
 #endif
+	g_bOnileTarget[iClient] = false;
 	CheckBanInBd(iClient, 0, 0, sArg);
 
 	return Plugin_Handled;
