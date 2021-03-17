@@ -26,7 +26,7 @@ void GetColor(char[] sBuffer, int iMaxlin)
 void PrintToChat2(int iClient, const char[] sMesag, any ...)
 {
 	static const char sNameD[][] = {"name1", "name2"};
-	char sBufer[1024];
+	char sBufer[4096];
 	VFormat(sBufer, sizeof(sBufer), sMesag, 3);
 	
 	// del name 
