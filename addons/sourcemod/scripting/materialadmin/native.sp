@@ -180,6 +180,7 @@ public int Native_OffBan(Handle plugin, int numParams)
 	if (!ValidSteam(g_sTarget[iClient][TSTEAMID]))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: invalid steam.");
 	
+	g_bOnileTarget[iClient] = false;
 	CheckBanInBd(iClient, 0, 1, g_sTarget[iClient][TSTEAMID]);
 	return true;
 }
@@ -213,6 +214,7 @@ public int Native_BanPlayer(Handle plugin, int numParams)
 	GetClientIP(iTarget, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
 	GetClientName(iTarget, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
 
+	g_bOnileTarget[iClient] = true;
 	if (iType == MA_BAN_STEAM)
 		CheckBanInBd(iClient, iTarget, 1, g_sTarget[iClient][TSTEAMID]);
 	else
@@ -244,7 +246,7 @@ public int Native_UnBanPlayer(Handle plugin, int numParams)
 	}
 	
 	g_iTargetType[iClient] = TYPE_UNBAN;
-	
+	g_bOnileTarget[iClient] = false;
 	CheckBanInBd(iClient, 0, 0, sId);
 	return true;
 }
@@ -279,6 +281,7 @@ public int Native_SetClientMuteType(Handle plugin, int numParams)
 	if (!iTarget || !IsClientInGame(iTarget) || IsFakeClient(iTarget))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Player no game.");
 	
+	g_bOnileTarget[iClient] = true;
 	DoCreateDB(iClient, iTarget);
 	return true;
 }
@@ -313,6 +316,7 @@ public int Native_OffSetClientMuteType(Handle plugin, int numParams)
 	if (SimpleRegexMatch(g_sTarget[iClient][TIP], "\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}?") < 1)
 		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: invalid ip.");
 	
+	g_bOnileTarget[iClient] = false;
 	DoCreateDB(iClient, 0);
 	return true;
 }
@@ -519,6 +523,7 @@ public void BaseComm_OnClientMute(int iClient, bool bState)
 	if (!iClient || !IsClientInGame(iClient) || IsFakeClient(iClient))
 		return;
 
+	g_bOnileTarget[iClient] = true;
 	if (bState)
 	{
 		if (g_iTargetMuteType[iClient] == 0 || g_iTargetMuteType[iClient] == 2)
@@ -544,6 +549,7 @@ public void BaseComm_OnClientGag(int iClient, bool bState)
 	if (!iClient || !IsClientInGame(iClient) || IsFakeClient(iClient))
 		return;
 
+	g_bOnileTarget[iClient] = true;
 	if (bState)
 	{
 		if (g_iTargetMuteType[iClient] < 2)
