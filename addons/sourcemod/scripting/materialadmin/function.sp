@@ -1232,7 +1232,8 @@ stock bool IsBanTypeAvailable(int iClient, int iType)
 	int iFlag;
 	switch (iType)
 	{
-		case MA_BAN_IP, MA_BAN_STEAM: 	strcopy(szCommand, sizeof(szCommand), "sm_ban"), iFlag = ADMFLAG_BAN;
+		case MA_BAN_STEAM:				strcopy(szCommand, sizeof(szCommand), "sm_ban"), iFlag = ADMFLAG_BAN;
+		case MA_BAN_IP: 				strcopy(szCommand, sizeof(szCommand), "sm_banip"), iFlag = ADMFLAG_BAN;
 
 		case MA_GAG:					strcopy(szCommand, sizeof(szCommand), "sm_gag"), iFlag = ADMFLAG_CHAT;
 		case MA_MUTE:					strcopy(szCommand, sizeof(szCommand), "sm_mute"), iFlag = ADMFLAG_CHAT;
@@ -1254,7 +1255,8 @@ stock int GetItemDrawModeByPermission(int iClient, int iType)
 
 stock bool IsBanAvailable(int iClient)
 {
-	return IsBanTypeAvailable(iClient, MA_BAN_STEAM);
+	return IsBanTypeAvailable(iClient, MA_BAN_STEAM) ||
+		IsBanTypeAvailable(iClient, MA_BAN_IP);
 }
 
 stock bool IsAnyCommTypeAvailable(int iClient)

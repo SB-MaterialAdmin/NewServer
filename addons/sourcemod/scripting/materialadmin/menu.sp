@@ -453,10 +453,10 @@ void ShowTypeBanMenu(int iClient)
 	Mmenu.SetTitle("%T:", "SetTitle", iClient);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Steam", iClient); // steam
-	Mmenu.AddItem(NULL_STRING, sTitle);
+	Mmenu.AddItem(NULL_STRING, sTitle, GetItemDrawModeByPermission(iClient, MA_BAN_STEAM));
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Ip", iClient); // ip
-	Mmenu.AddItem(NULL_STRING, sTitle);
+	Mmenu.AddItem(NULL_STRING, sTitle, GetItemDrawModeByPermission(iClient, MA_BAN_IP));
 
 	Mmenu.ExitBackButton = true;
 	Mmenu.Display(iClient, MENU_TIME_FOREVER);
