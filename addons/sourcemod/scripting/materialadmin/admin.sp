@@ -391,23 +391,19 @@ void ReadUsers()
 	g_tGroupBanTimeMax.Clear();
 	g_tGroupMuteTimeMax.Clear();
 
-	// Fire permissions checks.
-	if (g_bReshashAdmin)
+	for (int i = 1; i <= MaxClients; i++)
 	{
-		for (int i = 1; i <= MaxClients; i++)
+		if (IsClientInGame(i) && IsClientAuthorized(i) && !IsFakeClient(i))
 		{
-			if (IsClientInGame(i) && IsClientAuthorized(i) && !IsFakeClient(i))
-			{
 #if MADEBUG
-				LogToFile(g_sLogAdmin, "ReadUsers(): triggering OnClientPostAdminCheck() for %L...", i);
+			LogToFile(g_sLogAdmin, "ReadUsers(): triggering OnClientPostAdminCheck() for %L...", i);
 #endif
 
-				RunAdminCacheChecks(i);
-				NotifyPostAdminCheck(i);
-			}
+			RunAdminCacheChecks(i);
+			NotifyPostAdminCheck(i);
 		}
-		g_bReshashAdmin = false;
 	}
+	g_bReshashAdmin = false;
 
 	FireOnFindLoadingAdmin(AdminCache_Admins);
 }
