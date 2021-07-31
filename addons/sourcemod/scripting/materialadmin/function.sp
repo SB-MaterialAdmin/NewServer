@@ -1056,7 +1056,7 @@ void FunMute(int iClient)
 {
 	if (g_iTargetMuteType[iClient] == TYPEMUTE || g_iTargetMuteType[iClient] == TYPESILENCE)
 		SetClientListeningFlags(iClient, VOICE_MUTED);
-	else if (!IsPlayerAlive(iClient) && g_iGameTyp != GAMETYP_CSGO && g_iCvar_Deadtalk)
+	else if (g_iGameTyp != GAMETYP_CSGO && IsClientInGame(iClient) && !IsPlayerAlive(iClient) && g_iCvar_Deadtalk)
 	{
 		if (g_iCvar_Deadtalk == 1)
 			SetClientListeningFlags(iClient, VOICE_LISTENALL);
