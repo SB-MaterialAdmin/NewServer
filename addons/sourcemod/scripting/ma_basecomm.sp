@@ -54,6 +54,7 @@ public Plugin myinfo =
 bool g_bMuted[MAXPLAYERS+1];			// Is the player muted?
 bool g_bGagged[MAXPLAYERS+1];		// Is the player gagged?
 
+bool g_bMaterialAdminAvailable = false;
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -64,6 +65,16 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	RegPluginLibrary("basecomm");
 	
 	return APLRes_Success;
+}
+
+public void OnLibraryRemoved(const char[] szName)
+{
+	UTIL_SetLibraryState(szName, false);
+}
+
+public void OnLibraryAdded(const char[] szName)
+{
+	UTIL_SetLibraryState(szName, true);
 }
 
 void FireOnClientMute(int iClient, bool bState)
@@ -101,7 +112,7 @@ public int Native_IsClientGagged(Handle hPlugin, int numParams)
 	if (!IsClientInGame(iClient))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Client %d is not in game", iClient);
 	
-	if (LibraryExists("materialadmin"))
+	if (g_bMaterialAdminAvailable)
 	{
 		int iType = MAGetClientMuteType(iClient);
 		if (iType > 1)
@@ -122,7 +133,7 @@ public int Native_IsClientMuted(Handle hPlugin, int numParams)
 	if (!IsClientInGame(iClient))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Client %d is not in game", iClient);
 	
-	if (LibraryExists("materialadmin"))
+	if (g_bMaterialAdminAvailable)
 	{
 		int iType = MAGetClientMuteType(iClient);
 		if (iType == 1 || iType == 3)
@@ -216,3 +227,11 @@ void UTIL_ConvertCallForward(int iClient, int iType, bool bState)
 }
 
 #endif
+
+stock void UTIL_SetLibraryState(const char[] szLibraryName, bool bNewState)
+{
+	if (strcmp(szLibraryName, "materialadmin") == 0)
+	{
+		g_bMaterialAdminAvailable = bNewState;
+	}
+}
