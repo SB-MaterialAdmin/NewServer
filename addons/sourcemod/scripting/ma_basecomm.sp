@@ -53,6 +53,7 @@ public Plugin myinfo =
 
 bool g_bMuted[MAXPLAYERS+1];			// Is the player muted?
 bool g_bGagged[MAXPLAYERS+1];		// Is the player gagged?
+
 bool g_bMaterialAdminAvailable = false;
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -66,23 +67,14 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success;
 }
 
-public void OnAllPluginsLoaded()
-{
-	g_bMaterialAdminAvailable = LibraryExists("materialadmin");
-}
-
 public void OnLibraryRemoved(const char[] szName)
 {
-	if (strcmp(szName, "materialadmin", true) == 0) {
-		g_bMaterialAdminAvailable = false;
-	}
+	UTIL_SetLibraryState(szName, false);
 }
 
 public void OnLibraryAdded(const char[] szName)
 {
-	if (strcmp(szName, "materialadmin", true) == 0) {
-		g_bMaterialAdminAvailable = true;
-	}
+	UTIL_SetLibraryState(szName, true);
 }
 
 void FireOnClientMute(int iClient, bool bState)
@@ -235,3 +227,11 @@ void UTIL_ConvertCallForward(int iClient, int iType, bool bState)
 }
 
 #endif
+
+stock void UTIL_SetLibraryState(const char[] szLibraryName, bool bNewState)
+{
+	if (strcmp(szLibraryName, "materialadmin") == 0)
+	{
+		g_bMaterialAdminAvailable = bNewState;
+	}
+}
