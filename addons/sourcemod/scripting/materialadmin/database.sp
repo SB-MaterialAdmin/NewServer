@@ -675,7 +675,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 						VALUES (%d, '%s', '%s', UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + %d, %d, '%s', %!s, '%s', %!s, ' ')", 
 					g_sDatabasePrefix, iTyp, iTyp?sSteamIp:"", !iTyp?sSteamIp:"", iTime, iTime, g_sTarget[iClient][TREASON], sQueryAdmin, sAdmin_SteamID, sServer);
 				
-				FireOnClientAddBanned(iClient, sSteamIp, "", g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
+				FireOnClientAddBanned(iClient, g_sTarget[iClient][TIP], sSteamIp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 				ShowAdminAction(iClient, "%t", "Banned show", "name", sSteamIp, sLength, g_sTarget[iClient][TREASON]);
 				FormatEx(sLog, sizeof(sLog), "\"%L\" add banned \"%s\" (minutes \"%d\") (reason \"%s\")", iClient, sSteamIp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 			}
