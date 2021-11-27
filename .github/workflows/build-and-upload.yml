@@ -43,9 +43,9 @@ jobs:
           export SMVERSION_SHORT=${SMVERSION_FULL:0:-2}
           export ARCHIVE_FILENAME=sbma-newplugin.${GITHUB_SHA::7}.$SMVERSION_SHORT.tar.gz
           echo "SMVERSION_SHORT=$SMVERSION_SHORT" >> $GITHUB_ENV
-          tar -cvf ../../$ARCHIVE_FILENAME *
+          tar -cvf ../../$ARCHIVE_FILENAME addons
       
       - name: Upload artifact to builds.kruzya.me
         if: github.ref == 'refs/heads/master'
         run: |
-          curl "${BUILDS_URL}?secret_key=${BUILDS_KEY}&tags=SourceMod%20${SMVERSION_SHORT}" -F "artifact=@./${ARCHIVE_FILENAME}"
+          curl "${BUILDS_URL}?secret_key=${BUILDS_KEY}&tags=SourceMod%20${SMVERSION_SHORT}" -F "artifact=@${ARCHIVE_FILENAME}"
