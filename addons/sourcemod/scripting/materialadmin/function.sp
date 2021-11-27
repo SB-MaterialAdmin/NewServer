@@ -1375,3 +1375,48 @@ bool UTIL_ReadFileString(File hFile, char[] szBuffer, int iBufferLength)
 	szBuffer[iReadBytes] = 0;
 	return (iReadBytes == iValueLength);
 }
+
+static const char szForbiddenTranslationExtensions[][] = {".cfg", ".txt"};
+
+int UTIL_GetTranslationFilePath(const char[] szFileName, char[] szBuffer, int iBufferLength)
+{
+	// https://github.com/alliedmodders/sourcemod/blob/1fbe5e1daaee9ba44164078fe7f59d862786e612/core/logic/smn_lang.cpp#L73-L82
+	// https://github.com/alliedmodders/sourcemod/blob/1fbe5e1daaee9ba44164078fe7f59d862786e612/core/logic/PhraseCollection.cpp#L58-L59
+	// SourceMod devs strips automatically from filename extension (only ".txt" and ".cfg"). Then appends ".txt".
+	int iFileNameLength = strlen(szFileName);
+
+	// If our filename longer than 4 symbols - then file extension is not
+	// persist in file name and stripping is not required.
+	if (iFileNameLength > 4)
+	{
+		if (strncmp(szFileName[iFileNameLength - 4], ".txt", 4) == 0 || strncmp(szFileName[iFileNameLength - 4], ".cfg", 4) == 0)
+		{
+			// Our filename - constant, so we copy filename without extension and perform "recursive call".
+			char[] szFixedFileName = new char[iFileNameLength - 4];
+			strcopy(szFixedFileName, iFileNameLength - 4, szFileName);
+
+			return UTIL_GetTranslationFilePath(szFixedFileName, szBuffer, iBufferLength);
+		}
+	}
+
+	// Now we can build file path.
+	return BuildPath(Path_SM, szBuffer, iBufferLength, "translations/%s.txt", szFileName);
+}
+
+bool UTIL_IsTranslationFileExists(const char[] szFileName)
+{
+	char szFilePath[PLATFORM_MAX_PATH];
+	UTIL_GetTranslationFilePath(szFileName, szFilePath, sizeof(szFilePath));
+
+	return FileExists(szFilePath);
+}
+
+void UTIL_SafeLoadTranslations(const char[] szFileName)
+{
+	if (!UTIL_IsTranslationFileExists(szFileName))
+	{
+		return;
+	}
+
+	LoadTranslations(szFileName);
+}

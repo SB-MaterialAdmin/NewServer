@@ -224,6 +224,8 @@ public void OnPluginStart()
 	LoadTranslations("materialadmin.phrases");
 	LoadTranslations("common.phrases");
 
+	UTIL_SafeLoadTranslations("materialadmin_reasons.phrases");
+
 #if defined GIT_COMMIT_ABBREVIATEDHASH
 	PrintToServer(g_szStartDelimter);
 	PrintToServer("-> Build date:  " ... __DATE__ ... " " ... __TIME__);
