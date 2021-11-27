@@ -31,7 +31,7 @@ jobs:
           mkdir plugins
           cd scripting
           spcomp materialadmin.sp -o ../plugins -iinclude
-          spcomp ma_adminmenu.sp -o ../plugins -iinclude
+          spcomp ma_adminmenu.sp -o ../plugins -iinclude -i${includePath}/..
           spcomp ma_basecomm.sp -o ../plugins -iinclude
           spcomp ma_basevotes.sp -o ../plugins -iinclude
           spcomp ma_checker.sp -o ../plugins -iinclude
