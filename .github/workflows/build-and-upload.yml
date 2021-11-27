@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         sm-version: [ '1.9.x' ]
+        compiler-options: [ '', '__MADEBUG=1' ]
     
     env:
       BUILDS_URL: ${{ secrets.BUILDS_URL }}
@@ -30,23 +31,31 @@ jobs:
           cd addons/sourcemod
           mkdir plugins
           cd scripting
-          spcomp materialadmin.sp -o ../plugins -iinclude
-          spcomp ma_adminmenu.sp -o ../plugins -iinclude -i${includePath}/..
-          spcomp ma_basecomm.sp -o ../plugins -iinclude
-          spcomp ma_basevotes.sp -o ../plugins -iinclude
-          spcomp ma_checker.sp -o ../plugins -iinclude
+          spcomp materialadmin.sp -o ../plugins/materialadmin -iinclude ${{ matrix.compiler-options }}
+          spcomp ma_adminmenu.sp -o ../plugins/ma_adminmenu -iinclude -i${includePath}/.. ${{ matrix.compiler-options }}
+          spcomp ma_basecomm.sp -o ../plugins/ma_basecomm -iinclude ${{ matrix.compiler-options }}
+          spcomp ma_basevotes.sp -o ../plugins/ma_basevotes -iinclude ${{ matrix.compiler-options }}
+          spcomp ma_checker.sp -o ../plugins/ma_checker -iinclude ${{ matrix.compiler-options }}
       
       - name: Make artifact archive
         if: github.ref == 'refs/heads/master'
         run: |
+          export DEBUG=${{ contains(matrix.compiler-options, '__MADEBUG=1') }}
+          
+          if [ "$DEBUG" ]; then export CUSTOM_POSTFIX="d"; fi
           SMVERSION_FULL=${{ matrix.sm-version }}
+          
           export SMVERSION_SHORT=${SMVERSION_FULL:0:-2}
-          export ARCHIVE_FILENAME=sbma-newplugin.${GITHUB_SHA::7}.$SMVERSION_SHORT.tar.gz
+          export ARCHIVE_FILENAME=sbma-newplugin.${GITHUB_SHA::7}.${SMVERSION_SHORT}${CUSTOM_POSTFIX}.tar.gz
+          
           echo "ARCHIVE_FILENAME=$ARCHIVE_FILENAME" >> $GITHUB_ENV
           echo "SMVERSION_SHORT=$SMVERSION_SHORT" >> $GITHUB_ENV
+          echo "DEBUG=$DEBUG" >> $GITHUB_ENV
+          
           tar -cvf $ARCHIVE_FILENAME addons
       
       - name: Upload artifact to builds.kruzya.me
         if: github.ref == 'refs/heads/master'
         run: |
-          curl "${BUILDS_URL}?secret_key=${BUILDS_KEY}&tags=SourceMod%20${SMVERSION_SHORT}" -F "artifact=@./${ARCHIVE_FILENAME}"
+          if [ "$DEBUG" ]; then export ADDITIONAL_TAGS=",DEBUG"; fi 
+          curl "${BUILDS_URL}?secret_key=${BUILDS_KEY}&tags=SourceMod%20${SMVERSION_SHORT}${ADDITIONAL_TAGS}" -F "artifact=@./${ARCHIVE_FILENAME}"
