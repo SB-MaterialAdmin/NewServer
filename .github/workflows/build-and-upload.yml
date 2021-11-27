@@ -44,7 +44,7 @@ jobs:
           export ARCHIVE_FILENAME=sbma-newplugin.${GITHUB_SHA::7}.$SMVERSION_SHORT.tar.gz
           echo "ARCHIVE_FILENAME=$ARCHIVE_FILENAME" >> $GITHUB_ENV
           echo "SMVERSION_SHORT=$SMVERSION_SHORT" >> $GITHUB_ENV
-          tar -cvf ../../$ARCHIVE_FILENAME addons
+          tar -cvf $ARCHIVE_FILENAME addons
       
       - name: Upload artifact to builds.kruzya.me
         if: github.ref == 'refs/heads/master'
