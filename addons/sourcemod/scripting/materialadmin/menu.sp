@@ -3,13 +3,13 @@ void MACreateMenu()
 	// TODO: refactor this.
 	g_mReasonBMenu = MACreateBanMenu();
 	
-	g_mReasonMMenu = new Menu(MenuHandler_MenuMReason);
+	g_mReasonMMenu = new Menu(MenuHandler_MenuMReason, MenuAction_Select|MenuAction_Cancel|MenuAction_End|MenuAction_DisplayItem);
 	g_mReasonMMenu.ExitBackButton = true;
 }
 
 Menu MACreateBanMenu()
 {
-	Menu hMenu = new Menu(MenuHandler_MenuBReason);
+	Menu hMenu = new Menu(MenuHandler_MenuBReason, MenuAction_Select|MenuAction_Cancel|MenuAction_End|MenuAction_DisplayItem);
 	hMenu.ExitBackButton = true;
 
 	return hMenu;
@@ -768,7 +768,7 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 
 			if (TryOpenSubmenuIfRequired(Mmenu, iClient, sInfo, sizeof(sInfo)))
 			{
-				return;
+				return 0;
 			}
 
 			if(StrEqual("Own Reason", sInfo))
@@ -778,7 +778,7 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 					g_bSayReasonReport[iClient] = true;
 				else
 					g_bSayReason[iClient] = true;
-				return;
+				return 0;
 			}
 			
 		#if MADEBUG
@@ -793,7 +793,11 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 				OnlineClientSet(iClient);
 			}
 		}
+
+		case MenuAction_DisplayItem: return RedisplayBanTextItem(Mmenu, iClient, iSlot);
 	}
+
+	return 0;
 }
 
 // TODO: drop this function
@@ -813,14 +817,14 @@ public int MenuHandler_MenuMReason(Menu Mmenu, MenuAction mAction, int iClient, 
 
 			if (TryOpenSubmenuIfRequired(Mmenu, iClient, sInfo, sizeof(sInfo)))
 			{
-				return;
+				return 0;
 			}
 
 			if(StrEqual("Own Reason", sInfo))
 			{
 				PrintToChat2(iClient, "%T", "Say reason", iClient);
 				g_bSayReason[iClient] = true;
-				return;
+				return 0;
 			}
 			strcopy(g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]), sInfo);
 		#if MADEBUG
@@ -828,7 +832,27 @@ public int MenuHandler_MenuMReason(Menu Mmenu, MenuAction mAction, int iClient, 
 		#endif
 			OnlineClientSet(iClient);
 		}
+
+		case MenuAction_DisplayItem: return RedisplayBanTextItem(Mmenu, iClient, iSlot);
 	}
+
+	return 0;
+}
+
+int RedisplayBanTextItem(Menu hMenu, int iClient, int iSlot)
+{
+	char szDummy[4];
+	char szItem[256];
+	hMenu.GetItem(iSlot, szDummy, sizeof(szDummy),
+		_, szItem, sizeof(szItem));
+
+	if (szItem[0] == '#' && TranslationPhraseExists(szItem[1]))
+	{
+		Format(szItem, sizeof(szItem), "%T", szItem[1], iClient);
+		return RedrawMenuItem(szItem);
+	}
+
+	return 0;
 }
 
 bool TryOpenSubmenuIfRequired(Menu hCurrentMenu, int iClient, char[] sInfo, int iBufferSize)

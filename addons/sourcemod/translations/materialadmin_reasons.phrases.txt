@@ -14,4 +14,9 @@
     // Note: this function may not work properly in games like CS:GO or Blade Symphony, because
     // in this games engine don't send language in connection process, so user language is
     // becomes known for server too late.
+    "Hacking"
+    {
+        "ru"        "Читерство"
+        "en"        "Hacking"
+    }
 }
