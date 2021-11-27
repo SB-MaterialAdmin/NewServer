@@ -1420,3 +1420,24 @@ void UTIL_SafeLoadTranslations(const char[] szFileName)
 
 	LoadTranslations(szFileName);
 }
+
+/**
+ * Requests the closing handle in next frame and returns passed handle.
+ *
+ * @param     hHandle   Handle for lazy closing.
+ * @return              Passed handle.
+ */
+stock Handle UTIL_LazyCloseHandle(Handle hHandle)
+{
+  	if (hHandle)
+  	{
+    	RequestFrame(OnHandleShouldBeClosed, hHandle);
+  	}
+
+  	return hHandle;
+}
+
+static void OnHandleShouldBeClosed(Handle hHndl)
+{
+  	hHndl.Close();
+}
