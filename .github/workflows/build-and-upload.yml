@@ -37,7 +37,7 @@ jobs:
           spcomp ma_checker.sp -o ../plugins -iinclude
       
       - name: Make artifact archive
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: |
           SMVERSION_FULL=${{ matrix.sm-version }}
           export SMVERSION_SHORT=${SMVERSION_FULL:0:-2}
@@ -46,6 +46,6 @@ jobs:
           tar -cvf ../../$ARCHIVE_FILENAME *
       
       - name: Upload artifact to builds.kruzya.me
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: |
           curl "${BUILDS_URL}?secret_key=${BUILDS_KEY}&tags=SourceMod%20${SMVERSION_SHORT}" -F "artifact=@./${ARCHIVE_FILENAME}"
