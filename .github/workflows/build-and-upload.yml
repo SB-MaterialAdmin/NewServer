@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        sm-version: [ '1.9.x', 1.10.x', '1.11.x' ]
+        sm-version: [ '1.9.x' ]
     
     env:
       BUILDS_URL: ${{ secrets.BUILDS_URL }}
@@ -29,11 +29,12 @@ jobs:
         run: |
           cd addons/sourcemod
           mkdir plugins
-          spcomp scripting/materialadmin.sp -o plugins
-          spcomp scripting/ma_adminmenu.sp -o plugins
-          spcomp scripting/ma_basecomm.sp -o plugins
-          spcomp scripting/ma_basevotes.sp -o plugins
-          spcomp scripting/ma_checker.sp -o plugins
+          cd scripting
+          spcomp materialadmin.sp -o ../plugins -iinclude
+          spcomp ma_adminmenu.sp -o ../plugins -iinclude
+          spcomp ma_basecomm.sp -o ../plugins -iinclude
+          spcomp ma_basevotes.sp -o ../plugins -iinclude
+          spcomp ma_checker.sp -o ../plugins -iinclude
       
       - name: Make artifact archive
         if: github.ref == 'refs/heads/main'
