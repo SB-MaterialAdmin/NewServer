@@ -1,0 +1,50 @@
+name: Build and deploy
+
+on:
+  push:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sm-version: [ '1.9.x', 1.10.x', '1.11.x' ]
+    
+    env:
+      BUILDS_URL: ${{ secrets.BUILDS_URL }}
+      BUILDS_KEY: ${{ secrets.BUILDS_KEY }}
+
+    name: "SM version ${{ matrix.sm-version }}"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup SP
+        uses: rumblefrog/setup-sp@master
+        with:
+          version: ${{ matrix.sm-version }}
+                      
+      - name: Run compiler
+        run: |
+          cd addons/sourcemod
+          mkdir plugins
+          spcomp scripting/materialadmin.sp -o plugins
+          spcomp scripting/ma_adminmenu.sp -o plugins
+          spcomp scripting/ma_basecomm.sp -o plugins
+          spcomp scripting/ma_basevotes.sp -o plugins
+          spcomp scripting/ma_checker.sp -o plugins
+      
+      - name: Make artifact archive
+        if: github.ref == 'refs/heads/main'
+        run: |
+          SMVERSION_FULL=${{ matrix.sm-version }}
+          export SMVERSION_SHORT=${SMVERSION_FULL:0:-2}
+          export ARCHIVE_FILENAME=sbma-newplugin.${GITHUB_SHA::7}.$SMVERSION_SHORT.tar.gz
+          echo "SMVERSION_SHORT=$SMVERSION_SHORT" >> $GITHUB_ENV
+          tar -cvf ../../$ARCHIVE_FILENAME *
+      
+      - name: Upload artifact to builds.kruzya.me
+        if: github.ref == 'refs/heads/main'
+        run: |
+          curl "${BUILDS_URL}?secret_key=${BUILDS_KEY}&tags=SourceMod%20${SMVERSION_SHORT}" -F "artifact=@./${ARCHIVE_FILENAME}"
