@@ -1387,15 +1387,20 @@ int UTIL_GetTranslationFilePath(const char[] szFileName, char[] szBuffer, int iB
 
 	// If our filename longer than 4 symbols - then file extension is not
 	// persist in file name and stripping is not required.
-	if (iFileNameLength > 4)
+	if (iFileNameLength > sizeof(szForbiddenTranslationExtensions[]))
 	{
-		if (strncmp(szFileName[iFileNameLength - 4], ".txt", 4) == 0 || strncmp(szFileName[iFileNameLength - 4], ".cfg", 4) == 0)
+		int iExtensionLength = 0;
+		for (int i; i < sizeof(szForbiddenTranslationExtensions); ++i)
 		{
-			// Our filename - constant, so we copy filename without extension and perform "recursive call".
-			char[] szFixedFileName = new char[iFileNameLength - 4];
-			strcopy(szFixedFileName, iFileNameLength - 4, szFileName);
+			iExtensionLength = strlen(szForbiddenTranslationExtensions[i]);
+			if (strncmp(szFileName[iFileNameLength - iExtensionLength], szForbiddenTranslationExtensions[i], iExtensionLength) == 0)
+			{
+				// Our filename - constant, so we copy filename without extension and perform "recursive call".
+				char[] szFixedFileName = new char[iFileNameLength - 4];
+				strcopy(szFixedFileName, iFileNameLength - 4, szFileName);
 
-			return UTIL_GetTranslationFilePath(szFixedFileName, szBuffer, iBufferLength);
+				return UTIL_GetTranslationFilePath(szFixedFileName, szBuffer, iBufferLength);
+			}
 		}
 	}
 
@@ -1419,6 +1424,22 @@ void UTIL_SafeLoadTranslations(const char[] szFileName)
 	}
 
 	LoadTranslations(szFileName);
+}
+
+Handle UTIL_GetHandleFromSnapshot(StringMap hMap, const char[] szName, Handle hDefaultHandle = null)
+{
+	Handle hData = hDefaultHandle;
+	hMap.GetValue(szName, hData);
+
+	return hData;
+}
+
+void UTIL_ClearStack(ArrayStack hStack)
+{
+	while (!hStack.Empty)
+	{
+		hStack.Pop();
+	}
 }
 
 /**

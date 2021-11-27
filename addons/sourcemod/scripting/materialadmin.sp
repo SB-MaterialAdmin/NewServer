@@ -12,6 +12,9 @@
 
 #pragma newdecls required
 
+#define SUBMENU_MAX_ALLOWED_NAME_LENGTH 64
+#define From(%0,%1)			view_as<%1>(%0)
+
 #define MAX_STEAMID_LENGTH 	32
 #define MAX_IP_LENGTH 		64
 #define CS_TEAM_NONE		0	// No team yet. 
@@ -137,8 +140,10 @@ float g_fRetryTime = 60.0;
 
 TopMenu g_tmAdminMenu;
 Menu g_mReasonBMenu,
-	g_mReasonMMenu,
-	g_mHackingMenu;
+	g_mReasonMMenu;
+
+StringMap g_hReasonsSubmenus;
+ArrayStack g_hMenuHistory[MAXPLAYERS+1];
 
 char g_sServerIP[32], 
 	g_sServerPort[8],
@@ -224,6 +229,7 @@ public void OnPluginStart()
 	LoadTranslations("materialadmin.phrases");
 	LoadTranslations("common.phrases");
 
+	g_hReasonsSubmenus = new StringMap();
 	UTIL_SafeLoadTranslations("materialadmin_reasons.phrases");
 
 #if defined GIT_COMMIT_ABBREVIATEDHASH
@@ -262,7 +268,10 @@ public void OnPluginStart()
 	LogOn();
 	
 	for (int i = 1; i <= MAXPLAYERS; i++)
+	{
 		g_aUserId[i] = new ArrayList(ByteCountToCells(12));
+		g_hMenuHistory[i] = new ArrayStack(ByteCountToCells(4));
+	}
 
 	g_aTimeMenuSorting = new ArrayList(ByteCountToCells(12));
 	g_tAdminsExpired = new StringMap();

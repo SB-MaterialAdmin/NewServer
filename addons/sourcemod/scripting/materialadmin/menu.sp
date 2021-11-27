@@ -1,16 +1,20 @@
 void MACreateMenu()
 {
-	g_mReasonBMenu = new Menu(MenuHandler_MenuBReason);
-	g_mReasonBMenu.ExitBackButton = true;
+	// TODO: refactor this.
+	g_mReasonBMenu = MACreateBanMenu();
 	
 	g_mReasonMMenu = new Menu(MenuHandler_MenuMReason);
 	g_mReasonMMenu.ExitBackButton = true;
-
-	g_mHackingMenu = new Menu(MenuHandler_MenuHacking);
-	g_mHackingMenu.ExitBackButton = true;
-	
-	
 }
+
+Menu MACreateBanMenu()
+{
+	Menu hMenu = new Menu(MenuHandler_MenuBReason);
+	hMenu.ExitBackButton = true;
+
+	return hMenu;
+}
+
 
 public void OnAdminMenuReady(Handle aTopMenu)
 {
@@ -724,6 +728,8 @@ public int MenuHandler_MenuTime(Menu Mmenu, MenuAction mAction, int iClient, int
 
 void ShowMuteReasonMenu(int iClient)
 {
+	UTIL_ClearStack(g_hMenuHistory[iClient]);
+
 	g_mReasonMMenu.SetTitle("%T:", "SelectReasonTitle", iClient);
 	g_mReasonMMenu.Display(iClient, MENU_TIME_FOREVER);
 }
@@ -731,6 +737,8 @@ void ShowMuteReasonMenu(int iClient)
 //меню выбора причины бана
 void ShowBanReasonMenu(int iClient)
 {
+	UTIL_ClearStack(g_hMenuHistory[iClient]);
+
 	g_mReasonBMenu.SetTitle("%T:", "SelectReasonTitle", iClient);
 	g_mReasonBMenu.Display(iClient, MENU_TIME_FOREVER);
 }
@@ -741,12 +749,12 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 	{
 		case MenuAction_Cancel:
 		{
-			if (iSlot == MenuCancel_ExitBack && g_tmAdminMenu)
+			if (iSlot == MenuCancel_ExitBack)
 			{
 				if (g_bReportReason[iClient])
 					ReportMenu(iClient);
 				else
-					ShowTimeMenu(iClient);
+					ShowPreviousMenu(iClient);
 			}
 		}
 		case MenuAction_Select:
@@ -755,9 +763,14 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
 			if(StrEqual("Hacking", sInfo))
 			{
-				ShowHackingMenu(iClient);
+				strcopy(sInfo, sizeof(sInfo), "@Hacking");
+			}
+
+			if (TryOpenSubmenuIfRequired(Mmenu, iClient, sInfo, sizeof(sInfo)))
+			{
 				return;
 			}
+
 			if(StrEqual("Own Reason", sInfo))
 			{
 				PrintToChat2(iClient, "%T", "Say reason", iClient);
@@ -783,19 +796,26 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 	}
 }
 
+// TODO: drop this function
 public int MenuHandler_MenuMReason(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
 	switch(mAction)
 	{
 		case MenuAction_Cancel:
 		{
-			if (iSlot == MenuCancel_ExitBack && g_tmAdminMenu)
-				ShowTimeMenu(iClient);
+			if (iSlot == MenuCancel_ExitBack)
+				ShowPreviousMenu(iClient);
 		}
 		case MenuAction_Select:
 		{
 			char sInfo[256];
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
+
+			if (TryOpenSubmenuIfRequired(Mmenu, iClient, sInfo, sizeof(sInfo)))
+			{
+				return;
+			}
+
 			if(StrEqual("Own Reason", sInfo))
 			{
 				PrintToChat2(iClient, "%T", "Say reason", iClient);
@@ -811,10 +831,104 @@ public int MenuHandler_MenuMReason(Menu Mmenu, MenuAction mAction, int iClient, 
 	}
 }
 
-void ShowHackingMenu(int iClient)
+bool TryOpenSubmenuIfRequired(Menu hCurrentMenu, int iClient, char[] sInfo, int iBufferSize)
 {
-	g_mHackingMenu.SetTitle("%T - %s", "SelectReasonTitle", iClient, g_sTarget[iClient][TNAME]);
-	g_mHackingMenu.Display(iClient, MENU_TIME_FOREVER);
+	// Custom submenus
+	if (sInfo[0] != '@')
+	{
+		return false;
+	}
+
+	// DIRTYHACK: if our menu item is called as "Hacking" and this menu doesn't exists, try find "HackingReasons".
+	Menu hMenu = null;
+	if (strcmp(sInfo[1], "Hacking") == 0 && !g_hReasonsSubmenus.GetValue(sInfo[1], hMenu))
+	{
+		strcopy(sInfo[1], iBufferSize-1, "HackingReasons");
+	}
+
+	if (!hMenu && !g_hReasonsSubmenus.GetValue(sInfo[1], hMenu))
+	{
+		return false;
+	}
+
+	ShowSubmenu(hMenu, iClient, sInfo[1]);
+	if (hCurrentMenu != null)
+	{
+		g_hMenuHistory[iClient].Push(hCurrentMenu);
+	}
+
+	// There are no one menu with this name.
+	// TODO: display message? Log? Or leave default behavior (use text as reason)?
+	return true;
+}
+
+void ShowPreviousMenu(int iClient)
+{
+	if (g_hMenuHistory[iClient].Empty)
+	{
+		if (g_tmAdminMenu)
+		{
+			ShowTimeMenu(iClient);
+		}
+
+		return;
+	}
+
+	Menu hMenu = g_hMenuHistory[iClient].Pop();
+
+	// Standard menus.
+	if (hMenu == g_mReasonBMenu)
+	{
+		ShowBanReasonMenu(iClient);
+		return;
+	}
+	else if (hMenu == g_mReasonMMenu)
+	{
+		ShowMuteReasonMenu(iClient);
+		return;
+	}
+
+	// Lookup menu name.
+	StringMapSnapshot hShot = From(UTIL_LazyCloseHandle(g_hReasonsSubmenus.Snapshot()), StringMapSnapshot);
+	char szKey[SUBMENU_MAX_ALLOWED_NAME_LENGTH];
+	Menu hMapMenu;
+	for (int i = 0, iSubmenuCount = hShot.Length; i < iSubmenuCount; ++i)
+	{
+		hShot.GetKey(i, szKey, sizeof(szKey));
+		hMapMenu = From(UTIL_GetHandleFromSnapshot(g_hReasonsSubmenus, szKey), Menu);
+
+		if (hMapMenu != hMenu)
+		{
+			szKey[0] = 0;
+			continue;
+		}
+
+		break;
+	}
+
+	if (szKey[0] == 0)
+	{
+		return;
+	}
+
+	ShowSubmenu(hMenu, iClient, szKey);
+}
+
+void ShowSubmenu(Menu hMenu, int iClient, const char[] szMenuName)
+{
+	char szTitle[128];
+	if (TranslationPhraseExists(szMenuName))
+	{
+		FormatEx(szTitle, sizeof(szTitle), "%T - %T", "SelectReasonTitle", iClient, szMenuName, iClient);
+	}
+	else
+	{
+		FormatEx(szTitle, sizeof(szTitle), "%T - %s", "SelectReasonTitle", iClient, szMenuName);
+	}
+
+	hMenu.SetTitle("%s", szTitle);
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
+	hMenu.SetTitle("%s", szMenuName);
 }
 
 public int MenuHandler_MenuHacking(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
