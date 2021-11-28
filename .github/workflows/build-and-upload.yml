@@ -42,7 +42,7 @@ jobs:
         run: |
           export DEBUG=${{ contains(matrix.compiler-options, '__MADEBUG=1') }}
           
-          if [ "$DEBUG" ]; then export CUSTOM_POSTFIX="d"; fi
+          if [[ "$DEBUG" == "true" ]]; then export CUSTOM_POSTFIX="d"; fi
           SMVERSION_FULL=${{ matrix.sm-version }}
           
           export SMVERSION_SHORT=${SMVERSION_FULL:0:-2}
@@ -57,5 +57,5 @@ jobs:
       - name: Upload artifact to builds.kruzya.me
         if: github.ref == 'refs/heads/master'
         run: |
-          if [ "$DEBUG" ]; then export ADDITIONAL_TAGS=",DEBUG"; fi 
+          if [[ "$DEBUG" == "true" ]]; then export ADDITIONAL_TAGS=",DEBUG"; fi 
           curl "${BUILDS_URL}?secret_key=${BUILDS_KEY}&tags=SourceMod%20${SMVERSION_SHORT}${ADDITIONAL_TAGS}" -F "artifact=@./${ARCHIVE_FILENAME}"
