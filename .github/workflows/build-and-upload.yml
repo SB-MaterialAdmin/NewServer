@@ -18,7 +18,7 @@ jobs:
       BUILDS_KEY: ${{ secrets.BUILDS_KEY }}
       DEBUG: ${{ contains(matrix.compiler-options, '__MADEBUG=1') }}
 
-    name: "SM version ${{ matrix.sm-version }} ${{ job.env.DEBUG && '(Debug)' || '' }}"
+    name: "SM version ${{ matrix.sm-version }} (${{ matrix.compiler-options }})"
     steps:
       - uses: actions/checkout@v2
 
@@ -35,11 +35,11 @@ jobs:
           curl -O https://raw.githubusercontent.com/CrazyHackGUT/sm-plugins/master/git.sh
           chmod +x git.sh
           ./git.sh > materialadmin.git.sp
-          spcomp materialadmin.git.sp materialadmin.sp -o ../plugins/materialadmin -iinclude ${{ matrix.compiler-options }}
-          spcomp materialadmin.git.sp ma_adminmenu.sp -o ../plugins/ma_adminmenu -iinclude -i${includePath}/.. ${{ matrix.compiler-options }}
-          spcomp materialadmin.git.sp ma_basecomm.sp -o ../plugins/ma_basecomm -iinclude ${{ matrix.compiler-options }}
-          spcomp materialadmin.git.sp ma_basevotes.sp -o ../plugins/ma_basevotes -iinclude ${{ matrix.compiler-options }}
-          spcomp materialadmin.git.sp ma_checker.sp -o ../plugins/ma_checker -iinclude ${{ matrix.compiler-options }}
+          spcomp __GITHUB=1 materialadmin.git.sp materialadmin.sp -o ../plugins/materialadmin -iinclude ${{ matrix.compiler-options }}
+          spcomp __GITHUB=1 materialadmin.git.sp ma_adminmenu.sp -o ../plugins/ma_adminmenu -iinclude -i${includePath}/.. ${{ matrix.compiler-options }}
+          spcomp __GITHUB=1 materialadmin.git.sp ma_basecomm.sp -o ../plugins/ma_basecomm -iinclude ${{ matrix.compiler-options }}
+          spcomp __GITHUB=1 materialadmin.git.sp ma_basevotes.sp -o ../plugins/ma_basevotes -iinclude ${{ matrix.compiler-options }}
+          spcomp __GITHUB=1 materialadmin.git.sp ma_checker.sp -o ../plugins/ma_checker -iinclude ${{ matrix.compiler-options }}
       
       - name: Make artifact archive
         if: github.ref == 'refs/heads/master'
