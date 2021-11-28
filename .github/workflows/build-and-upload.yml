@@ -16,8 +16,9 @@ jobs:
     env:
       BUILDS_URL: ${{ secrets.BUILDS_URL }}
       BUILDS_KEY: ${{ secrets.BUILDS_KEY }}
+      DEBUG: ${{ contains(matrix.compiler-options, '__MADEBUG=1') }}
 
-    name: "SM version ${{ matrix.sm-version }}"
+    name: "SM version ${{ matrix.sm-version }} ${{ env.DEBUG && '(Debug)' || '' }}"
     steps:
       - uses: actions/checkout@v2
 
@@ -31,17 +32,18 @@ jobs:
           cd addons/sourcemod
           mkdir plugins
           cd scripting
-          spcomp materialadmin.sp -o ../plugins/materialadmin -iinclude ${{ matrix.compiler-options }}
-          spcomp ma_adminmenu.sp -o ../plugins/ma_adminmenu -iinclude -i${includePath}/.. ${{ matrix.compiler-options }}
-          spcomp ma_basecomm.sp -o ../plugins/ma_basecomm -iinclude ${{ matrix.compiler-options }}
-          spcomp ma_basevotes.sp -o ../plugins/ma_basevotes -iinclude ${{ matrix.compiler-options }}
-          spcomp ma_checker.sp -o ../plugins/ma_checker -iinclude ${{ matrix.compiler-options }}
+          curl -O https://raw.githubusercontent.com/CrazyHackGUT/sm-plugins/master/git.sh
+          chmod +x git.sh
+          ./git.sh > materialadmin.git.sp
+          spcomp materialadmin.git.sp materialadmin.sp -o ../plugins/materialadmin -iinclude ${{ matrix.compiler-options }}
+          spcomp materialadmin.git.sp ma_adminmenu.sp -o ../plugins/ma_adminmenu -iinclude -i${includePath}/.. ${{ matrix.compiler-options }}
+          spcomp materialadmin.git.sp ma_basecomm.sp -o ../plugins/ma_basecomm -iinclude ${{ matrix.compiler-options }}
+          spcomp materialadmin.git.sp ma_basevotes.sp -o ../plugins/ma_basevotes -iinclude ${{ matrix.compiler-options }}
+          spcomp materialadmin.git.sp ma_checker.sp -o ../plugins/ma_checker -iinclude ${{ matrix.compiler-options }}
       
       - name: Make artifact archive
         if: github.ref == 'refs/heads/master'
-        run: |
-          export DEBUG=${{ contains(matrix.compiler-options, '__MADEBUG=1') }}
-          
+        run: |         
           if [[ "$DEBUG" == "true" ]]; then export CUSTOM_POSTFIX="d"; fi
           SMVERSION_FULL=${{ matrix.sm-version }}
           
@@ -50,7 +52,6 @@ jobs:
           
           echo "ARCHIVE_FILENAME=$ARCHIVE_FILENAME" >> $GITHUB_ENV
           echo "SMVERSION_SHORT=$SMVERSION_SHORT" >> $GITHUB_ENV
-          echo "DEBUG=$DEBUG" >> $GITHUB_ENV
           
           tar -cvf $ARCHIVE_FILENAME addons
       
