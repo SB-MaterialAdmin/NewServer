@@ -45,6 +45,7 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 		LogToFile(g_sLogDateBase, "ConnectBd Query Failed: %s", sError);
 	
 	g_dDatabase = db;
+	g_dDatabase.SetCharset("utf8mb4");
 	
 	FireOnConnectDatabase(g_dDatabase);
 	
@@ -55,7 +56,6 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 
 	if (g_dDatabase != null)
 	{
-		FixDatabaseCharset(true);
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "ConnectBd: yes");
 	#endif
@@ -539,7 +539,6 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 {
 	if (iTrax == 2)
 	{
-		FixDatabaseCharset();
 		g_dDatabase.Execute(hTxn, SQL_TxnCallback_Success, SQL_TxnCallback_Failure);
 		return;
 	}
@@ -969,7 +968,6 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 	{
 		if (!iTrax)
 		{
-			FixDatabaseCharset();
 			g_dDatabase.Query(CreateBdCallback, sQuery, dPack, DBPrio_High);
 		}
 		else
@@ -1121,7 +1119,6 @@ void CheckClientBan(int iClient)
 		dPack.WriteString(sSteamID);
 		dPack.WriteString(sIp);
 		
-		FixDatabaseCharset();
 		g_dDatabase.Query(VerifyBan, sQuery, dPack, DBPrio_High);
 	}
 	else
@@ -1208,7 +1205,6 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "Ban log: QUERY: %s", sQuery);
 	#endif
-		FixDatabaseCharset();
 		g_dDatabase.Query(SQL_Callback_BanLog, sQuery, _, DBPrio_High);
 
 		g_bBanClientConnect[iClient] = true;
@@ -1284,7 +1280,6 @@ void CheckClientMute(int iClient, char[] sSteamID)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "Check Mute: %s. QUERY: %s", sSteamID, sQuery);
 #endif
-	FixDatabaseCharset();
 	g_dDatabase.Query(VerifyMute, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
 
@@ -1359,7 +1354,6 @@ void AdminHash()
 				FROM `%!s_overrides`", 
 			g_sDatabasePrefix);
 
-		FixDatabaseCharset();
 		g_dDatabase.Query(OverridesDone, sQuery, _, DBPrio_High);
 	}
 	else
@@ -1386,7 +1380,6 @@ public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, an
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "GroupsDone:QUERY: %s", sQuery);
 #endif
-	FixDatabaseCharset();
 	g_dDatabase.Query(GroupsDone, sQuery, _, DBPrio_High);
 
 	if (!dbRs || sError[0])
@@ -1443,7 +1436,6 @@ public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "AdminsDone:QUERY: %s", sQuery);
 #endif
-	FixDatabaseCharset();
 	g_dDatabase.Query(AdminsDone, sQuery, _, DBPrio_High);
 
 	if (!dbRs || sError[0])
@@ -1678,7 +1670,6 @@ public void SQL_Callback_QueryBekap(Database db, DBResultSet dbRs, const char[] 
 		#if MADEBUG
 			LogToFile(g_sLogDateBase, "QueryBekap:QUERY: %s", sQuery);
 		#endif
-			FixDatabaseCharset();
 			g_dDatabase.Query(CheckCallbackBekap, sQuery, iId, DBPrio_Low); // байда с зависанием скрипта
 		}
 	}
@@ -1802,7 +1793,6 @@ void SetBdReport(int iClient, const char[] sReason)
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "SetBdReport:QUERY: %s", sQuery);
 	#endif
-		FixDatabaseCharset();
 		g_dDatabase.Query(CheckCallbackReport, sQuery, dPack, DBPrio_High);
 	}
 	else
@@ -1929,7 +1919,6 @@ void BDAddAdmin(int iClient, bool bFlag = false)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDAddAdmin:QUERY: %s", sQuery);
 #endif
-	FixDatabaseCharset();
 	g_dDatabase.Query(CallbackAddAdmin, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
 
@@ -1966,7 +1955,6 @@ void BDCheckAdmins(int iClient, int iTyp)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDCheckAdmins:QUERY: %s", sQuery);
 #endif
-	FixDatabaseCharset();
 	g_dDatabase.Query(CallbackCheckAdmin, sQuery, dPack, DBPrio_High);
 }
 
@@ -2045,7 +2033,6 @@ void BDAddServerAdmin(int iClient, int iId, char[] sGroup, int iLine)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDAddServerAdmin:QUERY: %s", sQuery);
 #endif
-	FixDatabaseCharset();
 	g_dDatabase.Query(CallbackAddServerAdmin, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
 
@@ -2093,7 +2080,6 @@ void BDDelAdmin(int iClient, int iId, int iTyp)
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "BDDelAdmin:QUERY: %s", sQuery);
 #endif
-	FixDatabaseCharset();
 	g_dDatabase.Query(CallbackDelAdmin, sQuery, GetClientUserId(iClient), DBPrio_High);
 }
 
@@ -2115,30 +2101,6 @@ public void CallbackDelAdmin(Database db, DBResultSet dbRs, const char[] sError,
 	AdminHash();
 }
 #endif
-
-void FixDatabaseCharset(bool bIgnoreConfigurationValue = false)
-{
-	if (!bIgnoreConfigurationValue && !g_bUseDatabaseFix)
-	{
-		return;
-	}
-
-	char szCharset[24];
-
-#if SOURCEMOD_V_MINOR > 9
-	strcopy(szCharset, sizeof(szCharset), "utf8mb4");
-#else
-	strcopy(szCharset, sizeof(szCharset), "utf8");
-#endif
-
-	SQL_SetCharset(g_dDatabase, szCharset);
-	SQL_LockDatabase(g_dDatabase);
-
-	Format(szCharset, sizeof(szCharset), "SET NAMES '%s'", szCharset);
-	SQL_FastQuery(g_dDatabase, szCharset);
-
-	SQL_UnlockDatabase(g_dDatabase);
-}
 
 void FetchServerIdDynamically()
 {
