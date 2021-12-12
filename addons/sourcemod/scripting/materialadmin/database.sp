@@ -1,3 +1,9 @@
+#if SOURCEMOD_V_MINOR > 9
+#define charset "utf8mb4"
+#else
+#define charset "utf8"
+#endif
+
 void MAConnectDB()
 {
 	char sError[256];
@@ -29,6 +35,7 @@ void ConnectBd(int iType, int iClient)
 		dPack.WriteCell((!iClient)?0:GetClientUserId(iClient));
 		dPack.WriteCell(iType);
 		Database.Connect(SQL_Callback_ConnectBd, "materialadmin", dPack);
+		g_dDatabase.SetCharset(charset);
 	}
 	else
 	{
@@ -2123,18 +2130,11 @@ void FixDatabaseCharset(bool bIgnoreConfigurationValue = false)
 		return;
 	}
 
-	char szCharset[24];
-
-#if SOURCEMOD_V_MINOR > 9
-	strcopy(szCharset, sizeof(szCharset), "utf8mb4");
-#else
-	strcopy(szCharset, sizeof(szCharset), "utf8");
-#endif
-
-	SQL_SetCharset(g_dDatabase, szCharset);
+	SQL_SetCharset(g_dDatabase, charset);
 	SQL_LockDatabase(g_dDatabase);
 
-	Format(szCharset, sizeof(szCharset), "SET NAMES '%s'", szCharset);
+        char szCharset[20];
+	FormatEx(szCharset, sizeof(szCharset), "SET NAMES '%s'", charset);
 	SQL_FastQuery(g_dDatabase, szCharset);
 
 	SQL_UnlockDatabase(g_dDatabase);
