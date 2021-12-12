@@ -35,7 +35,6 @@ void ConnectBd(int iType, int iClient)
 		dPack.WriteCell((!iClient)?0:GetClientUserId(iClient));
 		dPack.WriteCell(iType);
 		Database.Connect(SQL_Callback_ConnectBd, "materialadmin", dPack);
-		g_dDatabase.SetCharset(charset);
 	}
 	else
 	{
@@ -52,6 +51,7 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 		LogToFile(g_sLogDateBase, "ConnectBd Query Failed: %s", sError);
 	
 	g_dDatabase = db;
+	g_dDatabase.SetCharset(charset);
 	
 	FireOnConnectDatabase(g_dDatabase);
 	
