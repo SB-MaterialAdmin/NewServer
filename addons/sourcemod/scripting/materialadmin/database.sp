@@ -2130,14 +2130,7 @@ void FixDatabaseCharset(bool bIgnoreConfigurationValue = false)
 		return;
 	}
 
-	SQL_SetCharset(g_dDatabase, charset);
-	SQL_LockDatabase(g_dDatabase);
-
-        char szCharset[20];
-	FormatEx(szCharset, sizeof(szCharset), "SET NAMES '%s'", charset);
-	SQL_FastQuery(g_dDatabase, szCharset);
-
-	SQL_UnlockDatabase(g_dDatabase);
+	g_dDatabase.SetCharset(charset);
 }
 
 void FetchServerIdDynamically()
