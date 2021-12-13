@@ -2131,6 +2131,9 @@ void FixDatabaseCharset(bool bIgnoreConfigurationValue = false)
 	}
 
 	g_dDatabase.SetCharset(charset);
+	char szCharset[20];
+	FormatEx(szCharset, sizeof(szCharset), "SET NAMES '%s';", charset);
+	g_dDatabase.Query(CallbackFixDatabaseCharset, szCharset, _, DBPrio_High);
 }
 
 void FetchServerIdDynamically()
@@ -2138,6 +2141,14 @@ void FetchServerIdDynamically()
 	char szQuery[256];
 	g_dDatabase.Format(szQuery, sizeof(szQuery), "SELECT IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0) AS `ServerID`", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 	g_dDatabase.Query(CallbackFetchServerId, szQuery, _, DBPrio_High);
+}
+
+public void CallbackFixDatabaseCharset(Database hDB, DBResultSet hResults, const char[] szError, any data)
+{
+	if (!hResults || szError[0])
+	{
+		LogToFile(g_sLogDateBase, "CallbackFixDatabaseCharset Query Failed: %s", szError);
+	}
 }
 
 public void CallbackFetchServerId(Database hDB, DBResultSet hResults, const char[] szError, any data)
