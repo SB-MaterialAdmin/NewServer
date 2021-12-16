@@ -11,6 +11,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MAGetConfigSetting", Native_GetConfigSetting);
 	CreateNative("MAGetDatabase", Native_GetDatabase);
 	CreateNative("MALog", Native_Log);
+	
+	return APLRes_Success;
 }
 
 public int Native_GetDatabase(Handle plugin, int numParams)

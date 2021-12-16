@@ -129,9 +129,9 @@ bool g_bCvar_Alltalk;
 int g_iCvar_ImmunityMode,
 	g_iCvar_Deadtalk;
 	
-Handle g_hTimerMute[MAXPLAYERS+1] = null,
-	g_hTimerGag[MAXPLAYERS+1] = null,
-	g_hTimerBekap = null;
+Handle g_hTimerMute[MAXPLAYERS+1],
+	g_hTimerGag[MAXPLAYERS+1],
+	g_hTimerBekap;
 	
 float g_fRetryTime = 60.0;
 
