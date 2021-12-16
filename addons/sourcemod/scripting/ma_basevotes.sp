@@ -175,8 +175,6 @@ public int MenuHandler_Ban(Menu menu, MenuAction action, int param1, int param2)
 			DisplayVoteBanMenu(param1, target);
 		}
 	}
-	
-	return 0;
 }
 
 public Action Command_Voteban(int client, int args)
@@ -324,8 +322,6 @@ public int MenuHandler_Kick(Menu menu, MenuAction action, int param1, int param2
 			DisplayVoteKickMenu(param1, target);
 		}
 	}
-	
-	return 0;
 }
 
 public Action Command_Votekick(int client, int args)
@@ -463,8 +459,6 @@ public int MenuHandler_Confirm(Menu menu, MenuAction action, int param1, int par
 		
 		ResetMenu();
 	}
-	
-	return 0;
 }
 
 public int MenuHandler_Map(Menu menu, MenuAction action, int param1, int param2)

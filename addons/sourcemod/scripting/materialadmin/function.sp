@@ -1156,8 +1156,6 @@ public Action TimerKick(Handle timer, any iUserId)
 	int iClient = GetClientOfUserId(iUserId);
 	if (iClient)
 		KickClient(iClient, "%T", "Banneds", iClient);
-		
-	return Plugin_Continue;
 }
 
 public Action TimerBan(Handle timer, any data)
@@ -1182,8 +1180,6 @@ public Action TimerBan(Handle timer, any data)
 			LogToFile(g_sLogAction, "addip %d %s", g_iServerBanTime, sBuffer);
 #endif
 	}
-
-	return Plugin_Continue;
 }
 //-------------------------------------------------------------------------------------------------------------
 void LogOn()
