@@ -1342,7 +1342,7 @@ public void VerifyMute(Database db, DBResultSet dbRs, const char[] sError, any i
 		}
 
 		// If the record is of type TYPESILENCE we break the loop
-		if (iType > TYPESILENCE) {
+		if (iType >= TYPESILENCE) {
 			iType = TYPESILENCE;
 			break;
 		}
