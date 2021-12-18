@@ -859,7 +859,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 			if (iTarget)
 			{
 				g_iTargenMuteTime[iTarget] = iTime;
-				strcopy(g_sTargetMuteReason[iTarget], sizeof(g_sTargetMuteReason[]), g_sTarget[iClient][TREASON]);
+				strcopy(g_sTargetMuteReason[iTarget], MAX_MUTE_REASON_LENGTH, g_sTarget[iClient][TREASON]);
 			}
 			if(bSetQ)
 			{
@@ -1285,7 +1285,7 @@ void CheckClientMute(int iClient, char[] sSteamID)
 			LEFT JOIN `%s_admins` AS a ON a.`aid` = c.`aid` \
 			LEFT JOIN `%s_srvgroups` AS g ON g.`name` = a.`srv_group` \
 			WHERE `RemoveType` IS NULL  AND c.`authid` REGEXP '^STEAM_[0-9]:%s$' \
-			AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())%!s LIMIT 1", 
+			AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())%!s", 
 		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sSteamID[8], sServer);
 
 #if MADEBUG
@@ -1297,53 +1297,91 @@ void CheckClientMute(int iClient, char[] sSteamID)
 
 public void VerifyMute(Database db, DBResultSet dbRs, const char[] sError, any iUserId)
 {
-	if (!dbRs || sError[0])
-	{
+	if (!dbRs || sError[0]) {
 		LogToFile(g_sLogDateBase, "Verify Mute failed: %s", sError);
 		return;
 	}
 
 	int iClient = GetClientOfUserId(iUserId);
-	
-	if (!iClient)
-		return;
 
-	if (dbRs.HasResults && dbRs.RowCount && dbRs.FetchRow())
-	{
-		int iEndTime = dbRs.FetchInt(0);
-		int iType = dbRs.FetchInt(1);
-		int iTime = dbRs.FetchInt(2);
-		dbRs.FetchString(3, g_sTargetMuteReason[iClient], sizeof(g_sTargetMuteReason[]));
-		dbRs.FetchString(4, g_sTargetMuteSteamAdmin[iClient], sizeof(g_sTargetMuteSteamAdmin[]));
-			
-	#if MADEBUG
-		LogToFile(g_sLogDateBase, "CheckClientMute: set %N, time %d, end time %d, type %d", iClient, iTime, iEndTime, iType);
-	#endif
-			
-		g_iTargetMuteType[iClient] = iType;
-			
-		if(!iTime)
-			g_iTargenMuteTime[iClient] = iTime;
-		else
-			g_iTargenMuteTime[iClient] = iEndTime;
-		
-		FireOnClientConnectGetMute(iClient, iType, g_iTargenMuteTime[iClient], g_sTargetMuteReason[iClient]);
-		
-		switch (iType)
-		{
-			case TYPEMUTE:		AddMute(iClient, g_iTargenMuteTime[iClient]);
-			case TYPEGAG: 		AddGag(iClient, g_iTargenMuteTime[iClient]);
-			case TYPESILENCE:	AddSilence(iClient, g_iTargenMuteTime[iClient]);
+	if (iClient < 1) {
+		return;
+	}
+
+	if (!dbRs.HasResults || dbRs.RowCount < 1) {
+		ResetMute(iClient);
+		return;
+	}
+
+	int iType = 0, iTime = -1, iTempTime = -1, iEndTime = -1, iEndTempTime = -1;
+	char sMuteReason[MAX_MUTE_REASON_LENGTH], sMuteSteamIdAdmin[MAX_STEAMID_LENGTH];
+	bool bIsGetInfo = false;
+
+	// If there is more than one record (there is a record about mute and gag in the database).
+	// We add the type and use the longest time of all records.
+	// We take the rest of the information from the last record.
+	while (dbRs.FetchRow()) {
+		bIsGetInfo = true;
+	
+		iEndTempTime = dbRs.FetchInt(0);
+		iType += dbRs.FetchInt(1);
+		iTempTime = dbRs.FetchInt(2);
+		dbRs.FetchString(3, sMuteReason, sizeof(sMuteReason));
+		dbRs.FetchString(4, sMuteSteamIdAdmin, sizeof(sMuteSteamIdAdmin));
+
+		#if MADEBUG
+			LogToFile(g_sLogDateBase, "CheckClientMute: set %N, time %d, end time %d, type %d", iClient, iTempTime, iEndTempTime, iType);
+		#endif
+
+		// Choose the maximum blocking time or permanent blocking
+		// and if there was no permanent blocking in the previous record, i.e. iTime! = 0
+		// endtime is used from the same record
+		if ((iTempTime == 0 || iTempTime > iTime) && iTime != 0) {
+			iTime = iTempTime;
+			iEndTime = iEndTempTime;
+		}
+
+		// If the record is of type TYPESILENCE we break the loop
+		if (iType >= TYPESILENCE) {
+			iType = TYPESILENCE;
+			break;
 		}
 	}
-	else
-	{
-		g_iTargetMuteType[iClient] = 0;
-		FireOnClientConnectGetMute(iClient, 0, -1, "");
+
+	if (!bIsGetInfo) {
+		ResetMute(iClient);
+		return;
+	}
+
+	strcopy(g_sTargetMuteReason[iClient], MAX_MUTE_REASON_LENGTH, sMuteReason);
+	strcopy(g_sTargetMuteSteamAdmin[iClient], MAX_STEAMID_LENGTH, sMuteSteamIdAdmin);
+
+	g_iTargetMuteType[iClient] = iType;
+	g_iTargenMuteTime[iClient] = (iTime == 0) ? iTime : iEndTime;
+
+	FireOnClientConnectGetMute(iClient, iType, g_iTargenMuteTime[iClient], g_sTargetMuteReason[iClient]);
+
+	switch (iType) {
+		case TYPEMUTE: {
+			AddMute(iClient, g_iTargenMuteTime[iClient]);
+		}
+		case TYPEGAG: {
+			AddGag(iClient, g_iTargenMuteTime[iClient]);
+		}
+		case TYPESILENCE: {
+			AddSilence(iClient, g_iTargenMuteTime[iClient]);
+		}
+	}
+}
+
+void ResetMute(int iClient)
+{
+	g_iTargetMuteType[iClient] = 0;
+	FireOnClientConnectGetMute(iClient, 0, -1, "");
+
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "CheckClientMute: set %N type 0", iClient);
 	#endif
-	}
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
