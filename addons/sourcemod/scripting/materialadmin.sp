@@ -14,6 +14,8 @@
 
 #define MAX_STEAMID_LENGTH 	32
 #define MAX_IP_LENGTH 		64
+#define MAX_MUTE_REASON_LENGTH 256
+
 #define CS_TEAM_NONE		0	// No team yet. 
 #define CS_TEAM_SPECTATOR	1	// Spectators.
 #define CS_TEAM_T 			2	// Terrorists.
@@ -51,7 +53,7 @@ int g_iTargetType[MAXPLAYERS+1];
 #define TYPE_UNSILENCE	10
 
 int g_iTargenMuteTime[MAXPLAYERS+1];
-char g_sTargetMuteReason[MAXPLAYERS+1][256],
+char g_sTargetMuteReason[MAXPLAYERS+1][MAX_MUTE_REASON_LENGTH],
 	g_sTargetMuteSteamAdmin[MAXPLAYERS+1][MAX_STEAMID_LENGTH],
 	g_sNameReples[2][MAX_NAME_LENGTH];
 
