@@ -225,7 +225,7 @@ public Action CommandAddAdmin(int iClient, int iArgc)
 	}
 	
 	AdminId idAdmin = GetUserAdmin(iTarget);
-	if(idAdmin != INVALID_ADMIN_ID)
+	if (idAdmin != INVALID_ADMIN_ID)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed to player admin", iClient);
 		return Plugin_Handled;
@@ -321,7 +321,7 @@ public Action CommandAddAdminOff(int iClient, int iArgc)
 	if (iTarget)
 	{
 		AdminId idAdmin = GetUserAdmin(iTarget);
-		if(idAdmin != INVALID_ADMIN_ID)
+		if (idAdmin != INVALID_ADMIN_ID)
 		{
 			ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed to player admin", iClient);
 			return Plugin_Handled;
@@ -432,7 +432,7 @@ public Action CommandDelAdmin(int iClient, int iArgc)
 	if (iTarget)
 	{
 		AdminId idAdmin = GetUserAdmin(iTarget);
-		if(idAdmin == INVALID_ADMIN_ID)
+		if (idAdmin == INVALID_ADMIN_ID)
 		{
 			ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed to player no admin", iClient);
 			return Plugin_Handled;
@@ -677,7 +677,7 @@ public Action CommandBanIp(int iClient, int iArgc)
 
 public Action CommandAddBan(int iClient, int iArgc)
 {
-	if(!g_bAddBan)
+	if (!g_bAddBan)
 		return Plugin_Handled;
 
 	if (iArgc < 2)
@@ -730,9 +730,9 @@ public Action CommandAddBan(int iClient, int iArgc)
 	LogToFile(g_sLogAction,"Command: sm_addban, arg %s, target %d, time %d, reason %s.", sArg, iTarget, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
 
-	if(iTarget)
+	if (iTarget)
 	{
-		if(GetUserAdmin(iTarget) == INVALID_ADMIN_ID)
+		if (GetUserAdmin(iTarget) == INVALID_ADMIN_ID)
 		{
 			g_bOnileTarget[iClient] = true;
 			CheckBanInBd(iClient, iTarget, 1, sArg);
@@ -881,7 +881,7 @@ public Action CommandWMute(int iArgc)
 	
 	int iClient = FindTargetSteam(sArg[2]);
 	
-	if(iClient)
+	if (iClient)
 	{
 		if (iTime > 0)
 			g_iTargenMuteTime[iClient] = GetTime() + iTime;
@@ -889,7 +889,7 @@ public Action CommandWMute(int iArgc)
 			g_iTargenMuteTime[iClient] = iTime;
 		strcopy(g_sTargetMuteReason[iClient], sizeof(g_sTargetMuteReason[]), sArg[3]);
 		ReplyToCommand(0, "ok");
-		switch(iType)
+		switch (iType)
 		{
 			case TYPEMUTE:		AddMute(iClient, iTime);
 			case TYPEGAG: 		AddGag(iClient, iTime);
@@ -922,10 +922,10 @@ public Action CommandWUnMute(int iArgc)
 	
 	int iClient = FindTargetSteam(sArg[1]);
 	
-	if(iClient)
+	if (iClient)
 	{
 		ReplyToCommand(0, "ok");
-		switch(iType)
+		switch (iType)
 		{
 			case TYPEMUTE:		UnMute(iClient);
 			case TYPEGAG: 		UnGag(iClient);
@@ -961,7 +961,7 @@ public Action CommandWBan(int iArgc)
 	else
 		iClient = FindTargetIp(sArg[0]);
 	
-	if(iClient)
+	if (iClient)
 	{
 		ReplyToCommand(0, "ok");
 		CheckClientBan(iClient);

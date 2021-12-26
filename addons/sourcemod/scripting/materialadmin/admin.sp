@@ -5,7 +5,7 @@ public void OnRebuildAdminCache(AdminCachePart acPart)
 		return;
 	}
 
-	switch(acPart)
+	switch (acPart)
 	{
 		case AdminCache_Overrides: 	ReadOverrides();
 		case AdminCache_Groups: 	ReadGroups();

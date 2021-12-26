@@ -30,7 +30,7 @@ public int Native_Log(Handle plugin, int numParams)
 	
 	FormatNativeString(0, 2, 3, sizeof(sBufer), _, sBufer);
 	
-	switch(iType)
+	switch (iType)
 	{
 		case MA_LogAdmin: 		LogToFile(g_sLogAdmin, sBufer);
 		case MA_LogConfig: 		LogToFile(g_sLogConfig, sBufer);
@@ -53,102 +53,102 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		 sValue[512];
 	GetNativeString(1, sSetting, sizeof(sSetting));
 
-	if(StrEqual("DatabasePrefix", sSetting, false)) 
+	if (StrEqual("DatabasePrefix", sSetting, false)) 
 		strcopy(sValue, sizeof(sValue), g_sDatabasePrefix);
-	else if(StrEqual("Website", sSetting, false)) 
+	else if (StrEqual("Website", sSetting, false)) 
 		strcopy(sValue, sizeof(sValue), g_sWebsite);
-	else if(StrEqual("OffTimeFormat", sSetting, false))
+	else if (StrEqual("OffTimeFormat", sSetting, false))
 		strcopy(sValue, sizeof(sValue), g_sOffFormatTime);
-	else if(StrEqual("BanFlagPermanent", sSetting, false))
+	else if (StrEqual("BanFlagPermanent", sSetting, false))
 		strcopy(sValue, sizeof(sValue), g_sBanFlagPermanent);
-	else if(StrEqual("OffMenuNast", sSetting, false))
+	else if (StrEqual("OffMenuNast", sSetting, false))
 		strcopy(sValue, sizeof(sValue), g_sOffMenuItems);
-	else if(StrEqual("Addban", sSetting, false))
+	else if (StrEqual("Addban", sSetting, false))
 	{
-		if(g_bAddBan)
+		if (g_bAddBan)
 			sValue = "1";
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("Unban", sSetting, false))
+	else if (StrEqual("Unban", sSetting, false))
 	{
-		if(g_bUnBan)
+		if (g_bUnBan)
 			sValue = "1";
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("OffMapClear", sSetting, false))
+	else if (StrEqual("OffMapClear", sSetting, false))
 	{
-		if(g_bOffMapClear)
+		if (g_bOffMapClear)
 			sValue = "1";
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("Report", sSetting, false))
+	else if (StrEqual("Report", sSetting, false))
 	{
-		if(g_bReport)
+		if (g_bReport)
 			sValue = "1";
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("BanSayPanel", sSetting, false))
+	else if (StrEqual("BanSayPanel", sSetting, false))
 	{
-		if(g_bBanSayPanel)
+		if (g_bBanSayPanel)
 			sValue = "1";
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("ActionOnTheMy", sSetting, false))
+	else if (StrEqual("ActionOnTheMy", sSetting, false))
 	{
-		if(g_bActionOnTheMy)
+		if (g_bActionOnTheMy)
 			sValue = "1";
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("ServerBanTyp", sSetting, false))
+	else if (StrEqual("ServerBanTyp", sSetting, false))
 	{
-		if(g_bServerBanTyp)
+		if (g_bServerBanTyp)
 			sValue = "1";
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("SourceSleuth", sSetting, false))
+	else if (StrEqual("SourceSleuth", sSetting, false))
 	{
-		if(g_bSourceSleuth)
+		if (g_bSourceSleuth)
 			sValue = "1";
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("UnMuteUnBan", sSetting, false))
+	else if (StrEqual("UnMuteUnBan", sSetting, false))
 	{
-		if(g_bUnMuteUnBan)
+		if (g_bUnMuteUnBan)
 			sValue = "1";
 		else
 			sValue = "0";
 	}
-	else if(StrEqual("AdminUpdateCache", sSetting, false))
+	else if (StrEqual("AdminUpdateCache", sSetting, false))
 		IntToString(g_iAdminUpdateCache, sValue, sizeof(sValue));
-	else if(StrEqual("IgnoreBanServer", sSetting, false))
+	else if (StrEqual("IgnoreBanServer", sSetting, false))
 		IntToString(g_iIgnoreBanServer, sValue, sizeof(sValue));
-	else if(StrEqual("IgnoreMuteServer", sSetting, false))
+	else if (StrEqual("IgnoreMuteServer", sSetting, false))
 		IntToString(g_iIgnoreMuteServer, sValue, sizeof(sValue));
-	else if(StrEqual("MassBan", sSetting, false))
+	else if (StrEqual("MassBan", sSetting, false))
 		IntToString(g_iMassBan, sValue, sizeof(sValue));
-	else if(StrEqual("ServerBanTime", sSetting, false))
+	else if (StrEqual("ServerBanTime", sSetting, false))
 		IntToString(g_iServerBanTime, sValue, sizeof(sValue));
-	else if(StrEqual("ServerID", sSetting, false))
+	else if (StrEqual("ServerID", sSetting, false))
 		IntToString(g_iServerID, sValue, sizeof(sValue));
-	else if(StrEqual("OffMaxPlayers", sSetting, false))
+	else if (StrEqual("OffMaxPlayers", sSetting, false))
 		IntToString(g_iOffMaxPlayers, sValue, sizeof(sValue));
-	else if(StrEqual("RetryTime", sSetting, false))
+	else if (StrEqual("RetryTime", sSetting, false))
 		FloatToString(g_fRetryTime, sValue, sizeof(sValue));
-	else if(StrEqual("ShowAdminAction", sSetting, false))
+	else if (StrEqual("ShowAdminAction", sSetting, false))
 		IntToString(g_iShowAdminAction, sValue, sizeof(sValue));
-	else if(StrEqual("BasecommTime", sSetting, false))
+	else if (StrEqual("BasecommTime", sSetting, false))
 		IntToString(g_iBasecommTime, sValue, sizeof(sValue));
-	else if(StrEqual("BanTypMenu", sSetting, false))
+	else if (StrEqual("BanTypMenu", sSetting, false))
 		IntToString(g_iBanTypMenu, sValue, sizeof(sValue));
-	else if(!g_hSettings.GetString(sSetting, sValue, sizeof(sValue)))
+	else if (!g_hSettings.GetString(sSetting, sValue, sizeof(sValue)))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Error: Config Setting invalid.");
 
 	SetNativeString(2, sValue, sizeof(sValue), false);
@@ -333,7 +333,7 @@ void FireOnClientConnectGetMute(int iClient, int iType, int iTime, const char[] 
 {
  	static Handle hForward;
 	
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientConnectGetMute", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_String);
 	
 	Call_StartForward(hForward);
@@ -348,7 +348,7 @@ void FireOnClientMuted(int iClient, int iTarget, const char[] sIp, const char[] 
 {
  	static Handle hForward;
 	
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientMuted", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell, Param_String);
 	
 	Call_StartForward(hForward);
@@ -366,7 +366,7 @@ void FireOnClientMuted(int iClient, int iTarget, const char[] sIp, const char[] 
 	{
 		if (iTarget)
 		{
-			switch(iType)
+			switch (iType)
 			{
 				case 1:	BaseComm_SetClientMute(iTarget, true);
 				case 2:	BaseComm_SetClientGag(iTarget, true);
@@ -384,7 +384,7 @@ void FireOnClientUnMuted(int iClient, int iTarget, const char[] sIp, const char[
 {
  	static Handle hForward;
 	
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientUnMuted", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_String);
 	
 	Call_StartForward(hForward);
@@ -401,7 +401,7 @@ void FireOnClientUnMuted(int iClient, int iTarget, const char[] sIp, const char[
 	{
 		if (iTarget)
 		{
-			switch(iType)
+			switch (iType)
 			{
 				case 1:	BaseComm_SetClientMute(iTarget, false);
 				case 2:	BaseComm_SetClientGag(iTarget, false);
@@ -419,7 +419,7 @@ void FireOnClientBanned(int iClient, int iTarget, const char[] sIp, const char[]
 {
  	static Handle hForward;
 	
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientBanned", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_String);
 	
 	Call_StartForward(hForward);
@@ -437,7 +437,7 @@ void FireOnClientAddBanned(int iClient, const char[] sIp, const char[] sSteamID,
 {
  	static Handle hForward;
 	
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientAddBanned", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell, Param_String);
 	
 	Call_StartForward(hForward);
@@ -453,7 +453,7 @@ void FireOnClientUnBanned(int iClient, const char[] sIp, const char[] sSteamID, 
 {
  	static Handle hForward;
 	
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientUnBanned", ET_Ignore, Param_Cell, Param_String, Param_String, Param_String);
 	
 	Call_StartForward(hForward);
@@ -468,7 +468,7 @@ void FireOnConnectDatabase(Database db)
 {
  	static Handle hForward;
 	
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnConnectDatabase", ET_Ignore, Param_Cell);
 	
 	Call_StartForward(hForward);
@@ -480,7 +480,7 @@ void FireOnConfigSetting()
 {
 	static Handle hForward;
 
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnConfigSetting", ET_Ignore);
 
 	if (!g_bServerIDVerified)
@@ -496,7 +496,7 @@ void FireOnFindLoadingAdmin(AdminCachePart acPart)
 {
  	static Handle hForward;
 	
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnFindLoadingAdmin", ET_Ignore, Param_Cell);
 	
 	Call_StartForward(hForward);
@@ -510,7 +510,7 @@ Action FireOnClientConnectBan(int iClient)
 	
 	static Handle hForward;
 	
-	if(hForward == null)
+	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientConnectBan", ET_Ignore, Param_Cell);
 	
 	Call_StartForward(hForward);

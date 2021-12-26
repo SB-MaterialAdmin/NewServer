@@ -66,7 +66,7 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 	#if MADEBUG
 		LogToFile(g_sLogDateBase, "ConnectBd: yes");
 	#endif
-		switch(iType)
+		switch (iType)
 		{
 			case BDCONNECT_ADMIN: 	AdminHash();
 			case BDCONNECT_COM:		ReplyToCommand(iClient, "%sYes connect bd", MAPREFIX);
@@ -80,7 +80,7 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 	}
 	else
 	{
-		switch(iType)
+		switch (iType)
 		{
 			case BDCONNECT_COM:		ReplyToCommand(iClient, "%sNo connect bd", MAPREFIX);
 			case BDCONNECT_MENU:
@@ -99,7 +99,7 @@ void CreateTables()
 {
 	SQL_LockDatabase(g_dSQLite);
 	SQL_FastQuery(g_dSQLite, "PRAGMA encoding = \"UTF-8\"");
-	if(SQL_FastQuery(g_dSQLite, "\
+	if (SQL_FastQuery(g_dSQLite, "\
 			CREATE TABLE IF NOT EXISTS `offline` (\
 			`id` INTEGER PRIMARY KEY AUTOINCREMENT,\
 			`auth` VARCHAR(32) UNIQUE ON CONFLICT REPLACE,\
@@ -112,7 +112,7 @@ void CreateTables()
 		SQL_GetError(g_dSQLite, sError, sizeof(sError));
 		SetFailState("%s Query CREATE TABLE failed! %s", MAPREFIX, sError);
 	}
-	if(SQL_FastQuery(g_dSQLite, "\
+	if (SQL_FastQuery(g_dSQLite, "\
 			CREATE TABLE IF NOT EXISTS `bekap` (\
 			`id` INTEGER PRIMARY KEY AUTOINCREMENT,\
 			`query` text NOT NULL,\
@@ -305,7 +305,7 @@ public void SQL_Callback_GetMuteType(Database db, DBResultSet dbRs, const char[]
 		g_iTargetMuteType[iTarget] = 0;
 
 #if MADEBUG
-	if(iTarget && IsClientInGame(iTarget))
+	if (iTarget && IsClientInGame(iTarget))
 		LogToFile(g_sLogDateBase, "GetMuteType:%N: %d %s", iTarget, g_iTargetMuteType[iTarget], g_sTargetMuteSteamAdmin[iTarget]);
 	else
 		LogToFile(g_sLogDateBase, "GetMuteType:%d: %d %s", iTarget, g_iTargetMuteType[iTarget], g_sTargetMuteSteamAdmin[iTarget]);
@@ -394,13 +394,13 @@ void CheckBanInBd(int iClient, int iTarget, int iType, char[] sSteamIp)
 		
 		if (g_iIgnoreBanServer)
 		{
-			if(g_iServerID == -1)
+			if (g_iServerID == -1)
 				FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 			else
 				IntToString(g_iServerID, sServer, sizeof(sServer));
 		}
 		
-		switch(g_iIgnoreBanServer)
+		switch (g_iIgnoreBanServer)
 		{
 			case 0: sServer[0] = '\0';
 			case 1:	Format(sServer, sizeof(sServer), " AND c.`sid` = %s", sServer);
@@ -448,7 +448,7 @@ public void SQL_Callback_CheckBanInBd(Database db, DBResultSet dbRs, const char[
 		return;
 	}
 	
-	switch(iType)
+	switch (iType)
 	{
 		case 0:
 		{
@@ -507,7 +507,7 @@ void DoCreateDB(int iClient, int iTarget, int iTrax = 0, Transaction hTxn = null
 				{
 					char sName[MAX_NAME_LENGTH];
 					GetFixedClientName(iTarget, sName, sizeof(sName));
-					switch(g_iTargetType[iClient])
+					switch (g_iTargetType[iClient])
 					{
 						case TYPE_GAG, TYPE_MUTE, TYPE_SILENCE:			PrintToChat2(iClient, "%T", "No access mute", iClient, sName);
 						case TYPE_UNGAG, TYPE_UNMUTE, TYPE_UNSILENCE:	PrintToChat2(iClient, "%T", "No access un mute", iClient, sName);
@@ -517,7 +517,7 @@ void DoCreateDB(int iClient, int iTarget, int iTrax = 0, Transaction hTxn = null
 				{
 					if (!iTarget)
 					{
-						switch(g_iTargetType[iClient])
+						switch (g_iTargetType[iClient])
 						{
 							case TYPE_GAG, TYPE_MUTE, TYPE_SILENCE:			PrintToChat2(iClient, "%T", "No access mute", iClient, g_sTarget[iClient][TNAME]);
 							case TYPE_UNGAG, TYPE_UNMUTE, TYPE_UNSILENCE: 	PrintToChat2(iClient, "%T", "No access un mute", iClient, g_sTarget[iClient][TNAME]);
@@ -570,7 +570,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 	int iTime;
 	int iCreated = GetTime();
 
-	if(g_iServerID == -1)
+	if (g_iServerID == -1)
 		FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 	else
 		IntToString(g_iServerID, sServer, sizeof(sServer));
@@ -630,7 +630,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 	if (!g_sTarget[iClient][TREASON][0])
 		FormatEx(g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]), "%T", "No reason", iClient);
 
-	switch(g_iTargetType[iClient])
+	switch (g_iTargetType[iClient])
 	{
 		case TYPE_UNBAN:
 		{
@@ -708,7 +708,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 			else
 				strcopy(g_sTargetMuteSteamAdmin[iTarget], sizeof(g_sTargetMuteSteamAdmin[]), sAdmin_SteamID);
 
-			switch(g_iTargetType[iClient])
+			switch (g_iTargetType[iClient])
 			{
 				case TYPE_GAG:
 				{
@@ -861,7 +861,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				g_iTargenMuteTime[iTarget] = iTime;
 				strcopy(g_sTargetMuteReason[iTarget], MAX_MUTE_REASON_LENGTH, g_sTarget[iClient][TREASON]);
 			}
-			if(bSetQ)
+			if (bSetQ)
 			{
 				g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 						INSERT INTO `%s_comms` (`authid`, `name`, `created`, `ends`, `length`, `reason`, `aid`, `adminIp`, `sid`, `type`) \
@@ -880,7 +880,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				bSetQ = false;
 			}
 
-			switch(g_iTargetType[iClient])
+			switch (g_iTargetType[iClient])
 			{
 				case TYPE_UNGAG:
 				{
@@ -956,7 +956,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 												g_sTarget[iClient][TIP], g_sTarget[iClient][TREASON]);
 				}
 			}
-			if(bSetQ)
+			if (bSetQ)
 			{
 				g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 						UPDATE `%s_comms` \
@@ -1095,13 +1095,13 @@ void CheckClientBan(int iClient)
 		
 		if (g_iIgnoreBanServer)
 		{
-			if(g_iServerID == -1)
+			if (g_iServerID == -1)
 				FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 			else
 				IntToString(g_iServerID, sServer, sizeof(sServer));
 		}
 		
-		switch(g_iIgnoreBanServer)
+		switch (g_iIgnoreBanServer)
 		{
 			case 0: sServer[0] = '\0';
 			case 1:	Format(sServer, sizeof(sServer), " AND a.`sid` = %s", sServer);
@@ -1181,23 +1181,23 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 		int iCreated = dbRs.FetchInt(2);
 		dbRs.FetchString(3, sReason, sizeof(sReason));
 
-		if(!iLength)
+		if (!iLength)
 		{
 			FormatEx(sLength, sizeof(sLength), "%T", "Permanent", iClient);
-			if(g_bBanSayPanel)
+			if (g_bBanSayPanel)
 				FormatEx(sEnds, sizeof(sEnds), "%T", "No ends", iClient);
 		}
 		else
 		{
 			FormatVrema(iClient, iLength, sLength, sizeof(sLength));
-			if(g_bBanSayPanel)
+			if (g_bBanSayPanel)
 				FormatTime(sEnds, sizeof(sEnds), FORMAT_TIME, iCreated + iLength);
 		}
 		
 		FormatTime(sCreated, sizeof(sCreated), FORMAT_TIME, iCreated);
 		GetFixedClientName(iClient, sName, sizeof(sName));
 
-		if(g_iServerID == -1)
+		if (g_iServerID == -1)
 			FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 		else
 			IntToString(g_iServerID, sServer, sizeof(sServer));
@@ -1224,14 +1224,14 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 		{
 			char sAdmin[64];
 			dbRs.FetchString(4, sAdmin, sizeof(sAdmin));
-			if(g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO)
+			if (g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO)
 				CreateTeaxtDialog(iClient, "%T", "Banned Admin panel", iClient, sAdmin, sReason, sCreated, sEnds, sLength, g_sWebsite);
 			else
 				KickClient(iClient, "%T", "Banned Admin", iClient, sAdmin, sReason, sCreated, sLength, g_sWebsite);
 		}
 		else
 		{
-			if(g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO)
+			if (g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO)
 				CreateTeaxtDialog(iClient, "%T", "Banned panel", iClient, sReason, sCreated, sEnds, sLength, g_sWebsite);
 			else
 				KickClient(iClient, "%T", "Banned", iClient, sReason, sCreated, sLength, g_sWebsite);
@@ -1272,7 +1272,7 @@ void CheckClientMute(int iClient, char[] sSteamID)
 			IntToString(g_iServerID, sServer, sizeof(sServer));
 	}
 	
-	switch(g_iIgnoreMuteServer)
+	switch (g_iIgnoreMuteServer)
 	{
 		case 0: sServer[0] = '\0';
 		case 1:	Format(sServer, sizeof(sServer), " AND `sid` = %s", sServer);
@@ -1470,7 +1470,7 @@ public void GroupsDone(Database db, DBResultSet dbRs, const char[] sError, any i
 	// TODO: move this code to custom function.
 	char sQuery[1204],
 		sServer[256];
-	if(g_iServerID == -1)
+	if (g_iServerID == -1)
 		FormatEx(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 	else
 		IntToString(g_iServerID, sServer, sizeof(sServer));
@@ -1713,9 +1713,9 @@ public void SQL_Callback_QueryBekap(Database db, DBResultSet dbRs, const char[] 
 	{
 		char sQuery[1024];
 		int iId;
-		while(dbRs.MoreRows)
+		while (dbRs.MoreRows)
 		{
-			if(!dbRs.FetchRow())
+			if (!dbRs.FetchRow())
 				continue;
 
 			iId = dbRs.FetchInt(0);
@@ -1775,9 +1775,9 @@ public void SQL_Callback_CheckBekapTime(Database db, DBResultSet dbRs, const cha
 			iTimeBekap;
 			
 		int iTime = GetTime();
-		while(dbRs.MoreRows)
+		while (dbRs.MoreRows)
 		{
-			if(!dbRs.FetchRow())
+			if (!dbRs.FetchRow())
 				continue;
 			
 			iId = dbRs.FetchInt(0);
@@ -1797,7 +1797,7 @@ void SetBdReport(int iClient, const char[] sReason)
 
 	int iTarget	= GetClientOfUserId(g_iTargetReport[iClient]);
 	
-	if(!iTarget || (iTarget && !IsClientAuthorized(iTarget)))
+	if (!iTarget || (iTarget && !IsClientAuthorized(iTarget)))
 	{
 		PrintToChat2(iClient, "%T", "No Client Game", iClient);
 		return;
@@ -1821,7 +1821,7 @@ void SetBdReport(int iClient, const char[] sReason)
 	GetClientIP(iTarget, sReportIp, sizeof(sReportIp));
 	GetFixedClientName(iTarget, sReportName, sizeof(sReportName));
 
-	if(g_iServerID == -1)
+	if (g_iServerID == -1)
 	{
 		g_dDatabase.Format(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 		g_dDatabase.Format(sModId, sizeof(sModId), "IFNULL ((SELECT `modid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
@@ -2069,14 +2069,14 @@ public void CallbackCheckAdmin(Database db, DBResultSet dbRs, const char[] sErro
 
 void BDAddServerAdmin(int iClient, int iId, char[] sGroup, int iLine)
 {
-	if(sGroup[0])
+	if (sGroup[0])
 		Format(sGroup, iLine, "IFNULL ((SELECT `id` FROM `%s_srvgroups` WHERE `name` = '%s' LIMIT 1), -1)", g_sDatabasePrefix, sGroup);
 	else
 		strcopy(sGroup, iLine, "-1");
 	
 	char sServer[256],
 		 sQuery[556];
-	if(g_iServerID == -1)
+	if (g_iServerID == -1)
 		g_dDatabase.Format(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 	else
 		IntToString(g_iServerID, sServer, sizeof(sServer));
@@ -2118,7 +2118,7 @@ void BDDelAdmin(int iClient, int iId, int iTyp)
 	if (iTyp == 1)
 	{
 		char sServer[256];
-		if(g_iServerID == -1)
+		if (g_iServerID == -1)
 			g_dDatabase.Format(sServer, sizeof(sServer), "IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 		else
 			IntToString(g_iServerID, sServer, sizeof(sServer));

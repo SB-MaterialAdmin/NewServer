@@ -235,7 +235,7 @@ public void OnPluginStart()
 	PrintToServer(g_szStartDelimter);
 #endif
 
-	switch(GetEngineVersion())
+	switch (GetEngineVersion())
 	{
 		case Engine_CSS: 			g_iGameTyp = GAMETYP_CCS;
 		case Engine_SourceSDK2006: 	g_iGameTyp = GAMETYP_CCS34;
@@ -249,14 +249,14 @@ public void OnPluginStart()
 
 	char sPath[56];
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/materialadmin");
-	if(!DirExists(sPath))
+	if (!DirExists(sPath))
 		CreateDirectory(sPath, 511);
 	BuildPath(Path_SM, g_sGroupsLoc,sizeof(g_sGroupsLoc),"data/materialadmin/groups.bin");
 	BuildPath(Path_SM, g_sAdminsLoc,sizeof(g_sAdminsLoc),"data/materialadmin/admins.bin");
 	BuildPath(Path_SM, g_sOverridesLoc, sizeof(g_sOverridesLoc), "data/materialadmin/overrides.bin");
 	
 	BuildPath(Path_SM, sPath, sizeof(sPath), "logs/materialadmin");
-	if(!DirExists(sPath))
+	if (!DirExists(sPath))
 		CreateDirectory(sPath, 511);
 
 	LogOn();
@@ -301,36 +301,36 @@ public void OnConfigsExecuted()
 	char sFileName[200],
 		sNewFileName[200];
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/basebans.smx");
-	if(FileExists(sFileName))
+	if (FileExists(sFileName))
 	{
 		BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/basebans.smx");
 		ServerCommand("sm plugins unload basebans");
-		if(FileExists(sNewFileName))
+		if (FileExists(sNewFileName))
 			DeleteFile(sNewFileName);
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/basebans.smx was unloaded and moved to plugins/disabled/basebans.smx");
 	}
 	
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/basecomm.smx");
-	if(FileExists(sFileName))
+	if (FileExists(sFileName))
 	{
 		BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/basecomm.smx");
 		ServerCommand("sm plugins unload basecomm");
-		if(FileExists(sNewFileName))
+		if (FileExists(sNewFileName))
 			DeleteFile(sNewFileName);
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/basecomm.smx was unloaded and moved to plugins/disabled/basecomm.smx");
 	}
 	
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/ma_adminmenu.smx");
-	if(FileExists(sFileName))
+	if (FileExists(sFileName))
 	{
 		BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/adminmenu.smx");
-		if(FileExists(sFileName))
+		if (FileExists(sFileName))
 		{
 			BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/adminmenu.smx");
 			ServerCommand("sm plugins unload adminmenu");
-			if(FileExists(sNewFileName))
+			if (FileExists(sNewFileName))
 				DeleteFile(sNewFileName);
 			RenameFile(sNewFileName, sFileName);
 			LogToFile(g_sLogAction, "plugins/adminmenu.smx was unloaded and moved to plugins/disabled/adminmenu.smx");
@@ -338,22 +338,22 @@ public void OnConfigsExecuted()
 	}
 	
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/sourcecomms.smx");
-	if(FileExists(sFileName))
+	if (FileExists(sFileName))
 	{
 		BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/sourcecomms.smx");
 		ServerCommand("sm plugins unload sourcecomms");
-		if(FileExists(sNewFileName))
+		if (FileExists(sNewFileName))
 			DeleteFile(sNewFileName);
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/sourcecomms.smx was unloaded and moved to plugins/disabled/sourcecomms.smx");
 	}
 	
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/sourcebans.smx");
-	if(FileExists(sFileName))
+	if (FileExists(sFileName))
 	{
 		BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/sourcebans.smx");
 		ServerCommand("sm plugins unload sourcebans");
-		if(FileExists(sNewFileName))
+		if (FileExists(sNewFileName))
 			DeleteFile(sNewFileName);
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/sourcebans.smx was unloaded and moved to plugins/disabled/sourcebans.smx");
@@ -376,7 +376,7 @@ public void OnConfigsExecuted()
 		g_bLalod = true;
 	}
 	
-	if(g_bOffMapClear) 
+	if (g_bOffMapClear) 
 		ClearHistories();
 	
 	CheckBekapTime();
@@ -410,7 +410,7 @@ public void OnClientPostAdminCheck(int iClient)
 	if (!IsClientInGame(iClient) || IsFakeClient(iClient)) 
 		return;
 
-	if(!g_bNewConnect[iClient])
+	if (!g_bNewConnect[iClient])
 	{
 		if (g_iGameTyp != GAMETYP_CSGO)
 		{
@@ -459,7 +459,7 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	if (!GetSteamAuthorized(iClient, sSteamID))
 		return;
 	
-	if(g_iIgnoreFlagOfflineBan && !((GetUserFlagBits(iClient) & g_iIgnoreFlagOfflineBan) == g_iIgnoreFlagOfflineBan))
+	if (g_iIgnoreFlagOfflineBan && !((GetUserFlagBits(iClient) & g_iIgnoreFlagOfflineBan) == g_iIgnoreFlagOfflineBan))
 	{
 		char sName[MAX_NAME_LENGTH],
 		sIP[MAX_IP_LENGTH];

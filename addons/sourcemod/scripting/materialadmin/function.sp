@@ -19,7 +19,7 @@ void GetColor(char[] sBuffer, int iMaxlin)
 	static const char sColorT[][] =  {"#1",   "#2",   "#3",   "#4",   "#5",   "#6",   "#7",   "#8",   "#9",   "#10", "#OB",   "#OC",  "#OE",  "#0A"},
 					  sColorC[][] =  {"\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\x09", "\x10", "\x0B", "\x0C", "\x0E", "\x0A"};
 					  
-	for(int i = 0; i < 13; i++)
+	for (int i = 0; i < 13; i++)
 		ReplaceString(sBuffer, iMaxlin, sColorT[i], sColorC[i]);
 }
 
@@ -89,7 +89,7 @@ void ShowAdminAction(int iClient, const char[] sMesag, any ...)
 		 sName[MAX_NAME_LENGTH],
 		 sNameShow[MAX_NAME_LENGTH];
 
-	switch(g_iShowAdminAction)
+	switch (g_iShowAdminAction)
 	{
 		case 1: strcopy(sNameShow, sizeof(sNameShow), "Admin");
 		case 2: 
@@ -133,7 +133,7 @@ bool CheckAdminFlags(int iClient, int iFlag)
 
 bool IsImune(int iAdminImun, int iTargetImun)
 {
-	switch(g_iCvar_ImmunityMode)
+	switch (g_iCvar_ImmunityMode)
 	{
 		case 1:
 		{
@@ -201,7 +201,7 @@ bool CheckAdminImune(int iAdminClient, int iAdminTarget)
 	
 	if (iAdminClient == iAdminTarget)
 	{
-		if(g_bActionOnTheMy)
+		if (g_bActionOnTheMy)
 			return true;
 		else
 			return false;
@@ -469,7 +469,7 @@ bool GetSteamAuthorized(int iClient, char[] sSteam)
 
 void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 {
-	switch(iTyp)
+	switch (iTyp)
 	{
 		case 0:
 		{
@@ -480,7 +480,7 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 			for (int i = 0; i < iMaxTarget; i++)
 			{
 				iTarget = GetClientOfUserId(g_aUserId[iClient].Get(i));
-				if(iTarget)
+				if (iTarget)
 				{
 					if (iMaxTarget > 1)
 						DoCreateDB(iClient, iTarget, 1, hTxn);
@@ -504,7 +504,7 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 
 				for (int i = 1; i <= MaxClients; i++)
 				{
-					if(IsClientInGame(i) && !IsFakeClient(i) && CheckAdminImune(iClient, i))
+					if (IsClientInGame(i) && !IsFakeClient(i) && CheckAdminImune(iClient, i))
 						DoCreateDB(iClient, i, 1, hTxn);
 				}
 				
@@ -512,7 +512,7 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 			}
 			else
 			{
-				if(iClient)
+				if (iClient)
 					ReplyToCommand(iClient, "%s%T", MAPREFIX, "No Access all", iClient);
 				else
 					ReplyToCommand(iClient, "%sSelect all players allowed Admins with flag ROOT.", MAPREFIX);
@@ -552,7 +552,7 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 			int iTarget = GetClientOfUserId(iUserId);
 			if (iTarget && !IsFakeClient(iTarget))
 			{
-				if(CheckAdminImune(iClient, iTarget))
+				if (CheckAdminImune(iClient, iTarget))
 					DoCreateDB(iClient, iTarget);
 				else
 				{
@@ -639,7 +639,7 @@ int FindTargetSteam(char[] sSteamID)
 		if (IsClientInGame(i))
 		{
 			GetClientAuthId(i, TYPE_STEAM, sSteamIDs, sizeof(sSteamIDs));
-			if(StrEqual(sSteamID[8], sSteamIDs[8]))
+			if (StrEqual(sSteamID[8], sSteamIDs[8]))
 				return i;
 		}
 	}
@@ -654,7 +654,7 @@ int FindTargetIp(char[] sIp)
 		if (IsClientInGame(i))
 		{
 			GetClientIP(i, sIps, sizeof(sIps));
-			if(StrEqual(sIp, sIps))
+			if (StrEqual(sIp, sIps))
 				return i;
 		}
 	}
@@ -805,7 +805,7 @@ void CheckClientAdmin(int iClient, char[] sSteamID)
 		int iExpire = GetAdminExpire(idAdmin);
 		if (iExpire)
 		{
-			if(iExpire > GetTime())
+			if (iExpire > GetTime())
 			{
 				DataPack dPack = new DataPack();
 				dPack.WriteCell(GetClientUserId(iClient));
@@ -834,13 +834,13 @@ public Action TimerAdminExpire(Handle timer, any data)
 	int iExpire = dPack.ReadCell();
 	delete dPack;
 	
-	if(!iClient)
+	if (!iClient)
 		return Plugin_Stop;
 
 	char sLength[128];
 	int iLength = iExpire - GetTime();
 	FormatVrema(iClient, iLength, sLength, sizeof(sLength));
-	if(IsClientInGame(iClient))
+	if (IsClientInGame(iClient))
 		PrintToChat2(iClient, "%T", "Admin Expire", iClient, sLength);
 	
 	return Plugin_Stop;
@@ -894,10 +894,10 @@ void FormatVrema(int iClient, int iLength, char[] sLength, int iLens)
 		else
 			LogToFile(g_sLogAction, "format time (%d)  %d: days %d, hours %d, minutes %d, sec %d", iClient, iLength, iDays, iHours, iMinutes, iSec);
 	#endif
-		if(iDays) iLen += Format(sLength[iLen], iLens - iLen, "%d %T", iDays, "Days", iClient);
-		if(iHours) iLen += Format(sLength[iLen], iLens - iLen, "%s%d %T", iDays ? " " : "", iHours, "Hours", iClient);
-		if(iMinutes) iLen += Format(sLength[iLen], iLens - iLen, "%s%d %T", (iDays || iHours) ? " " : "", iMinutes, "Minutes", iClient);
-		if(iSec) iLen += Format(sLength[iLen], iLens - iLen, "%s%d %T", (iDays || iHours || iMinutes) ? " " : "", iSec, "Sec", iClient);
+		if (iDays) iLen += Format(sLength[iLen], iLens - iLen, "%d %T", iDays, "Days", iClient);
+		if (iHours) iLen += Format(sLength[iLen], iLens - iLen, "%s%d %T", iDays ? " " : "", iHours, "Hours", iClient);
+		if (iMinutes) iLen += Format(sLength[iLen], iLens - iLen, "%s%d %T", (iDays || iHours) ? " " : "", iMinutes, "Minutes", iClient);
+		if (iSec) iLen += Format(sLength[iLen], iLens - iLen, "%s%d %T", (iDays || iHours || iMinutes) ? " " : "", iSec, "Sec", iClient);
 	}
 }
 //------------------------------------------------------------------------------------------------------
@@ -922,7 +922,7 @@ void UnMute(int iClient)
 
 void KillTimerMute(int iClient)
 {
-	if(g_hTimerMute[iClient])
+	if (g_hTimerMute[iClient])
 	{
 		KillTimer(g_hTimerMute[iClient]);
 		g_hTimerMute[iClient] = null;
@@ -964,7 +964,7 @@ void UnGag(int iClient)
 
 void KillTimerGag(int iClient)
 {
-	if(g_hTimerGag[iClient])
+	if (g_hTimerGag[iClient])
 	{
 		KillTimer(g_hTimerGag[iClient]);
 		g_hTimerGag[iClient] = null;
@@ -1003,7 +1003,7 @@ void UnSilence(int iClient)
 
 void AddGag(int iClient, int iTime)
 {
-	if(g_iTargetMuteType[iClient] == 0)
+	if (g_iTargetMuteType[iClient] == 0)
 		g_iTargetMuteType[iClient] = TYPEGAG;
 	else if (g_iTargetMuteType[iClient] == TYPEMUTE)
 	{
@@ -1014,7 +1014,7 @@ void AddGag(int iClient, int iTime)
 	KillTimerGag(iClient);
 	if (iTime > 0 && iTime < 86400)
 	{
-		if(!g_hTimerGag[iClient])
+		if (!g_hTimerGag[iClient])
 			g_hTimerGag[iClient] = CreateTimer(float(iTime), TimerGag, GetClientUserId(iClient));
 	}
 	
@@ -1028,7 +1028,7 @@ void AddGag(int iClient, int iTime)
 
 void AddMute(int iClient, int iTime)
 {
-	if(g_iTargetMuteType[iClient] == 0)
+	if (g_iTargetMuteType[iClient] == 0)
 		g_iTargetMuteType[iClient] = TYPEMUTE;
 	else if (g_iTargetMuteType[iClient] == TYPEGAG)
 	{
@@ -1040,7 +1040,7 @@ void AddMute(int iClient, int iTime)
 	FunMute(iClient);
 	if (iTime > 0 && iTime < 86400)
 	{
-		if(!g_hTimerMute[iClient])
+		if (!g_hTimerMute[iClient])
 			g_hTimerMute[iClient] = CreateTimer(float(iTime), TimerMute, GetClientUserId(iClient));
 	}
 
@@ -1075,9 +1075,9 @@ void AddSilence(int iClient, int iTime)
 	KillTimerGag(iClient);
 	if (iTime > 0 && iTime < 86400)
 	{
-		if(!g_hTimerMute[iClient])
+		if (!g_hTimerMute[iClient])
 			g_hTimerMute[iClient] = CreateTimer(float(iTime), TimerMute, GetClientUserId(iClient));
-		if(!g_hTimerGag[iClient])
+		if (!g_hTimerGag[iClient])
 			g_hTimerGag[iClient] = CreateTimer(float(iTime), TimerGag, GetClientUserId(iClient));
 	}
 
@@ -1113,10 +1113,10 @@ void CreateSayBanned(char[] sAdminName, int iClient, int iCreated, int iTime, ch
 	char sCreated[128];
 	FormatTime(sCreated, sizeof(sCreated), FORMAT_TIME, iCreated);
 
-	if(g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO)
+	if (g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO)
 	{
 		char sEnds[128];
-		if(!iTime)
+		if (!iTime)
 			FormatEx(sEnds, sizeof(sEnds), "%T", "No ends", iClient);
 		else
 			FormatTime(sEnds, sizeof(sEnds), FORMAT_TIME, iCreated + iTime);

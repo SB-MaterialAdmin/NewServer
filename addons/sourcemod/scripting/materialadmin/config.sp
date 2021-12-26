@@ -34,7 +34,7 @@ void ReadConfig()
 	g_tMenuTime.Clear();
 	g_aTimeMenuSorting.Clear();
 
-	if(FileExists(sConfigFile))
+	if (FileExists(sConfigFile))
 	{
 		g_iConfigState = ConfigState_Non;
 	
@@ -73,7 +73,7 @@ void ReadConfig()
 	g_hSettings.Clear();
 	BuildPath(Path_SM, sConfigFile, sizeof(sConfigFile), "configs/materialadmin/config.cfg");
 
-	if(FileExists(sConfigFile))
+	if (FileExists(sConfigFile))
 	{
 		int iLine;
 		SMCError err = g_smcConfigParser.ParseFile(sConfigFile, iLine);
@@ -101,109 +101,109 @@ public SMCResult NewSectionConfig(SMCParser Smc, const char[] sName, bool bOpt_q
 
 public SMCResult KeyValueConfig(SMCParser Smc, const char[] sKey, const char[] sValue, bool bKey_quotes, bool bValue_quotes)
 {
-	if(!sKey[0] || !sValue[0])
+	if (!sKey[0] || !sValue[0])
 		return SMCParse_Continue;
 
 	g_hSettings.SetString(sKey, sValue, true);
 
-	if(!strcmp("DatabasePrefix", sKey, false)) 
+	if (!strcmp("DatabasePrefix", sKey, false)) 
 		strcopy(g_sDatabasePrefix, sizeof(g_sDatabasePrefix), sValue);
-	else if(!strcmp("Website", sKey, false)) 
+	else if (!strcmp("Website", sKey, false)) 
 		strcopy(g_sWebsite, sizeof(g_sWebsite), sValue);
-	else if(!strcmp("OffTimeFormat", sKey, false))
+	else if (!strcmp("OffTimeFormat", sKey, false))
 		strcopy(g_sOffFormatTime, sizeof(g_sOffFormatTime), sValue);
-	else if(!strcmp("BanFlagPermanent", sKey, false))
+	else if (!strcmp("BanFlagPermanent", sKey, false))
 		strcopy(g_sBanFlagPermanent, sizeof(g_sBanFlagPermanent), sValue);
-	else if(!strcmp("OffMenuNast", sKey, false))
+	else if (!strcmp("OffMenuNast", sKey, false))
 		strcopy(g_sOffMenuItems, sizeof(g_sOffMenuItems), sValue);
-	else if(!strcmp("Addban", sKey, false))
+	else if (!strcmp("Addban", sKey, false))
 	{
-		if(!StringToInt(sValue))
+		if (!StringToInt(sValue))
 			g_bAddBan = false;
 		else
 			g_bAddBan = true;
 	}
-	else if(!strcmp("Unban", sKey, false))
+	else if (!strcmp("Unban", sKey, false))
 	{
-		if(!StringToInt(sValue))
+		if (!StringToInt(sValue))
 			g_bUnBan = false;
 		else
 			g_bUnBan = true;
 	}
-	else if(!strcmp("OffMapClear", sKey, false))
+	else if (!strcmp("OffMapClear", sKey, false))
 	{
-		if(!StringToInt(sValue))
+		if (!StringToInt(sValue))
 			g_bOffMapClear = false;
 		else
 			g_bOffMapClear = true;
 	}
-	else if(!strcmp("Report", sKey, false))
+	else if (!strcmp("Report", sKey, false))
 	{
-		if(!StringToInt(sValue))
+		if (!StringToInt(sValue))
 			g_bReport = false;
 		else
 			g_bReport = true;
 	}
-	else if(!strcmp("BanSayPanel", sKey, false))
+	else if (!strcmp("BanSayPanel", sKey, false))
 	{
-		if(!StringToInt(sValue))
+		if (!StringToInt(sValue))
 			g_bBanSayPanel = false;
 		else
 			g_bBanSayPanel = true;
 	}
-	else if(!strcmp("ActionOnTheMy", sKey, false))
+	else if (!strcmp("ActionOnTheMy", sKey, false))
 	{
-		if(!StringToInt(sValue))
+		if (!StringToInt(sValue))
 			g_bActionOnTheMy = false;
 		else
 			g_bActionOnTheMy = true;
 	}
-	else if(!strcmp("ServerBanTyp", sKey, false))
+	else if (!strcmp("ServerBanTyp", sKey, false))
 	{
-		if(!StringToInt(sValue))
+		if (!StringToInt(sValue))
 			g_bServerBanTyp = false;
 		else
 			g_bServerBanTyp = true;
 	}
-	else if(!strcmp("SourceSleuth", sKey, false))
+	else if (!strcmp("SourceSleuth", sKey, false))
 	{
-		if(!StringToInt(sValue))
+		if (!StringToInt(sValue))
 			g_bSourceSleuth = false;
 		else
 			g_bSourceSleuth = true;
 	}
-	else if(!strcmp("UnMuteUnBan", sKey, false))
+	else if (!strcmp("UnMuteUnBan", sKey, false))
 	{
-		if(!StringToInt(sValue))
+		if (!StringToInt(sValue))
 			g_bUnMuteUnBan = false;
 		else
 			g_bUnMuteUnBan = true;
 	}
-	else if(!strcmp("MassBan", sKey, false))
+	else if (!strcmp("MassBan", sKey, false))
 		g_iMassBan = StringToInt(sValue);
-	else if(!strcmp("ServerBanTime", sKey, false))
+	else if (!strcmp("ServerBanTime", sKey, false))
 		g_iServerBanTime = StringToInt(sValue);
-	else if(!strcmp("ServerID", sKey, false))
+	else if (!strcmp("ServerID", sKey, false))
 		g_iServerID = StringToInt(sValue);
-	else if(!strcmp("OffMaxPlayers", sKey, false))
+	else if (!strcmp("OffMaxPlayers", sKey, false))
 		g_iOffMaxPlayers = StringToInt(sValue);
-	else if(!strcmp("RetryTime", sKey, false))
+	else if (!strcmp("RetryTime", sKey, false))
 		g_fRetryTime = StringToFloat(sValue);
-	else if(!strcmp("ShowAdminAction", sKey, false))
+	else if (!strcmp("ShowAdminAction", sKey, false))
 		g_iShowAdminAction = StringToInt(sValue);
-	else if(!strcmp("BasecommTime", sKey, false))
+	else if (!strcmp("BasecommTime", sKey, false))
 		g_iBasecommTime = StringToInt(sValue);
-	else if(!strcmp("BanTypMenu", sKey, false))
+	else if (!strcmp("BanTypMenu", sKey, false))
 		g_iBanTypMenu = StringToInt(sValue);
-	else if(!strcmp("IgnoreBanServer", sKey, false))
+	else if (!strcmp("IgnoreBanServer", sKey, false))
 		g_iIgnoreBanServer = StringToInt(sValue);
-	else if(!strcmp("IgnoreMuteServer", sKey, false))
+	else if (!strcmp("IgnoreMuteServer", sKey, false))
 		g_iIgnoreMuteServer = StringToInt(sValue);
-	else if(!strcmp("AdminUpdateCache", sKey, false))
+	else if (!strcmp("AdminUpdateCache", sKey, false))
 		g_iAdminUpdateCache = StringToInt(sValue);
-	else if(!strcmp("UseDatabaseFix", sKey, false))
+	else if (!strcmp("UseDatabaseFix", sKey, false))
 		g_bUseDatabaseFix = (sValue[0] != '0');
-	else if(!strcmp("IgnoreFlagOfflineBan", sKey, false))
+	else if (!strcmp("IgnoreFlagOfflineBan", sKey, false))
 		g_iIgnoreFlagOfflineBan = ReadFlagString(sValue);
 #if MADEBUG
 	LogToFile(g_sLogConfig,"Loaded config. key \"%s\", value \"%s\"", sKey, sValue);
@@ -213,15 +213,15 @@ public SMCResult KeyValueConfig(SMCParser Smc, const char[] sKey, const char[] s
 
 public SMCResult NewSectionReason(SMCParser Smc, const char[] sName, bool bOpt_quotes)
 {
-	if(sName[0])
+	if (sName[0])
 	{
-		if(!strcmp("MuteReasons", sName, false))
+		if (!strcmp("MuteReasons", sName, false))
 			g_iConfigState = ConfigState_Reason_Mute;
-		else if(!strcmp("BanReasons", sName, false))
+		else if (!strcmp("BanReasons", sName, false))
 			g_iConfigState = ConfigState_Reason_Ban;
-		else if(!strcmp("HackingReasons", sName, false))
+		else if (!strcmp("HackingReasons", sName, false))
 			g_iConfigState = ConfigState_Reason_Hacking;
-		else if(!strcmp("Time", sName, false))
+		else if (!strcmp("Time", sName, false))
 			g_iConfigState = ConfigState_Time;
 		else
 			g_iConfigState = ConfigState_Non;
@@ -235,10 +235,10 @@ public SMCResult NewSectionReason(SMCParser Smc, const char[] sName, bool bOpt_q
 
 public SMCResult KeyValueReason(SMCParser Smc, const char[] sKey, const char[] sValue, bool bKey_quotes, bool bValue_quotes)
 {
-	if(!sKey[0] || !sValue[0])
+	if (!sKey[0] || !sValue[0])
 		return SMCParse_Continue;
 
-	switch(g_iConfigState)
+	switch (g_iConfigState)
 	{
 		case ConfigState_Reason_Mute:
 		{

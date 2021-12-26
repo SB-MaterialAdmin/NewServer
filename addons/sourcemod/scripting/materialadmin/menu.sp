@@ -37,7 +37,7 @@ public void OnAdminMenuReady(Handle aTopMenu)
 
 public void Handle_materialadmin(Handle topmenu, TopMenuAction action, TopMenuObject topobj_id, int iClient, char[] buffer, int maxlength)
 {
-	switch(action)
+	switch (action)
 	{
 		case TopMenuAction_DisplayOption: 	FormatEx(buffer, maxlength, "%T", "AdminMenu_Main", iClient);
 		case TopMenuAction_DisplayTitle: 	FormatEx(buffer, maxlength, "%T:", "AdminMenu_Main", iClient);
@@ -46,7 +46,7 @@ public void Handle_materialadmin(Handle topmenu, TopMenuAction action, TopMenuOb
 
 public void Handle_MenuTargetOnline(Handle topmenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
-	switch(action)
+	switch (action)
 	{
 		case TopMenuAction_DisplayOption: FormatEx(sBuffer, maxlength, "%T", "OnlineTitle", iClient);
 		case TopMenuAction_SelectOption: 
@@ -59,7 +59,7 @@ public void Handle_MenuTargetOnline(Handle topmenu, TopMenuAction action, TopMen
 
 public void Handle_MenuTargetOffline(Handle topmenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
-	switch(action)
+	switch (action)
 	{
 		case TopMenuAction_DisplayOption: FormatEx(sBuffer, maxlength, "%T", "OfflineTitle", iClient);
 		case TopMenuAction_SelectOption: BdTargetOffline(iClient);
@@ -68,7 +68,7 @@ public void Handle_MenuTargetOffline(Handle topmenu, TopMenuAction action, TopMe
 
 public void Handle_MenuTargetList(Handle topmenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
-	switch(action)
+	switch (action)
 	{
 		case TopMenuAction_DisplayOption: FormatEx(sBuffer, maxlength, "%T", "ListTitle", iClient);
 		case TopMenuAction_SelectOption: 
@@ -81,7 +81,7 @@ public void Handle_MenuTargetList(Handle topmenu, TopMenuAction action, TopMenuO
 
 public void Handle_MenuSetting(Handle topmenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
-	switch(action)
+	switch (action)
 	{
 		case TopMenuAction_DisplayOption: FormatEx(sBuffer, maxlength, "%T", "SettingTitle", iClient);
 		case TopMenuAction_SelectOption: ShowSetting(iClient);
@@ -91,7 +91,7 @@ public void Handle_MenuSetting(Handle topmenu, TopMenuAction action, TopMenuObje
 #if SETTINGADMIN
 public void Handle_MenuSettingAdmin(Handle topmenu, TopMenuAction action, TopMenuObject object_id, int iClient, char[] sBuffer, int maxlength)
 {
-	switch(action)
+	switch (action)
 	{
 		case TopMenuAction_DisplayOption: FormatEx(sBuffer, maxlength, "%T", "SettingAdminTitle", iClient);
 		case TopMenuAction_SelectOption: ShowSettingAdmin(iClient);
@@ -120,7 +120,7 @@ void ShowSetting(int iClient)
 
 public int MenuHandler_Setting(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -130,7 +130,7 @@ public int MenuHandler_Setting(Menu Mmenu, MenuAction mAction, int iClient, int 
 		}
 		case MenuAction_Select:
 		{
-			switch(iSlot)
+			switch (iSlot)
 			{
 				case 0:
 				{
@@ -163,13 +163,13 @@ public int MenuHandler_Setting(Menu Mmenu, MenuAction mAction, int iClient, int 
 //меню выбора игрока офлайн
 public void ShowTargetOffline(Database db, DBResultSet dbRs, const char[] sError, any iClient)
 {
-	if(!dbRs || sError[0])
+	if (!dbRs || sError[0])
 	{
 		LogError("Error loading offline (%s)", sError);
 		return;
 	}
 
-	if(!(iClient = GetClientOfUserId(iClient)))
+	if (!(iClient = GetClientOfUserId(iClient)))
 		return;
 	
 	Menu Mmenu = new Menu(MenuHandler_OfflineList);
@@ -183,7 +183,7 @@ public void ShowTargetOffline(Database db, DBResultSet dbRs, const char[] sError
 			 sID[12],
 			 sTime[64];
 
-		while(dbRs.FetchRow())
+		while (dbRs.FetchRow())
 		{
 			dbRs.FetchString(0, sID, sizeof(sID));
 			dbRs.FetchString(1, sSteamID, sizeof(sSteamID));
@@ -216,7 +216,7 @@ public void ShowTargetOffline(Database db, DBResultSet dbRs, const char[] sError
 
 public int MenuHandler_OfflineList(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -259,13 +259,13 @@ void ShowTargetOnline(int iClient)
 			Mmenu.AddItem("-1", sTitle);
 		}
 
-		if(g_iGameTyp == GAMETYP_TF2)
+		if (g_iGameTyp == GAMETYP_TF2)
 			FormatEx(sTitle, sizeof(sTitle), "%T", "Blue", iClient);
 		else
 			FormatEx(sTitle, sizeof(sTitle), "%T", "CT", iClient);
 		Mmenu.AddItem("-2", sTitle);
 			
-		if(g_iGameTyp == GAMETYP_TF2)
+		if (g_iGameTyp == GAMETYP_TF2)
 			FormatEx(sTitle, sizeof(sTitle), "%T", "Red", iClient);
 		else
 			FormatEx(sTitle, sizeof(sTitle), "%T", "T", iClient);
@@ -304,7 +304,7 @@ void ShowTargetOnline(int iClient)
 	
 	if (!bIsClien)
 	{
-		if(g_iMassBan)
+		if (g_iMassBan)
 			Mmenu.RemoveAllItems();
 
 		FormatEx(sTitle, sizeof(sTitle), "%T", "no target", iClient);
@@ -322,7 +322,7 @@ void AdminMenuAddClients(Menu Mmenu, int iClient, int iTarget, int iMassBan)
 	int iUserId = GetClientUserId(iTarget);
 	IntToString(iUserId, sOption, sizeof(sOption));
 
-	if(iMassBan)
+	if (iMassBan)
 	{
 		if (g_aUserId[iClient] != null)
 		{
@@ -338,7 +338,7 @@ void AdminMenuAddClients(Menu Mmenu, int iClient, int iTarget, int iMassBan)
 	else
 		FormatEx(sBuffer, sizeof(sBuffer), "%N (%d)", iTarget, iUserId);
 	
-	switch(g_iTargetMuteType[iTarget])
+	switch (g_iTargetMuteType[iTarget])
 	{
 		case 0: 			FormatEx(sTitle, sizeof(sTitle), "[ ]%s", sBuffer);
 		case TYPEMUTE: 		FormatEx(sTitle, sizeof(sTitle), "[m]%s", sBuffer);
@@ -355,7 +355,7 @@ void AdminMenuAddClients(Menu Mmenu, int iClient, int iTarget, int iMassBan)
 
 public int MenuHandler_OnlineList(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -378,7 +378,7 @@ public int MenuHandler_OnlineList(Menu Mmenu, MenuAction mAction, int iClient, i
 				else
 					g_aUserId[iClient].Push(g_iTarget[iClient][TTYPE]);
 				
-				if(g_iMassBan)
+				if (g_iMassBan)
 					ShowTargetOnline(iClient);
 				else
 				{
@@ -417,7 +417,7 @@ void ShowTypeMenu(int iClient)
 
 public int MenuHandler_MenuType(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -427,7 +427,7 @@ public int MenuHandler_MenuType(Menu Mmenu, MenuAction mAction, int iClient, int
 		}
 		case MenuAction_Select:
 		{
-			switch(iSlot)
+			switch (iSlot)
 			{
 				case 0: 
 				{
@@ -441,7 +441,7 @@ public int MenuHandler_MenuType(Menu Mmenu, MenuAction mAction, int iClient, int
 				}
 				case 1: 
 				{
-					if(g_bOnileTarget[iClient])
+					if (g_bOnileTarget[iClient])
 						ShowTypeMuteMenu(iClient);
 					else
 						BdGetMuteType(iClient, 0);
@@ -472,7 +472,7 @@ void ShowTypeBanMenu(int iClient)
 
 public int MenuHandler_MenuTypeBan(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -482,7 +482,7 @@ public int MenuHandler_MenuTypeBan(Menu Mmenu, MenuAction mAction, int iClient, 
 		}
 		case MenuAction_Select:
 		{
-			switch(iSlot)
+			switch (iSlot)
 			{
 				case 0: g_iTargetType[iClient] = TYPE_BAN;
 				case 1: g_iTargetType[iClient] = TYPE_BANIP;
@@ -501,7 +501,7 @@ void ShowTypeMuteMenu(int iClient)
 	Menu Mmenu = new Menu(MenuHandler_MenuTypeMute);
 	Mmenu.SetTitle("%T:", "SetTitle", iClient);
 	
-	if(g_bOnileTarget[iClient])
+	if (g_bOnileTarget[iClient])
 	{
 		if (g_aUserId[iClient].Length == 1)
 		{
@@ -548,37 +548,37 @@ void MenuTypeAdd(int iClient, int iTarget, Menu Mmenu)
 		
 	FormatEx(sBuffer, sizeof(sBuffer), "%i %b", iTarget, bMut);
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Mute", iClient); // мут
-	if(!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] == TYPEGAG && !bMut || g_iTargetMuteType[iTarget] && bMut)
+	if (!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] == TYPEGAG && !bMut || g_iTargetMuteType[iTarget] && bMut)
 		Mmenu.AddItem(sBuffer, sTitle, GetItemDrawModeByPermission(iClient, MA_MUTE));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Gag", iClient); // чат
-	if(!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] == TYPEMUTE && !bMut || g_iTargetMuteType[iTarget] && bMut)
+	if (!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] == TYPEMUTE && !bMut || g_iTargetMuteType[iTarget] && bMut)
 		Mmenu.AddItem(sBuffer, sTitle, GetItemDrawModeByPermission(iClient, MA_GAG));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "Silence", iClient); // силенце
-	if(!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] && bMut)
+	if (!g_iTargetMuteType[iTarget] || g_iTargetMuteType[iTarget] && bMut)
 		Mmenu.AddItem(sBuffer, sTitle, GetItemDrawModeByPermission(iClient, MA_SILENCE));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "unMute", iClient); // ун мут
-	if(g_iTargetMuteType[iTarget] == TYPEMUTE && bMut || g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
+	if (g_iTargetMuteType[iTarget] == TYPEMUTE && bMut || g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
 		Mmenu.AddItem("", sTitle, GetItemDrawModeByPermission(iClient, MA_UNMUTE));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "unGag", iClient); // ун чат
-	if(g_iTargetMuteType[iTarget] == TYPEGAG && bMut || g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
+	if (g_iTargetMuteType[iTarget] == TYPEGAG && bMut || g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
 		Mmenu.AddItem("", sTitle, GetItemDrawModeByPermission(iClient, MA_UNGAG));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 	FormatEx(sTitle, sizeof(sTitle), "%T", "unSilence", iClient); // ун силенце
-	if(g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
+	if (g_iTargetMuteType[iTarget] == TYPESILENCE && bMut)
 		Mmenu.AddItem("", sTitle, GetItemDrawModeByPermission(iClient, MA_UNSILENCE));
 	else
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
@@ -586,7 +586,7 @@ void MenuTypeAdd(int iClient, int iTarget, Menu Mmenu)
 
 public int MenuHandler_MenuTypeMute(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -596,7 +596,7 @@ public int MenuHandler_MenuTypeMute(Menu Mmenu, MenuAction mAction, int iClient,
 		}
 		case MenuAction_Select:
 		{
-			switch(iSlot)
+			switch (iSlot)
 			{
 				case 0: g_iTargetType[iClient] = TYPE_MUTE;
 				case 1: g_iTargetType[iClient] = TYPE_GAG;
@@ -676,7 +676,7 @@ void ShowTimeMenu(int iClient)
 			LogToFile(g_sLogAction,"Menu Time: yes time %d", iTime);
 		#endif
 			IntToString(iTime, sValue, sizeof(sValue));
-			if(g_tMenuTime.GetString(sValue, sTitle, sizeof(sTitle)))
+			if (g_tMenuTime.GetString(sValue, sTitle, sizeof(sTitle)))
 			{
 			#if MADEBUG
 				LogToFile(g_sLogAction,"Menu Time: add time %s - %s", sValue, sTitle);
@@ -698,7 +698,7 @@ void ShowTimeMenu(int iClient)
 
 public int MenuHandler_MenuTime(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -723,7 +723,7 @@ public int MenuHandler_MenuTime(Menu Mmenu, MenuAction mAction, int iClient, int
 			LogToFile(g_sLogAction,"Menu select time: %s", sInfo);
 		#endif
 
-			if(g_iTargetType[iClient] <= TYPE_BANIP)
+			if (g_iTargetType[iClient] <= TYPE_BANIP)
 			{
 				g_bReportReason[iClient] = false;
 				ShowBanReasonMenu(iClient);
@@ -751,7 +751,7 @@ void ShowBanReasonMenu(int iClient)
 
 public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_Cancel:
 		{
@@ -767,12 +767,12 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 		{
 			char sInfo[256];
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
-			if(StrEqual("Hacking", sInfo))
+			if (StrEqual("Hacking", sInfo))
 			{
 				ShowHackingMenu(iClient);
 				return 0;
 			}
-			if(StrEqual("Own Reason", sInfo))
+			if (StrEqual("Own Reason", sInfo))
 			{
 				PrintToChat2(iClient, "%T", "Say reason", iClient);
 				if (g_bReportReason[iClient])
@@ -801,7 +801,7 @@ public int MenuHandler_MenuBReason(Menu Mmenu, MenuAction mAction, int iClient, 
 
 public int MenuHandler_MenuMReason(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_Cancel:
 		{
@@ -812,7 +812,7 @@ public int MenuHandler_MenuMReason(Menu Mmenu, MenuAction mAction, int iClient, 
 		{
 			char sInfo[256];
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
-			if(StrEqual("Own Reason", sInfo))
+			if (StrEqual("Own Reason", sInfo))
 			{
 				PrintToChat2(iClient, "%T", "Say reason", iClient);
 				g_bSayReason[iClient] = true;
@@ -837,7 +837,7 @@ void ShowHackingMenu(int iClient)
 
 public int MenuHandler_MenuHacking(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_Cancel:
 		{
@@ -912,7 +912,7 @@ void ShowTargetList(int iClient)
 
 public int MenuHandler_TargetList(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -955,7 +955,7 @@ void ShowListTipe(int iClient, char[] sOption)
 
 public int MenuHandler_ListTipe(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -1029,7 +1029,7 @@ void ShowInfoMuteMenu(int iClient, int iCreated, int iEnds, int iLength, char[] 
 
 public int MenuHandler_InfoMute(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -1055,7 +1055,7 @@ void ReportMenu(int iClient)
 	
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if(IsClientInGame(i) && !IsFakeClient(i) && i != iClient)
+		if (IsClientInGame(i) && !IsFakeClient(i) && i != iClient)
 		{
 			FormatEx(sTitle, sizeof(sTitle), "%N", i);
 			IntToString(GetClientUserId(i), sOptions, sizeof(sOptions));
@@ -1063,7 +1063,7 @@ void ReportMenu(int iClient)
 		}
 	}
 	
-	if(!Mmenu.ItemCount)
+	if (!Mmenu.ItemCount)
 	{
 		FormatEx(sTitle, sizeof(sTitle), "%T", "no target", iClient);
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
@@ -1074,7 +1074,7 @@ void ReportMenu(int iClient)
 
 public int MenuHandler_ReportMenu(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Select:
@@ -1133,7 +1133,7 @@ void ShowSettingAdmin(int iClient)
 
 public int MenuHandler_SettingAdminMenu(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -1143,7 +1143,7 @@ public int MenuHandler_SettingAdminMenu(Menu Mmenu, MenuAction mAction, int iCli
 		}
 		case MenuAction_Select:
 		{
-			switch(iSlot)
+			switch (iSlot)
 			{
 				case 0: MenuAddAdmin(iClient);
 				case 1: MenuDelAdmin(iClient);
@@ -1173,7 +1173,7 @@ void MenuAddAdmin(int iClient)
 		}
 	}
 	
-	if(!Mmenu.ItemCount)
+	if (!Mmenu.ItemCount)
 	{
 		FormatEx(sTitle, sizeof(sTitle), "%T", "no target", iClient);
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
@@ -1185,7 +1185,7 @@ void MenuAddAdmin(int iClient)
 
 public int MenuHandler_AddAdminMenu(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -1199,7 +1199,7 @@ public int MenuHandler_AddAdminMenu(Menu Mmenu, MenuAction mAction, int iClient,
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
 			
 			int iTarget	= GetClientOfUserId(StringToInt(sInfo));
-			if(iTarget && IsClientAuthorized(iTarget))
+			if (iTarget && IsClientAuthorized(iTarget))
 			{
 				GetClientName(iTarget, g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]));
 				GetClientAuthId(iTarget, TYPE_STEAM, g_sAddAdminInfo[iClient][ADDSTEAM], sizeof(g_sAddAdminInfo[][]));
@@ -1356,7 +1356,7 @@ void MenuAddAdninFlag(int iClient)
 
 public int MenuHandler_AddAdninFlagMenu(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -1409,7 +1409,7 @@ void MenuDelAdmin(int iClient)
 		}
 	}
 	
-	if(!Mmenu.ItemCount)
+	if (!Mmenu.ItemCount)
 	{
 		FormatEx(sTitle, sizeof(sTitle), "%T", "no target", iClient);
 		Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
@@ -1421,7 +1421,7 @@ void MenuDelAdmin(int iClient)
 
 public int MenuHandler_DelAdminMenu(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
@@ -1435,7 +1435,7 @@ public int MenuHandler_DelAdminMenu(Menu Mmenu, MenuAction mAction, int iClient,
 			Mmenu.GetItem(iSlot, sInfo, sizeof(sInfo));
 			
 			int iTarget	= GetClientOfUserId(StringToInt(sInfo));
-			if(iTarget && IsClientAuthorized(iTarget))
+			if (iTarget && IsClientAuthorized(iTarget))
 			{
 				GetClientName(iTarget, g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]));
 				GetClientAuthId(iTarget, TYPE_STEAM, g_sAddAdminInfo[iClient][ADDSTEAM], sizeof(g_sAddAdminInfo[][]));
@@ -1467,7 +1467,7 @@ void MenuDelAdminTyp(int iClient)
 
 public int MenuHandler_DelAdminTypMenu(Menu Mmenu, MenuAction mAction, int iClient, int iSlot) 
 {
-	switch(mAction)
+	switch (mAction)
 	{
 		case MenuAction_End: delete Mmenu;
 		case MenuAction_Cancel:
