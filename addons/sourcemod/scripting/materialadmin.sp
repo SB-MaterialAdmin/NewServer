@@ -21,26 +21,26 @@
 #define CS_TEAM_T 			2	// Terrorists.
 #define CS_TEAM_CT			3	// Counter-Terrorists.
 
-#define TYPE_STEAM 	AuthId_Steam2 // вид стим
+#define TYPE_STEAM AuthId_Steam2 // вид стим
 #define FORMAT_TIME NULL_STRING	// формат времени показывающий игроку при бане, NULL_STRING = sm_datetime_format
 #define SETTINGADMIN 		1	// функция управления админами.
 
-#define	BDCONNECT			0
-#define	BDCONNECT_ADMIN		1
-#define	BDCONNECT_COM		2
-#define	BDCONNECT_MENU		3
+#define BDCONNECT			0
+#define BDCONNECT_ADMIN		1
+#define BDCONNECT_COM		2
+#define BDCONNECT_MENU		3
 
-char g_sTarget[MAXPLAYERS+1][4][256];
+char g_sTarget[MAXPLAYERS + 1][4][256];
 #define TNAME 		0 	// Name
 #define TIP 		1	// ip
 #define TSTEAMID 	2 	// steam
 #define TREASON 	3 	// Reason
 
-int g_iTarget[MAXPLAYERS+1][2];
+int g_iTarget[MAXPLAYERS + 1][2];
 #define TTIME 	0	// time
 #define TTYPE 	1	// type selkt
 
-int g_iTargetType[MAXPLAYERS+1];
+int g_iTargetType[MAXPLAYERS + 1];
 #define TYPE_BAN		1
 #define TYPE_BANIP		2
 #define TYPE_ADDBAN		3
@@ -52,53 +52,59 @@ int g_iTargetType[MAXPLAYERS+1];
 #define TYPE_UNMUTE		9
 #define TYPE_UNSILENCE	10
 
-int g_iTargenMuteTime[MAXPLAYERS+1];
-char g_sTargetMuteReason[MAXPLAYERS+1][MAX_MUTE_REASON_LENGTH],
-	g_sTargetMuteSteamAdmin[MAXPLAYERS+1][MAX_STEAMID_LENGTH],
+int g_iTargenMuteTime[MAXPLAYERS + 1];
+
+char
+	g_sTargetMuteReason[MAXPLAYERS + 1][MAX_MUTE_REASON_LENGTH],
+	g_sTargetMuteSteamAdmin[MAXPLAYERS + 1][MAX_STEAMID_LENGTH],
 	g_sNameReples[2][MAX_NAME_LENGTH];
 
-int g_iTargetMuteType[MAXPLAYERS+1];
+int g_iTargetMuteType[MAXPLAYERS + 1];
 #define TYPEMUTE 		1	// мут
 #define TYPEGAG 		2  	// чат
 #define TYPESILENCE 	3	// мут и чат
 
 #if SETTINGADMIN
-char g_sAddAdminInfo[MAXPLAYERS+1][4][256];
-#define ADDNAME 	0	// ник
-#define ADDSTEAM 	1	// стим
-#define ADDFLAG 	3	// флаг
-int g_iAddAdmin[MAXPLAYERS+1][2];
-#define ADDTIME 	0	// время админки
-bool g_bAddAdminFlag[MAXPLAYERS+1][21];
-#define MFLAG_ROOT			0	// 	"z"  root
-#define MFLAG_GENERIC		1	// 	"b"	 Generic admin, required for admins
-#define MFLAG_RESERVATION	2	// 	"a"	 Reserved slots
-#define MFLAG_KICK			3	//	"c"	 Kick other players
-#define MFLAG_BAN			4	//	"d"	 Banning other players
-#define MFLAG_UNBAN			5	// 	"e"	 Removing bans
-#define MFLAG_SLAY			6	//	"f"	 Slaying other players
-#define MFLAG_CHANGEMAP		7	//	"g"	 Changing the map
-#define MFLAG_CONVARS		8	//	"h"	 Changing cvars
-#define MFLAG_CONFIG		9	//	"i"	 Changing configs
-#define MFLAG_CHAT			10	//	"j"	 Special chat privileges
-#define MFLAG_VOTE			11	//	"k"	 Voting
-#define MFLAG_PASSWORD		12	//	"l"	 Password the server
-#define MFLAG_RCON			13	//	"m"	 Remote console
-#define MFLAG_CHEATS		14	//	"n"	 Change sv_cheats and related commands
-#define MFLAG_CUSTOM1		15	//	"o"
-#define MFLAG_CUSTOM2		16	//	"p"
-#define MFLAG_CUSTOM3		17	//	"q"
-#define MFLAG_CUSTOM4		18	//	"r"
-#define MFLAG_CUSTOM5		19	//	"s"
-#define MFLAG_CUSTOM6		20	//	"t"
-char g_sAddAdminFlag[][] = {"z", "b", "a", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"};
-bool g_bAdminAdd[MAXPLAYERS+1][4];
-#define ADDIMUN 	1	// имун
-#define ADDPASS 	2	// пароль
-#define ADDMENU 	3 	// меню
+	char g_sAddAdminInfo[MAXPLAYERS + 1][4][256];
+	#define ADDNAME 	0	// ник
+	#define ADDSTEAM 	1	// стим
+	#define ADDFLAG 	3	// флаг
+
+	int g_iAddAdmin[MAXPLAYERS + 1][2];
+	#define ADDTIME 	0	// время админки
+
+	bool g_bAddAdminFlag[MAXPLAYERS + 1][21];
+	#define MFLAG_ROOT			0	// 	"z"  root
+	#define MFLAG_GENERIC		1	// 	"b"	 Generic admin, required for admins
+	#define MFLAG_RESERVATION	2	// 	"a"	 Reserved slots
+	#define MFLAG_KICK			3	//	"c"	 Kick other players
+	#define MFLAG_BAN			4	//	"d"	 Banning other players
+	#define MFLAG_UNBAN			5	// 	"e"	 Removing bans
+	#define MFLAG_SLAY			6	//	"f"	 Slaying other players
+	#define MFLAG_CHANGEMAP		7	//	"g"	 Changing the map
+	#define MFLAG_CONVARS		8	//	"h"	 Changing cvars
+	#define MFLAG_CONFIG		9	//	"i"	 Changing configs
+	#define MFLAG_CHAT			10	//	"j"	 Special chat privileges
+	#define MFLAG_VOTE			11	//	"k"	 Voting
+	#define MFLAG_PASSWORD		12	//	"l"	 Password the server
+	#define MFLAG_RCON			13	//	"m"	 Remote console
+	#define MFLAG_CHEATS		14	//	"n"	 Change sv_cheats and related commands
+	#define MFLAG_CUSTOM1		15	//	"o"
+	#define MFLAG_CUSTOM2		16	//	"p"
+	#define MFLAG_CUSTOM3		17	//	"q"
+	#define MFLAG_CUSTOM4		18	//	"r"
+	#define MFLAG_CUSTOM5		19	//	"s"
+	#define MFLAG_CUSTOM6		20	//	"t"
+	char g_sAddAdminFlag[][] = {"z", "b", "a", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"};
+
+	bool g_bAdminAdd[MAXPLAYERS + 1][4];
+	#define ADDIMUN 	1	// имун
+	#define ADDPASS 	2	// пароль
+	#define ADDMENU 	3 	// меню
 #endif
 
-int	g_iServerID = -1,
+int
+	g_iServerID = -1,
 	g_iOffMaxPlayers,
 	g_iShowAdminAction,
 	g_iServerBanTime,
@@ -109,16 +115,21 @@ int	g_iServerID = -1,
 	g_iIgnoreMuteServer,
 	g_iAdminUpdateCache,
 	g_iIgnoreFlagOfflineBan = ADMFLAG_BAN, // the default value
-	g_iTargetReport[MAXPLAYERS+1]; // репорт юзер
+	g_iTargetReport[MAXPLAYERS + 1]; // репорт юзер
 
-bool g_bServerIDVerified = false;
+bool
+	g_bServerIDVerified = false;
 
-Database g_dSQLite = null,
+Database
+	g_dSQLite = null,
 	g_dDatabase = null;
 
-ArrayList g_aUserId[MAXPLAYERS+1],
+ArrayList
+	g_aUserId[MAXPLAYERS + 1],
 	g_aTimeMenuSorting;
-StringMap g_tAdminsExpired,
+
+StringMap
+	g_tAdminsExpired,
 	g_tGroupBanTimeMax,
 	g_tGroupMuteTimeMax,
 	g_tAdminBanTimeMax,
@@ -127,22 +138,31 @@ StringMap g_tAdminsExpired,
 	g_tWebFlagUnBanMute,
 	g_tMenuTime;
 
-bool g_bCvar_Alltalk;
-int g_iCvar_ImmunityMode,
+bool
+	g_bCvar_Alltalk;
+
+int
+	g_iCvar_ImmunityMode,
 	g_iCvar_Deadtalk;
 
-Handle g_hTimerMute[MAXPLAYERS+1],
-	g_hTimerGag[MAXPLAYERS+1],
+Handle
+	g_hTimerMute[MAXPLAYERS + 1],
+	g_hTimerGag[MAXPLAYERS + 1],
 	g_hTimerBekap;
 
-float g_fRetryTime = 60.0;
+float
+	g_fRetryTime = 60.0;
 
-TopMenu g_tmAdminMenu;
-Menu g_mReasonBMenu,
+TopMenu
+	g_tmAdminMenu;
+
+Menu
+	g_mReasonBMenu,
 	g_mReasonMMenu,
 	g_mHackingMenu;
 
-char g_sServerIP[32],
+char
+	g_sServerIP[32],
 	g_sServerPort[8],
 	g_sOffFormatTime[56],
 	g_sOffMenuItems[128],
@@ -150,13 +170,15 @@ char g_sServerIP[32],
 	g_sWebsite[256],
 	g_sDatabasePrefix[10] = "sb";
 
-char g_sLogAdmin[256],
+char
+	g_sLogAdmin[256],
 	g_sLogConfig[256],
 	g_sLogDateBase[256],
 	g_sLogAction[256];
 
-bool g_bSayReason[MAXPLAYERS+1],
-	g_bSayReasonReport[MAXPLAYERS+1],
+bool
+	g_bSayReason[MAXPLAYERS + 1],
+	g_bSayReasonReport[MAXPLAYERS + 1],
 	g_bOffMapClear,
 	g_bAddBan,
 	g_bUnBan,
@@ -168,19 +190,23 @@ bool g_bSayReason[MAXPLAYERS+1],
 	g_bServerBanTyp,
 	g_bSourceSleuth,
 	g_bUnMuteUnBan,
-	g_bNewConnect[MAXPLAYERS+1],
-	g_bOnileTarget[MAXPLAYERS+1],
-	g_bReportReason[MAXPLAYERS+1],
-	g_bBanClientConnect[MAXPLAYERS+1];
+	g_bNewConnect[MAXPLAYERS + 1],
+	g_bOnileTarget[MAXPLAYERS + 1],
+	g_bReportReason[MAXPLAYERS + 1],
+	g_bBanClientConnect[MAXPLAYERS + 1];
 
 // Admin KeyValues
-char g_sGroupsLoc[128],
+char
+	g_sGroupsLoc[128],
 	g_sAdminsLoc[128],
 	g_sOverridesLoc[128];
 
-StringMap	g_hSettings;
+StringMap
+	g_hSettings;
 
-int g_iGameTyp;
+int
+	g_iGameTyp;
+
 #define GAMETYP_CCS 	1 //css
 #define GAMETYP_CCS34 	2 //css 34
 #define GAMETYP_TF2 	3 //tf2
@@ -188,7 +214,8 @@ int g_iGameTyp;
 #define GAMETYP_l4d 	5 //Left4Dead
 #define GAMETYP_l4d2 	6 //Left4Dead2
 
-bool	g_bUseDatabaseFix = true; // default value, if we don't have this parameter in configuration file.
+bool
+	g_bUseDatabaseFix = true; // default value, if we don't have this parameter in configuration file.
 
 #define BINARY__MA_GROUPS_HEADER	0x4E414752
 #define BINARY__MA_ADMINS_HEADER	0x4D414144
@@ -202,6 +229,16 @@ bool	g_bUseDatabaseFix = true; // default value, if we don't have this parameter
 #include "materialadmin/database.sp"
 #include "materialadmin/native.sp"
 
+#if defined GIT_COMMIT_ABBREVIATEDHASH
+	#if defined __TRAVIS
+		stock const char g_szCompilerHost[] = "Travis (CI)";
+	#else
+		stock const char g_szCompilerHost[] = "Unknown";
+	#endif
+
+	stock const char g_szStartDelimter[] = "------------------------------ [ Material Admin ] ------------------------------"; // by default, 80 symbols per line.
+#endif
+
 public Plugin myinfo =
 {
 	name = "Material Admin",
@@ -210,16 +247,6 @@ public Plugin myinfo =
 	version = MAVERSION,
 	url = "https://github.com/SB-MaterialAdmin/NewServer"
 };
-
-#if defined GIT_COMMIT_ABBREVIATEDHASH
-#if defined __TRAVIS
-stock const char	g_szCompilerHost[]	= "Travis (CI)";
-#else
-stock const char	g_szCompilerHost[]	= "Unknown";
-#endif
-
-stock const char	g_szStartDelimter[]	= "------------------------------ [ Material Admin ] ------------------------------"; // by default, 80 symbols per line.
-#endif
 
 public void OnPluginStart()
 {
@@ -235,34 +262,49 @@ public void OnPluginStart()
 	PrintToServer(g_szStartDelimter);
 #endif
 
-	switch (GetEngineVersion())
-	{
-		case Engine_CSS: 			g_iGameTyp = GAMETYP_CCS;
-		case Engine_SourceSDK2006: 	g_iGameTyp = GAMETYP_CCS34;
-		case Engine_CSGO: 			g_iGameTyp = GAMETYP_CSGO;
-		case Engine_TF2: 			g_iGameTyp = GAMETYP_TF2;
-		case Engine_Left4Dead: 		g_iGameTyp = GAMETYP_l4d;
-		case Engine_Left4Dead2: 	g_iGameTyp = GAMETYP_l4d2;
+	switch (GetEngineVersion()) {
+		case Engine_CSS: {
+			g_iGameTyp = GAMETYP_CCS;
+		}
+		case Engine_SourceSDK2006: {
+			g_iGameTyp = GAMETYP_CCS34;
+		}
+		case Engine_CSGO: {
+			g_iGameTyp = GAMETYP_CSGO;
+		}
+		case Engine_TF2: {
+			g_iGameTyp = GAMETYP_TF2;
+		}
+		case Engine_Left4Dead: {
+			g_iGameTyp = GAMETYP_l4d;
+		}
+		case Engine_Left4Dead2: {
+			g_iGameTyp = GAMETYP_l4d2;
+		}
 	}
 
 	RegComands();
 
 	char sPath[56];
 	BuildPath(Path_SM, sPath, sizeof(sPath), "data/materialadmin");
-	if (!DirExists(sPath))
+	if (!DirExists(sPath)) {
 		CreateDirectory(sPath, 511);
-	BuildPath(Path_SM, g_sGroupsLoc,sizeof(g_sGroupsLoc),"data/materialadmin/groups.bin");
-	BuildPath(Path_SM, g_sAdminsLoc,sizeof(g_sAdminsLoc),"data/materialadmin/admins.bin");
+	}
+
+	BuildPath(Path_SM, g_sGroupsLoc, sizeof(g_sGroupsLoc), "data/materialadmin/groups.bin");
+	BuildPath(Path_SM, g_sAdminsLoc, sizeof(g_sAdminsLoc), "data/materialadmin/admins.bin");
 	BuildPath(Path_SM, g_sOverridesLoc, sizeof(g_sOverridesLoc), "data/materialadmin/overrides.bin");
 
 	BuildPath(Path_SM, sPath, sizeof(sPath), "logs/materialadmin");
-	if (!DirExists(sPath))
+	if (!DirExists(sPath)) {
 		CreateDirectory(sPath, 511);
+	}
 
 	LogOn();
 
-	for (int i = 1; i <= MAXPLAYERS; i++)
+	for (int i = 1; i <= MAXPLAYERS; i++) {
 		g_aUserId[i] = new ArrayList(ByteCountToCells(12));
+	}
 
 	g_aTimeMenuSorting = new ArrayList(ByteCountToCells(12));
 	g_tAdminsExpired = new StringMap();
@@ -276,8 +318,9 @@ public void OnPluginStart()
 	g_hSettings = new StringMap();
 
 	TopMenu topmenu;
-	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
+	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null)) {
 		OnAdminMenuReady(topmenu);
+	}
 
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);
 	HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
@@ -291,101 +334,108 @@ public void OnPluginStart()
 	g_bReshashAdmin = true;
 }
 
-/*public void OnPluginEnd()
-{
-
-}*/
-
 public void OnConfigsExecuted()
 {
-	char sFileName[200],
-		sNewFileName[200];
+	char sFileName[200], sNewFileName[200];
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/basebans.smx");
-	if (FileExists(sFileName))
-	{
+
+	if (FileExists(sFileName)) {
 		BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/basebans.smx");
 		ServerCommand("sm plugins unload basebans");
-		if (FileExists(sNewFileName))
+
+		if (FileExists(sNewFileName)) {
 			DeleteFile(sNewFileName);
+		}
+
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/basebans.smx was unloaded and moved to plugins/disabled/basebans.smx");
 	}
 
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/basecomm.smx");
-	if (FileExists(sFileName))
-	{
+	if (FileExists(sFileName)) {
 		BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/basecomm.smx");
 		ServerCommand("sm plugins unload basecomm");
-		if (FileExists(sNewFileName))
+
+		if (FileExists(sNewFileName)) {
 			DeleteFile(sNewFileName);
+		}
+
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/basecomm.smx was unloaded and moved to plugins/disabled/basecomm.smx");
 	}
 
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/ma_adminmenu.smx");
-	if (FileExists(sFileName))
-	{
+	if (FileExists(sFileName)) {
 		BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/adminmenu.smx");
-		if (FileExists(sFileName))
-		{
+		if (FileExists(sFileName)) {
 			BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/adminmenu.smx");
 			ServerCommand("sm plugins unload adminmenu");
-			if (FileExists(sNewFileName))
+
+			if (FileExists(sNewFileName)) {
 				DeleteFile(sNewFileName);
+			}
+
 			RenameFile(sNewFileName, sFileName);
 			LogToFile(g_sLogAction, "plugins/adminmenu.smx was unloaded and moved to plugins/disabled/adminmenu.smx");
 		}
 	}
 
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/sourcecomms.smx");
-	if (FileExists(sFileName))
-	{
+	if (FileExists(sFileName)) {
 		BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/sourcecomms.smx");
 		ServerCommand("sm plugins unload sourcecomms");
-		if (FileExists(sNewFileName))
+
+		if (FileExists(sNewFileName)) {
 			DeleteFile(sNewFileName);
+		}
+
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/sourcecomms.smx was unloaded and moved to plugins/disabled/sourcecomms.smx");
 	}
 
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/sourcebans.smx");
-	if (FileExists(sFileName))
-	{
+	if (FileExists(sFileName)) {
 		BuildPath(Path_SM, sNewFileName, sizeof(sNewFileName), "plugins/disabled/sourcebans.smx");
 		ServerCommand("sm plugins unload sourcebans");
-		if (FileExists(sNewFileName))
+
+		if (FileExists(sNewFileName)) {
 			DeleteFile(sNewFileName);
+		}
+
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/sourcebans.smx was unloaded and moved to plugins/disabled/sourcebans.smx");
 	}
 
-	if (g_bLalod)
-	{
+	if (g_bLalod) {
 		LogOn();
 		ReadConfig();
-		if (g_iAdminUpdateCache && g_dDatabase != null)
+
+		if (g_iAdminUpdateCache && g_dDatabase != null) {
 			AdminHash();
-		/*if (g_iAdminUpdateCache)
+		}
+
+		/*if (g_iAdminUpdateCache) {
 			ConnectBd(BDCONNECT_ADMIN, 0);
-		else
-			ConnectBd(BDCONNECT, 0);*/
-	}
-	else
-	{
+		} else {
+			ConnectBd(BDCONNECT, 0);
+		}*/
+	} else {
 		FireOnConfigSetting();
 		g_bLalod = true;
 	}
 
-	if (g_bOffMapClear)
+	if (g_bOffMapClear) {
 		ClearHistories();
+	}
 
 	CheckBekapTime();
 }
 
 public void OnClientAuthorized(int iClient, const char[] sSteamID)
 {
-	if (sSteamID[0] == 'B' || sSteamID[9] == 'L' || g_bNewConnect[iClient] || g_iGameTyp != GAMETYP_CSGO)
+	if (sSteamID[0] == 'B' || sSteamID[9] == 'L' || g_bNewConnect[iClient] || g_iGameTyp != GAMETYP_CSGO) {
 		return;
+	}
 
 	CheckClientBan(iClient);
 }
@@ -393,41 +443,38 @@ public void OnClientAuthorized(int iClient, const char[] sSteamID)
 public Action OnClientPreAdminCheck(int iClient)
 {
 #if MADEBUG
-	LogToFile(g_sLogAdmin, "OnClientPreAdminCheck(): %L (in admincache updating cycle? %s)", iClient, g_bReshashAdmin ? "Yes" : "No");
+	LogToFile(g_sLogAdmin, "OnClientPreAdminCheck(): %L (in admincache updating cycle? %s)", iClient, (g_bReshashAdmin) ? "Yes" : "No");
 #endif
 
-	return g_bReshashAdmin ?
-		Plugin_Handled :
-		Plugin_Continue;
+	return (g_bReshashAdmin) ? Plugin_Handled : Plugin_Continue;
 }
 
 public void OnClientPostAdminCheck(int iClient)
 {
 #if MADEBUG
-	LogToFile(g_sLogAdmin, "OnClientPostAdminCheck(): %L (in admincache updating cycle? %s)", iClient, g_bReshashAdmin ? "Yes" : "No");
+	LogToFile(g_sLogAdmin, "OnClientPostAdminCheck(): %L (in admincache updating cycle? %s)", iClient, (g_bReshashAdmin) ? "Yes" : "No");
 #endif
 
-	if (!IsClientInGame(iClient) || IsFakeClient(iClient))
+	if (!IsClientInGame(iClient) || IsFakeClient(iClient)) {
 		return;
+	}
 
-	if (!g_bNewConnect[iClient])
-	{
-		if (g_iGameTyp != GAMETYP_CSGO)
-		{
-			if (g_dDatabase != null)
+	if (!g_bNewConnect[iClient]) {
+		if (g_iGameTyp != GAMETYP_CSGO) {
+			if (g_dDatabase != null) {
 				CheckClientBan(iClient);
-			else
-			{
+			} else {
 				char sSteamID[MAX_STEAMID_LENGTH];
 				GetClientAuthId(iClient, TYPE_STEAM, sSteamID, sizeof(sSteamID));
 				CheckClientAdmin(iClient, sSteamID);
 			}
 		}
+
+		return;
 	}
-	else
-	{
-		if (g_iTargetMuteType[iClient] == TYPEMUTE || g_iTargetMuteType[iClient] == TYPESILENCE)
-			FunMute(iClient);
+
+	if (g_iTargetMuteType[iClient] == TYPEMUTE || g_iTargetMuteType[iClient] == TYPESILENCE) {
+		FunMute(iClient);
 	}
 }
 
@@ -435,8 +482,7 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 {
 	int iClient = GetClientOfUserId(eEvent.GetInt("userid"));
 
-	if (!iClient || IsFakeClient(iClient) || g_bBanClientConnect[iClient])
-	{
+	if (!iClient || IsFakeClient(iClient) || g_bBanClientConnect[iClient]) {
 		eEvent.BroadcastDisabled = true;
 		return;
 	}
@@ -444,6 +490,7 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 #if SETTINGADMIN
 	ResetFlagAddAdmin(iClient);
 #endif
+
 	g_bNewConnect[iClient] = false;
 	g_bSayReason[iClient] = false;
 	g_bSayReasonReport[iClient] = false;
@@ -456,27 +503,25 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	KillTimerGag(iClient);
 
 	char sSteamID[MAX_STEAMID_LENGTH];
-	if (!GetSteamAuthorized(iClient, sSteamID))
+	if (!GetSteamAuthorized(iClient, sSteamID)) {
 		return;
+	}
 
-	if (g_iIgnoreFlagOfflineBan && !((GetUserFlagBits(iClient) & g_iIgnoreFlagOfflineBan) == g_iIgnoreFlagOfflineBan))
-	{
-		char sName[MAX_NAME_LENGTH],
-		sIP[MAX_IP_LENGTH];
+	if (g_iIgnoreFlagOfflineBan && !((GetUserFlagBits(iClient) & g_iIgnoreFlagOfflineBan) == g_iIgnoreFlagOfflineBan)) {
+		char sName[MAX_NAME_LENGTH], sIP[MAX_IP_LENGTH];
 
 		GetClientName(iClient, sName, sizeof(sName));
 		GetClientIP(iClient, sIP, sizeof(sIP));
 		SetOflineInfo(sSteamID, sName, sIP);
 
-	#if MADEBUG
-		char sTime[64];
-		FormatTime(sTime, sizeof(sTime), g_sOffFormatTime, GetTime());
-		LogToFile(g_sLogAction, "New: %s %s - %s ; %s.", sName, sSteamID, sIP, sTime);
-	#endif
-	}
-	/*else
-	{
-		if (ChekBD(g_dDatabase, "BDSetActivityAdmin"))
+		#if MADEBUG
+			char sTime[64];
+			FormatTime(sTime, sizeof(sTime), g_sOffFormatTime, GetTime());
+			LogToFile(g_sLogAction, "New: %s %s - %s ; %s.", sName, sSteamID, sIP, sTime);
+		#endif
+	} /*else {
+		if (ChekBD(g_dDatabase, "BDSetActivityAdmin")) {
 			BDSetActivityAdmin(iClient, sSteamID);
+		}
 	}*/
 }
