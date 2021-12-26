@@ -11,7 +11,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MAGetConfigSetting", Native_GetConfigSetting);
 	CreateNative("MAGetDatabase", Native_GetDatabase);
 	CreateNative("MALog", Native_Log);
-	
+
 	return APLRes_Success;
 }
 
@@ -24,12 +24,12 @@ public int Native_Log(Handle plugin, int numParams)
 {
 	char sBufer[256];
 	int iType = GetNativeCell(1);
-	
+
 	if (iType < 0 || iType > 3)
 		return ThrowNativeError(SP_ERROR_NATIVE, "Log Error: Invalid Type.");
-	
+
 	FormatNativeString(0, 2, 3, sizeof(sBufer), _, sBufer);
-	
+
 	switch (iType)
 	{
 		case MA_LogAdmin: 		LogToFile(g_sLogAdmin, sBufer);
@@ -37,7 +37,7 @@ public int Native_Log(Handle plugin, int numParams)
 		case MA_LogDateBase: 	LogToFile(g_sLogDateBase, sBufer);
 		case MA_LogAction: 		LogToFile(g_sLogAction, sBufer);
 	}
-	
+
 	return true;
 }
 
@@ -53,9 +53,9 @@ public int Native_GetConfigSetting(Handle plugin, int numParams)
 		 sValue[512];
 	GetNativeString(1, sSetting, sizeof(sSetting));
 
-	if (StrEqual("DatabasePrefix", sSetting, false)) 
+	if (StrEqual("DatabasePrefix", sSetting, false))
 		strcopy(sValue, sizeof(sValue), g_sDatabasePrefix);
-	else if (StrEqual("Website", sSetting, false)) 
+	else if (StrEqual("Website", sSetting, false))
 		strcopy(sValue, sizeof(sValue), g_sWebsite);
 	else if (StrEqual("OffTimeFormat", sSetting, false))
 		strcopy(sValue, sizeof(sValue), g_sOffFormatTime);
@@ -164,24 +164,24 @@ public int Native_OffBan(Handle plugin, int numParams)
 	GetNativeString(5, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
 	g_iTarget[iClient][TTIME] = GetNativeCell(6);
 	GetNativeString(7, g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]));
-	
+
 	if (iType < 3 && iType > 0)
 		g_iTargetType[iClient] = iType;
 	else
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Invalid Type.");
-	
+
 	if (iClient && IsClientInGame(iClient))
 	{
 		if (GetUserAdmin(iClient) == INVALID_ADMIN_ID)
 			return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player is not an admin.");
-		
+
 		if (!CheckAdminFlags(iClient, ADMFLAG_BAN))
 			return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player does not have BAN flag.");
 	}
-	
+
 	if (!ValidSteam(g_sTarget[iClient][TSTEAMID]))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: invalid steam.");
-	
+
 	g_bOnileTarget[iClient] = false;
 	CheckBanInBd(iClient, 0, 1, g_sTarget[iClient][TSTEAMID]);
 	return true;
@@ -194,23 +194,23 @@ public int Native_BanPlayer(Handle plugin, int numParams)
 	int iType = GetNativeCell(3);
 	g_iTarget[iClient][TTIME] = GetNativeCell(4);
 	GetNativeString(5, g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]));
-	
+
 	if (iType < 3 && iType > 0)
 		g_iTargetType[iClient] = iType;
 	else
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Invalid Type.");
-	
+
 	if (iClient && IsClientInGame(iClient))
 	{
 		if (GetUserAdmin(iClient) == INVALID_ADMIN_ID)
 			return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player is not an admin.");
-		
+
 		if (!CheckAdminFlags(iClient, ADMFLAG_BAN))
 			return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player does not have BAN flag.");
 	}
 	if (!iTarget || !IsClientInGame(iTarget) || IsFakeClient(iTarget))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player no game.");
-	
+
 	if (!GetSteamAuthorized(iTarget, g_sTarget[iClient][TSTEAMID]))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: Player no Steam Authorized.");
 	GetClientIP(iTarget, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
@@ -220,7 +220,7 @@ public int Native_BanPlayer(Handle plugin, int numParams)
 	if (iType == MA_BAN_STEAM)
 		CheckBanInBd(iClient, iTarget, 1, g_sTarget[iClient][TSTEAMID]);
 	else
-		CheckBanInBd(iClient, iTarget, 1, g_sTarget[iClient][TIP]);	
+		CheckBanInBd(iClient, iTarget, 1, g_sTarget[iClient][TIP]);
 
 	return true;
 }
@@ -231,22 +231,22 @@ public int Native_UnBanPlayer(Handle plugin, int numParams)
 	char sId[MAX_IP_LENGTH];
 	GetNativeString(2, sId, sizeof(sId));
 	GetNativeString(3, g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]));
-	
+
 	if (iClient && IsClientInGame(iClient))
 	{
 		if (GetUserAdmin(iClient) == INVALID_ADMIN_ID)
 			return ThrowNativeError(SP_ERROR_NATIVE, "UnBan Error: Player is not an admin.");
-		
+
 		if (!CheckAdminFlags(iClient, ADMFLAG_UNBAN))
 			return ThrowNativeError(SP_ERROR_NATIVE, "UnBan Error: Player does not have UNBAN flag.");
 	}
-	
+
 	if (!ValidSteam(sId))
 	{
 		if (SimpleRegexMatch(g_sTarget[iClient][TIP], "\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}?") < 1)
 			return ThrowNativeError(SP_ERROR_NATIVE, "Ban Error: invalid id.");
 	}
-	
+
 	g_iTargetType[iClient] = TYPE_UNBAN;
 	g_bOnileTarget[iClient] = false;
 	CheckBanInBd(iClient, 0, 0, sId);
@@ -266,23 +266,23 @@ public int Native_SetClientMuteType(Handle plugin, int numParams)
 	GetNativeString(3, g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]));
 	int iType = GetNativeCell(4);
 	g_iTarget[iClient][TTIME] = GetNativeCell(5);
-	
+
 	if (iType > 4 && iType < 11)
 		g_iTargetType[iClient] = iType;
 	else
 		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Invalid Type.");
-	
+
 	if (iClient && IsClientInGame(iClient))
 	{
 		if (GetUserAdmin(iClient) == INVALID_ADMIN_ID)
 			return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Player is not an admin.");
-		
+
 		if (!CheckAdminFlags(iClient, ADMFLAG_CHAT))
 			return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Player does not have CHAT flag.");
 	}
 	if (!iTarget || !IsClientInGame(iTarget) || IsFakeClient(iTarget))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Player no game.");
-	
+
 	g_bOnileTarget[iClient] = true;
 	DoCreateDB(iClient, iTarget);
 	return true;
@@ -297,27 +297,27 @@ public int Native_OffSetClientMuteType(Handle plugin, int numParams)
 	GetNativeString(5, g_sTarget[iClient][TREASON], sizeof(g_sTarget[][]));
 	int iType = GetNativeCell(6);
 	g_iTarget[iClient][TTIME] = GetNativeCell(7);
-	
+
 	if (iType > 4 && iType < 11)
 		g_iTargetType[iClient] = iType;
 	else
 		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Invalid Type.");
-	
+
 	if (iClient && IsClientInGame(iClient))
 	{
 		if (GetUserAdmin(iClient) == INVALID_ADMIN_ID)
 			return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Player is not an admin.");
-		
+
 		if (!CheckAdminFlags(iClient, ADMFLAG_CHAT))
 			return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: Player does not have CHAT flag.");
 	}
-	
+
 	if (!ValidSteam(g_sTarget[iClient][TSTEAMID]))
 		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: invalid steam.");
-	
+
 	if (SimpleRegexMatch(g_sTarget[iClient][TIP], "\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}?") < 1)
 		return ThrowNativeError(SP_ERROR_NATIVE, "Mute Error: invalid ip.");
-	
+
 	g_bOnileTarget[iClient] = false;
 	DoCreateDB(iClient, 0);
 	return true;
@@ -332,10 +332,10 @@ public int Native_GetClientMuteType(Handle plugin, int numParams)
 void FireOnClientConnectGetMute(int iClient, int iType, int iTime, const char[] sReason)
 {
  	static Handle hForward;
-	
+
 	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientConnectGetMute", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_String);
-	
+
 	Call_StartForward(hForward);
 	Call_PushCell(iClient);
 	Call_PushCell(iType);
@@ -347,10 +347,10 @@ void FireOnClientConnectGetMute(int iClient, int iType, int iTime, const char[] 
 void FireOnClientMuted(int iClient, int iTarget, const char[] sIp, const char[] sSteamID, const char[] sName, int iType, int iTime, const char[] sReason)
 {
  	static Handle hForward;
-	
+
 	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientMuted", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_Cell, Param_String);
-	
+
 	Call_StartForward(hForward);
 	Call_PushCell(iClient);
 	Call_PushCell(iTarget);
@@ -361,7 +361,7 @@ void FireOnClientMuted(int iClient, int iTarget, const char[] sIp, const char[] 
 	Call_PushCell(iTime);
 	Call_PushString(sReason);
 	Call_Finish();
-	
+
 	if (LibraryExists("basecomm"))
 	{
 		if (iTarget)
@@ -383,10 +383,10 @@ void FireOnClientMuted(int iClient, int iTarget, const char[] sIp, const char[] 
 void FireOnClientUnMuted(int iClient, int iTarget, const char[] sIp, const char[] sSteamID, const char[] sName, int iType, const char[] sReason)
 {
  	static Handle hForward;
-	
+
 	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientUnMuted", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_String);
-	
+
 	Call_StartForward(hForward);
 	Call_PushCell(iClient);
 	Call_PushCell(iTarget);
@@ -396,7 +396,7 @@ void FireOnClientUnMuted(int iClient, int iTarget, const char[] sIp, const char[
 	Call_PushCell(iType);
 	Call_PushString(sReason);
 	Call_Finish();
-	
+
 	if (LibraryExists("basecomm"))
 	{
 		if (iTarget)
@@ -418,10 +418,10 @@ void FireOnClientUnMuted(int iClient, int iTarget, const char[] sIp, const char[
 void FireOnClientBanned(int iClient, int iTarget, const char[] sIp, const char[] sSteamID, const char[] sName, int iTime, const char[] sReason)
 {
  	static Handle hForward;
-	
+
 	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientBanned", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_String, Param_String, Param_Cell, Param_String);
-	
+
 	Call_StartForward(hForward);
 	Call_PushCell(iClient);
 	Call_PushCell(iTarget);
@@ -436,10 +436,10 @@ void FireOnClientBanned(int iClient, int iTarget, const char[] sIp, const char[]
 void FireOnClientAddBanned(int iClient, const char[] sIp, const char[] sSteamID, int iTime, const char[] sReason)
 {
  	static Handle hForward;
-	
+
 	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientAddBanned", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell, Param_String);
-	
+
 	Call_StartForward(hForward);
 	Call_PushCell(iClient);
 	Call_PushString(sIp);
@@ -452,10 +452,10 @@ void FireOnClientAddBanned(int iClient, const char[] sIp, const char[] sSteamID,
 void FireOnClientUnBanned(int iClient, const char[] sIp, const char[] sSteamID, const char[] sReason)
 {
  	static Handle hForward;
-	
+
 	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientUnBanned", ET_Ignore, Param_Cell, Param_String, Param_String, Param_String);
-	
+
 	Call_StartForward(hForward);
 	Call_PushCell(iClient);
 	Call_PushString(sIp);
@@ -467,10 +467,10 @@ void FireOnClientUnBanned(int iClient, const char[] sIp, const char[] sSteamID, 
 void FireOnConnectDatabase(Database db)
 {
  	static Handle hForward;
-	
+
 	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnConnectDatabase", ET_Ignore, Param_Cell);
-	
+
 	Call_StartForward(hForward);
 	Call_PushCell(db);
 	Call_Finish();
@@ -495,10 +495,10 @@ void FireOnConfigSetting()
 void FireOnFindLoadingAdmin(AdminCachePart acPart)
 {
  	static Handle hForward;
-	
+
 	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnFindLoadingAdmin", ET_Ignore, Param_Cell);
-	
+
 	Call_StartForward(hForward);
 	Call_PushCell(acPart);
 	Call_Finish();
@@ -507,16 +507,16 @@ void FireOnFindLoadingAdmin(AdminCachePart acPart)
 Action FireOnClientConnectBan(int iClient)
 {
 	Action aResult = Plugin_Continue;
-	
+
 	static Handle hForward;
-	
+
 	if (hForward == null)
 		hForward = CreateGlobalForward("MAOnClientConnectBan", ET_Ignore, Param_Cell);
-	
+
 	Call_StartForward(hForward);
 	Call_PushCell(iClient);
 	Call_Finish(aResult);
-	
+
 	return aResult;
 }
 

@@ -16,7 +16,7 @@
 #define MAX_IP_LENGTH 		64
 #define MAX_MUTE_REASON_LENGTH 256
 
-#define CS_TEAM_NONE		0	// No team yet. 
+#define CS_TEAM_NONE		0	// No team yet.
 #define CS_TEAM_SPECTATOR	1	// Spectators.
 #define CS_TEAM_T 			2	// Terrorists.
 #define CS_TEAM_CT			3	// Counter-Terrorists.
@@ -115,7 +115,7 @@ bool g_bServerIDVerified = false;
 
 Database g_dSQLite = null,
 	g_dDatabase = null;
-	
+
 ArrayList g_aUserId[MAXPLAYERS+1],
 	g_aTimeMenuSorting;
 StringMap g_tAdminsExpired,
@@ -130,11 +130,11 @@ StringMap g_tAdminsExpired,
 bool g_bCvar_Alltalk;
 int g_iCvar_ImmunityMode,
 	g_iCvar_Deadtalk;
-	
+
 Handle g_hTimerMute[MAXPLAYERS+1],
 	g_hTimerGag[MAXPLAYERS+1],
 	g_hTimerBekap;
-	
+
 float g_fRetryTime = 60.0;
 
 TopMenu g_tmAdminMenu;
@@ -142,19 +142,19 @@ Menu g_mReasonBMenu,
 	g_mReasonMMenu,
 	g_mHackingMenu;
 
-char g_sServerIP[32], 
+char g_sServerIP[32],
 	g_sServerPort[8],
 	g_sOffFormatTime[56],
 	g_sOffMenuItems[128],
 	g_sBanFlagPermanent[12],
 	g_sWebsite[256],
 	g_sDatabasePrefix[10] = "sb";
-	
+
 char g_sLogAdmin[256],
 	g_sLogConfig[256],
 	g_sLogDateBase[256],
 	g_sLogAction[256];
-	
+
 bool g_bSayReason[MAXPLAYERS+1],
 	g_bSayReasonReport[MAXPLAYERS+1],
 	g_bOffMapClear,
@@ -172,12 +172,12 @@ bool g_bSayReason[MAXPLAYERS+1],
 	g_bOnileTarget[MAXPLAYERS+1],
 	g_bReportReason[MAXPLAYERS+1],
 	g_bBanClientConnect[MAXPLAYERS+1];
-	
+
 // Admin KeyValues
 char g_sGroupsLoc[128],
 	g_sAdminsLoc[128],
 	g_sOverridesLoc[128];
-	
+
 StringMap	g_hSettings;
 
 int g_iGameTyp;
@@ -202,7 +202,7 @@ bool	g_bUseDatabaseFix = true; // default value, if we don't have this parameter
 #include "materialadmin/database.sp"
 #include "materialadmin/native.sp"
 
-public Plugin myinfo = 
+public Plugin myinfo =
 {
 	name = "Material Admin",
 	author = "Material Admin Dev Team",
@@ -221,7 +221,7 @@ stock const char	g_szCompilerHost[]	= "Unknown";
 stock const char	g_szStartDelimter[]	= "------------------------------ [ Material Admin ] ------------------------------"; // by default, 80 symbols per line.
 #endif
 
-public void OnPluginStart() 
+public void OnPluginStart()
 {
 	LoadTranslations("materialadmin.phrases");
 	LoadTranslations("common.phrases");
@@ -254,13 +254,13 @@ public void OnPluginStart()
 	BuildPath(Path_SM, g_sGroupsLoc,sizeof(g_sGroupsLoc),"data/materialadmin/groups.bin");
 	BuildPath(Path_SM, g_sAdminsLoc,sizeof(g_sAdminsLoc),"data/materialadmin/admins.bin");
 	BuildPath(Path_SM, g_sOverridesLoc, sizeof(g_sOverridesLoc), "data/materialadmin/overrides.bin");
-	
+
 	BuildPath(Path_SM, sPath, sizeof(sPath), "logs/materialadmin");
 	if (!DirExists(sPath))
 		CreateDirectory(sPath, 511);
 
 	LogOn();
-	
+
 	for (int i = 1; i <= MAXPLAYERS; i++)
 		g_aUserId[i] = new ArrayList(ByteCountToCells(12));
 
@@ -274,11 +274,11 @@ public void OnPluginStart()
 	g_tWebFlagUnBanMute = new StringMap();
 	g_tMenuTime = new StringMap();
 	g_hSettings = new StringMap();
-	
+
 	TopMenu topmenu;
 	if (LibraryExists("adminmenu") && ((topmenu = GetAdminTopMenu()) != null))
 		OnAdminMenuReady(topmenu);
-	
+
 	HookEvent("player_disconnect", Event_PlayerDisconnect, EventHookMode_Pre);
 	HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Post);
 	HookEvent("player_death", Event_PlayerDeath, EventHookMode_Post);
@@ -293,7 +293,7 @@ public void OnPluginStart()
 
 /*public void OnPluginEnd()
 {
-	
+
 }*/
 
 public void OnConfigsExecuted()
@@ -310,7 +310,7 @@ public void OnConfigsExecuted()
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/basebans.smx was unloaded and moved to plugins/disabled/basebans.smx");
 	}
-	
+
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/basecomm.smx");
 	if (FileExists(sFileName))
 	{
@@ -321,7 +321,7 @@ public void OnConfigsExecuted()
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/basecomm.smx was unloaded and moved to plugins/disabled/basecomm.smx");
 	}
-	
+
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/ma_adminmenu.smx");
 	if (FileExists(sFileName))
 	{
@@ -336,7 +336,7 @@ public void OnConfigsExecuted()
 			LogToFile(g_sLogAction, "plugins/adminmenu.smx was unloaded and moved to plugins/disabled/adminmenu.smx");
 		}
 	}
-	
+
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/sourcecomms.smx");
 	if (FileExists(sFileName))
 	{
@@ -347,7 +347,7 @@ public void OnConfigsExecuted()
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/sourcecomms.smx was unloaded and moved to plugins/disabled/sourcecomms.smx");
 	}
-	
+
 	BuildPath(Path_SM, sFileName, sizeof(sFileName), "plugins/sourcebans.smx");
 	if (FileExists(sFileName))
 	{
@@ -358,7 +358,7 @@ public void OnConfigsExecuted()
 		RenameFile(sNewFileName, sFileName);
 		LogToFile(g_sLogAction, "plugins/sourcebans.smx was unloaded and moved to plugins/disabled/sourcebans.smx");
 	}
-	
+
 	if (g_bLalod)
 	{
 		LogOn();
@@ -375,16 +375,16 @@ public void OnConfigsExecuted()
 		FireOnConfigSetting();
 		g_bLalod = true;
 	}
-	
-	if (g_bOffMapClear) 
+
+	if (g_bOffMapClear)
 		ClearHistories();
-	
+
 	CheckBekapTime();
 }
 
 public void OnClientAuthorized(int iClient, const char[] sSteamID)
 {
-	if (sSteamID[0] == 'B' || sSteamID[9] == 'L' || g_bNewConnect[iClient] || g_iGameTyp != GAMETYP_CSGO) 
+	if (sSteamID[0] == 'B' || sSteamID[9] == 'L' || g_bNewConnect[iClient] || g_iGameTyp != GAMETYP_CSGO)
 		return;
 
 	CheckClientBan(iClient);
@@ -407,7 +407,7 @@ public void OnClientPostAdminCheck(int iClient)
 	LogToFile(g_sLogAdmin, "OnClientPostAdminCheck(): %L (in admincache updating cycle? %s)", iClient, g_bReshashAdmin ? "Yes" : "No");
 #endif
 
-	if (!IsClientInGame(iClient) || IsFakeClient(iClient)) 
+	if (!IsClientInGame(iClient) || IsFakeClient(iClient))
 		return;
 
 	if (!g_bNewConnect[iClient])
@@ -425,7 +425,7 @@ public void OnClientPostAdminCheck(int iClient)
 		}
 	}
 	else
-	{	
+	{
 		if (g_iTargetMuteType[iClient] == TYPEMUTE || g_iTargetMuteType[iClient] == TYPESILENCE)
 			FunMute(iClient);
 	}
@@ -435,7 +435,7 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 {
 	int iClient = GetClientOfUserId(eEvent.GetInt("userid"));
 
-	if (!iClient || IsFakeClient(iClient) || g_bBanClientConnect[iClient]) 
+	if (!iClient || IsFakeClient(iClient) || g_bBanClientConnect[iClient])
 	{
 		eEvent.BroadcastDisabled = true;
 		return;
@@ -454,11 +454,11 @@ public void Event_PlayerDisconnect(Event eEvent, const char[] sEName, bool bDont
 	g_iTargenMuteTime[iClient] = 0;
 	KillTimerMute(iClient);
 	KillTimerGag(iClient);
-	
+
 	char sSteamID[MAX_STEAMID_LENGTH];
 	if (!GetSteamAuthorized(iClient, sSteamID))
 		return;
-	
+
 	if (g_iIgnoreFlagOfflineBan && !((GetUserFlagBits(iClient) & g_iIgnoreFlagOfflineBan) == g_iIgnoreFlagOfflineBan))
 	{
 		char sName[MAX_NAME_LENGTH],

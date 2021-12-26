@@ -15,9 +15,9 @@ void RegComands()
 	RegAdminCmd("sm_ungag", 		CommandUnGag, 		ADMFLAG_CHAT, 	"Un gag client");
 	RegAdminCmd("sm_unmute", 		CommandUnMute, 		ADMFLAG_CHAT, 	"Un mute client");
 	RegAdminCmd("sm_unsilence", 	CommandUnSil, 		ADMFLAG_CHAT, 	"Un silence client");
-	
+
 	AddCommandListener(LCommandRehashAdm, "sm_reloadadmins");
-	
+
 	// добавлене и удаление админа
 #if SETTINGADMIN
 	RegAdminCmd("ma_addadmin", 		CommandAddAdmin, 	ADMFLAG_ROOT, 	"Add admin");
@@ -29,14 +29,14 @@ void RegComands()
 	RegServerCmd("ma_wb_mute", CommandWMute, "Mute player by command from web site");
 	RegServerCmd("ma_wb_unmute", CommandWUnMute, "Un mute player by command from web site");
 	RegServerCmd("ma_wb_rehashadm", CommandWRehashAdm, "Reload SQL admins");
-	
+
 	ConVar Cvar;
 	Cvar = FindConVar("sv_alltalk");
 	Cvar.AddChangeHook(ConVarChange_Alltalk);
 	g_bCvar_Alltalk = Cvar.BoolValue;
 	if (g_iGameTyp == GAMETYP_CSGO)
 	{
-		
+
 		Cvar = FindConVar("sv_talk_enemy_living");
 		Cvar.AddChangeHook(ConVarChange);
 		Cvar = FindConVar("sv_full_alltalk");
@@ -53,14 +53,14 @@ void RegComands()
 	Cvar = FindConVar("sm_immunity_mode");
 	Cvar.AddChangeHook(ConVarChange);
 	g_iCvar_ImmunityMode = Cvar.IntValue;
-	
+
 }
 
 public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[] sArgs)
 {
 	if (!iClient)
 		return Plugin_Continue;
-	
+
 	if (g_iTargetMuteType[iClient] > 1)
 	{
 		char sLength[128];
@@ -138,7 +138,7 @@ public Action OnClientSayCommand(int iClient, const char[] sCommand, const char[
 		return Plugin_Handled;
 	}
 #endif
-	
+
 	return Plugin_Continue;
 }
 
@@ -147,16 +147,16 @@ public Action CommandClearOff(int iClient, int iArgc)
 	ClearHistories();
 
 	ReplyToCommand(iClient, "%sClear history", MAPREFIX);
-	
+
 	return Plugin_Handled;
 }
 
 public Action CommandClearBekap(int iClient, int iArgc)
 {
 	ClearBekap();
-	
+
 	ReplyToCommand(iClient, "%sClear bekap", MAPREFIX);
-	
+
 	return Plugin_Handled;
 }
 
@@ -165,14 +165,14 @@ public Action CommandReload(int iClient, int iArgc)
 	ReadConfig();
 
 	ReplyToCommand(iClient, "%sReload Config", MAPREFIX);
-	
+
 	return Plugin_Handled;
 }
 
 public Action CommandConnectBd(int iClient, int iArgc)
 {
 	ConnectBd(BDCONNECT_COM, iClient);
-	
+
 	return Plugin_Handled;
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -189,19 +189,19 @@ public Action CommandAddAdmin(int iClient, int iArgc)
 			ReplyToCommand(iClient, "%sNo Access add admin", MAPREFIX);
 		return Plugin_Handled;
 	}
-	
+
 	if (iArgc < 5)
 	{
 		ReplyToCommand(iClient, "%sUsage: ma_addadmin <#userid> <imunitet> <flag> <pass> <expire>", MAPREFIX);
 		return Plugin_Handled;
 	}
-	
+
 	char sArg[12],
 		 sImun[12],
 		 sFlags[32],
 		 sPass[125],
 		 sExpire[12];
-	
+
 	GetCmdArg(1, sArg, sizeof(sArg));
 	GetCmdArg(2, sImun, sizeof(sImun));
 	GetCmdArg(3, sFlags, sizeof(sFlags));
@@ -211,52 +211,52 @@ public Action CommandAddAdmin(int iClient, int iArgc)
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command ma_addadmin: arg - %s, imun - %s, flag - %s, pass - %s, expire - %s.", sArg, sImun, sFlags, sPass, sExpire);
 #endif
-	
+
 	int iUserId = StringToInt(sArg[1]);
 	#if MADEBUG
 		LogToFile(g_sLogAction,"Command get target: UserId %d.", iUserId);
 	#endif
 	int iTarget = GetClientOfUserId(iUserId);
-	
+
 	if (!iTarget)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed to player", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	AdminId idAdmin = GetUserAdmin(iTarget);
 	if (idAdmin != INVALID_ADMIN_ID)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed to player admin", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	int iImun = StringToInt(sImun);
 	if (SimpleRegexMatch(sImun, "^[0-9]+$") < 0 || iImun < 0 || iImun > 100)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed imune", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	if (!sFlags[0])
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed flag pust", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	if (SimpleRegexMatch(sFlags, "[zbacdefghijklmnopqrst]") < 1)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed flag", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	int iTime = StringToInt(sExpire);
 	if (SimpleRegexMatch(sExpire, "^[0-9]+$") < 0 || iTime < 0)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed expire", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	GetClientName(iTarget, g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]));
 	if (GetSteamAuthorized(iTarget, g_sAddAdminInfo[iClient][ADDSTEAM]))
 	{
@@ -282,42 +282,42 @@ public Action CommandAddAdminOff(int iClient, int iArgc)
 			ReplyToCommand(iClient, "%sNo Access add admin", MAPREFIX);
 		return Plugin_Handled;
 	}
-	
+
 	if (iArgc < 6)
 	{
 		ReplyToCommand(iClient, "%sUsage: ma_addadminoff <name|login> <steam> <imunitet> <flag> <pass> <expire>", MAPREFIX);
 		return Plugin_Handled;
 	}
-	
+
 	char sName[MAX_NAME_LENGTH],
 		 sSteamID[MAX_STEAMID_LENGTH],
 		 sImun[12],
 		 sFlags[32],
 		 sPass[125],
 		 sExpire[12];
-	
+
 	GetCmdArg(1, sName, sizeof(sName));
 	GetCmdArg(2, sSteamID, sizeof(sSteamID));
 	GetCmdArg(3, sImun, sizeof(sImun));
 	GetCmdArg(4, sFlags, sizeof(sFlags));
 	GetCmdArg(5, sPass, sizeof(sPass));
 	GetCmdArg(6, sExpire, sizeof(sExpire));
-	
+
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command ma_addadminoff: name - %s, steam %s, imun - %s, flag - %s, pass - %s, expire - %s.", sName, sSteamID, sImun, sFlags, sPass, sExpire);
 #endif
-	
+
 	if (!ValidSteam(sSteamID))
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed steam", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	if (sSteamID[0] == '[')
 		ConvecterSteam3ToSteam2(sSteamID);
-	
+
 	int iTarget = FindTargetSteam(sSteamID);
-	
+
 	if (iTarget)
 	{
 		AdminId idAdmin = GetUserAdmin(iTarget);
@@ -327,33 +327,33 @@ public Action CommandAddAdminOff(int iClient, int iArgc)
 			return Plugin_Handled;
 		}
 	}
-	
+
 	int iImun = StringToInt(sImun);
 	if (SimpleRegexMatch(sImun, "^[0-9]+$") < 0 || iImun > 100 || iImun < 0)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed imune", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	if (!sFlags[0])
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed flag pust", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	if (SimpleRegexMatch(sFlags, "[zbacdefghijklmnopqrst]") < 1)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed flag", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	int iTime = StringToInt(sExpire);
 	if (SimpleRegexMatch(sExpire, "^[0-9]+$") < 0 || iTime < 0)
 	{
 		ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed expire", iClient);
 		return Plugin_Handled;
 	}
-	
+
 	strcopy(g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]), sName);
 	strcopy(g_sAddAdminInfo[iClient][ADDSTEAM], sizeof(g_sAddAdminInfo[][]), sSteamID);
 	strcopy(g_sAddAdminInfo[iClient][ADDPASS], sizeof(g_sAddAdminInfo[][]), sPass);
@@ -376,24 +376,24 @@ public Action CommandDelAdmin(int iClient, int iArgc)
 			ReplyToCommand(iClient, "%sNo Access add admin", MAPREFIX);
 		return Plugin_Handled;
 	}
-	
+
 	if (iArgc < 2)
 	{
 		ReplyToCommand(iClient, "%sUsage: ma_deladmin <#userid|steam> <type> type - 0 all, 1 server", MAPREFIX);
 		return Plugin_Handled;
 	}
-	
+
 	char sArg[MAX_STEAMID_LENGTH],
 		 sType[12];
 	int iTarget;
-	
+
 	GetCmdArg(1, sArg, sizeof(sArg));
 	GetCmdArg(2, sType, sizeof(sType));
-	
+
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command ma_deladmin: arg - %s, type %s.", sArg, sType);
 #endif
-	
+
 	if (sArg[0] == '#')
 	{
 		int iUserId = StringToInt(sArg[1]);
@@ -401,13 +401,13 @@ public Action CommandDelAdmin(int iClient, int iArgc)
 			LogToFile(g_sLogAction,"Command get target: UserId %d.", iUserId);
 		#endif
 		iTarget = GetClientOfUserId(iUserId);
-		
+
 		if (!iTarget)
 		{
 			ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed to player", iClient);
 			return Plugin_Handled;
 		}
-		
+
 		GetClientName(iTarget, g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]));
 		if (GetSteamAuthorized(iTarget, g_sAddAdminInfo[iClient][ADDSTEAM]))
 		{
@@ -422,13 +422,13 @@ public Action CommandDelAdmin(int iClient, int iArgc)
 			ReplyToCommand(iClient, "%s%T", MAPREFIX, "Failed steam", iClient);
 			return Plugin_Handled;
 		}
-		
+
 		iTarget = FindTargetSteam(sArg);
-		
+
 		strcopy(g_sAddAdminInfo[iClient][ADDNAME], sizeof(g_sAddAdminInfo[][]), sArg);
 		strcopy(g_sAddAdminInfo[iClient][ADDSTEAM], sizeof(g_sAddAdminInfo[][]), sArg);
 	}
-	
+
 	if (iTarget)
 	{
 		AdminId idAdmin = GetUserAdmin(iTarget);
@@ -452,9 +452,9 @@ public Action CommandGag(int iClient, int iArgc)
 		return Plugin_Handled;
 	}
 	char sArg[64],
-		sBuffer[356];	
+		sBuffer[356];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	
+
 	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_gag <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
@@ -464,14 +464,14 @@ public Action CommandGag(int iClient, int iArgc)
 	g_iTargetType[iClient] = TYPE_GAG;
 	if (!ValidTime(iClient))
 		return Plugin_Handled;
-	
+
 	int iTyp = GetTypeClient(sArg);
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_gag, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
 	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
-	
+
 	return Plugin_Handled;
 }
 
@@ -483,9 +483,9 @@ public Action CommandMute(int iClient, int iArgc)
 		return Plugin_Handled;
 	}
 	char sArg[64],
-		sBuffer[356];	
+		sBuffer[356];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	
+
 	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_mute <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
@@ -495,14 +495,14 @@ public Action CommandMute(int iClient, int iArgc)
 	g_iTargetType[iClient] = TYPE_MUTE;
 	if (!ValidTime(iClient))
 		return Plugin_Handled;
-	
+
 	int iTyp = GetTypeClient(sArg);
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_mute, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
 	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
-	
+
 	return Plugin_Handled;
 }
 
@@ -515,9 +515,9 @@ public Action CommandSil(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[356];	
+		sBuffer[356];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	
+
 	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_silence <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
@@ -527,14 +527,14 @@ public Action CommandSil(int iClient, int iArgc)
 	g_iTargetType[iClient] = TYPE_SILENCE;
 	if (!ValidTime(iClient))
 		return Plugin_Handled;
-	
+
 	int iTyp = GetTypeClient(sArg);
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_silence, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
 	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
-	
+
 	return Plugin_Handled;
 }
 
@@ -547,10 +547,10 @@ public Action CommandUnGag(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[356];	
+		sBuffer[356];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	MAGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
-	
+
 	g_iTargetType[iClient] = TYPE_UNGAG;
 	int iTyp = GetTypeClient(sArg);
 #if MADEBUG
@@ -571,10 +571,10 @@ public Action CommandUnMute(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[356];	
+		sBuffer[356];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	MAGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
-	
+
 	g_iTargetType[iClient] = TYPE_UNMUTE;
 	int iTyp = GetTypeClient(sArg);
 #if MADEBUG
@@ -595,10 +595,10 @@ public Action CommandUnSil(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[356];	
+		sBuffer[356];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	MAGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
-	
+
 	g_iTargetType[iClient] = TYPE_UNSILENCE;
 	int iTyp = GetTypeClient(sArg);
 #if MADEBUG
@@ -620,9 +620,9 @@ public Action CommandBan(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[356];	
+		sBuffer[356];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	
+
 	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_ban <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
@@ -632,14 +632,14 @@ public Action CommandBan(int iClient, int iArgc)
 	g_iTargetType[iClient] = TYPE_BAN;
 	if (!ValidTime(iClient))
 		return Plugin_Handled;
-	
+
 	int iTyp = GetTypeClient(sArg);
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_ban, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
 	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
-	
+
 	return Plugin_Handled;
 }
 
@@ -652,9 +652,9 @@ public Action CommandBanIp(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[356];	
+		sBuffer[356];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	
+
 	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_banip <#userid|#all|#ct|#t|#blue|#red> <time> [reason]", MAPREFIX);
@@ -664,14 +664,14 @@ public Action CommandBanIp(int iClient, int iArgc)
 	g_iTargetType[iClient] = TYPE_BANIP;
 	if (!ValidTime(iClient))
 		return Plugin_Handled;
-	
+
 	int iTyp = GetTypeClient(sArg);
 #if MADEBUG
 	LogToFile(g_sLogAction,"Command: sm_banip, arg %s, type %d, time %d, reason %s.", sArg, iTyp, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 #endif
 	g_bOnileTarget[iClient] = true;
 	GetClientToBd(iClient, iTyp, sArg);
-	
+
 	return Plugin_Handled;
 }
 
@@ -687,9 +687,9 @@ public Action CommandAddBan(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[356];	
+		sBuffer[356];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
-	
+
 	if (!MAGetCmdArg2(iClient, sBuffer, sArg, sizeof(sArg)))
 	{
 		ReplyToCommand(iClient, "%sUsage: sm_addban <steamid|ip> <time> [reason]", MAPREFIX);
@@ -766,10 +766,10 @@ public Action CommandUnBan(int iClient, int iArgc)
 	}
 
 	char sArg[64],
-		sBuffer[512];	
+		sBuffer[512];
 	GetCmdArgString(sBuffer, sizeof(sBuffer));
 	MAGetCmdArg1(iClient, sBuffer, sArg, sizeof(sArg));
-	
+
 	if (sArg[0] == 'S' || sArg[0] == '[')
 	{
 		if (!ValidSteam(sArg))
@@ -794,9 +794,9 @@ public Action CommandUnBan(int iClient, int iArgc)
 		else
 			ServerCommandEx(sBuffer, sizeof(sBuffer), "removeip %s", sArg);
 	}
-	
+
 	ReplyToCommand(iClient, "Server push: %s", sBuffer);
-	
+
 	g_iTargetType[iClient] = TYPE_UNBAN;
 
 #if MADEBUG
@@ -878,9 +878,9 @@ public Action CommandWMute(int iArgc)
 		LogToFile(g_sLogAction, "Wrong usage of ma_wb_mute");
 		return Plugin_Stop;
 	}
-	
+
 	int iClient = FindTargetSteam(sArg[2]);
-	
+
 	if (iClient)
 	{
 		if (iTime > 0)
@@ -894,15 +894,15 @@ public Action CommandWMute(int iArgc)
 			case TYPEMUTE:		AddMute(iClient, iTime);
 			case TYPEGAG: 		AddGag(iClient, iTime);
 			case TYPESILENCE:	AddSilence(iClient, iTime);
-		}	
+		}
 	}
 	else
 		ReplyToCommand(0, "nope");
-	
+
 #if MADEBUG
 	LogToFile(g_sLogAction,"CommandWMute: %s", sArgs);
 #endif
-	
+
 	return Plugin_Handled;
 }
 
@@ -919,9 +919,9 @@ public Action CommandWUnMute(int iArgc)
 		LogToFile(g_sLogAction, "Wrong usage of ma_wb_unmute");
 		return Plugin_Stop;
 	}
-	
+
 	int iClient = FindTargetSteam(sArg[1]);
-	
+
 	if (iClient)
 	{
 		ReplyToCommand(0, "ok");
@@ -930,15 +930,15 @@ public Action CommandWUnMute(int iArgc)
 			case TYPEMUTE:		UnMute(iClient);
 			case TYPEGAG: 		UnGag(iClient);
 			case TYPESILENCE:	UnSilence(iClient);
-		}	
+		}
 	}
 	else
 		ReplyToCommand(0, "nope");
-	
+
 #if MADEBUG
 	LogToFile(g_sLogAction,"CommandWUnMute: %s", sArgs);
 #endif
-	
+
 	return Plugin_Handled;
 }
 
@@ -954,13 +954,13 @@ public Action CommandWBan(int iArgc)
 		LogToFile(g_sLogAction, "Wrong usage of ma_wb_ban");
 		return Plugin_Stop;
 	}
-	
+
 	int iClient;
 	if (!strncmp(sArg[0], "STEAM_", 6))
 		iClient = FindTargetSteam(sArg[0]);
 	else
 		iClient = FindTargetIp(sArg[0]);
-	
+
 	if (iClient)
 	{
 		ReplyToCommand(0, "ok");
@@ -968,10 +968,10 @@ public Action CommandWBan(int iArgc)
 	}
 	else
 		ReplyToCommand(0, "nope");
-	
+
 #if MADEBUG
 	LogToFile(g_sLogAction,"CommandWBan: %s", sArgs);
 #endif
-	
+
 	return Plugin_Handled;
 }

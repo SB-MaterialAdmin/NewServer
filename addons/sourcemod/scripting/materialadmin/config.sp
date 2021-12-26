@@ -17,7 +17,7 @@ void ReadConfig()
 
 	if (g_smcTimeReasonParser == null)
 		g_smcTimeReasonParser = new SMCParser();
-	
+
 	g_smcTimeReasonParser.OnEnterSection = NewSectionReason;
 	g_smcTimeReasonParser.OnKeyValue = KeyValueReason;
 	g_smcTimeReasonParser.OnLeaveSection = EndSection;
@@ -37,7 +37,7 @@ void ReadConfig()
 	if (FileExists(sConfigFile))
 	{
 		g_iConfigState = ConfigState_Non;
-	
+
 		int iLine;
 		SMCError err = g_smcTimeReasonParser.ParseFile(sConfigFile, iLine);
 		if (err != SMCError_Okay)
@@ -47,7 +47,7 @@ void ReadConfig()
 			LogToFile(g_sLogConfig, "Could not parse file (line %d, file \"%s\"):", iLine, sConfigFile);
 			LogToFile(g_sLogConfig, "Parser encountered error: %s", sError);
 		}
-		
+
 		if (!g_mReasonMMenu.ItemCount)
 			SetFailState("%sFor file \"%s\" no reason \"MuteReasons\"", MAPREFIX, sConfigFile);
 		if (!g_mReasonBMenu.ItemCount)
@@ -62,14 +62,14 @@ void ReadConfig()
 		LogToFile(g_sLogConfig, "Can not find %s", sConfigFile);
 		SetFailState("%sCan not find %s", MAPREFIX, sConfigFile);
 	}
-	
+
 	if (g_smcConfigParser == null)
 		g_smcConfigParser = new SMCParser();
-	
+
 	g_smcConfigParser.OnEnterSection = NewSectionConfig;
 	g_smcConfigParser.OnKeyValue = KeyValueConfig;
 	g_smcConfigParser.OnLeaveSection = EndSection;
-	
+
 	g_hSettings.Clear();
 	BuildPath(Path_SM, sConfigFile, sizeof(sConfigFile), "configs/materialadmin/config.cfg");
 
@@ -106,9 +106,9 @@ public SMCResult KeyValueConfig(SMCParser Smc, const char[] sKey, const char[] s
 
 	g_hSettings.SetString(sKey, sValue, true);
 
-	if (!strcmp("DatabasePrefix", sKey, false)) 
+	if (!strcmp("DatabasePrefix", sKey, false))
 		strcopy(g_sDatabasePrefix, sizeof(g_sDatabasePrefix), sValue);
-	else if (!strcmp("Website", sKey, false)) 
+	else if (!strcmp("Website", sKey, false))
 		strcopy(g_sWebsite, sizeof(g_sWebsite), sValue);
 	else if (!strcmp("OffTimeFormat", sKey, false))
 		strcopy(g_sOffFormatTime, sizeof(g_sOffFormatTime), sValue);
@@ -229,7 +229,7 @@ public SMCResult NewSectionReason(SMCParser Smc, const char[] sName, bool bOpt_q
 		LogToFile(g_sLogConfig,"Loaded config. name %s", sName);
 	#endif
 	}
-	
+
 	return SMCParse_Continue;
 }
 
