@@ -1,17 +1,17 @@
 //получение айпи и порта сервера
 void InsertServerInfo()
 {
-    int iPieces[4], 
-        iLongIP;
-    
-    iLongIP = FindConVar("hostip").IntValue;
-    iPieces[0] = (iLongIP >> 24) & 0x000000FF;
-    iPieces[1] = (iLongIP >> 16) & 0x000000FF;
-    iPieces[2] = (iLongIP >> 8) & 0x000000FF;
-    iPieces[3] = iLongIP & 0x000000FF;
-    FormatEx(g_sServerIP, sizeof(g_sServerIP), "%d.%d.%d.%d", iPieces[0], iPieces[1], iPieces[2], iPieces[3]);
+	int iPieces[4], 
+		iLongIP;
 
-    FindConVar("hostport").GetString(g_sServerPort, sizeof(g_sServerPort));
+	iLongIP = FindConVar("hostip").IntValue;
+	iPieces[0] = (iLongIP >> 24) & 0x000000FF;
+	iPieces[1] = (iLongIP >> 16) & 0x000000FF;
+	iPieces[2] = (iLongIP >> 8) & 0x000000FF;
+	iPieces[3] = iLongIP & 0x000000FF;
+	FormatEx(g_sServerIP, sizeof(g_sServerIP), "%d.%d.%d.%d", iPieces[0], iPieces[1], iPieces[2], iPieces[3]);
+
+	FindConVar("hostport").GetString(g_sServerPort, sizeof(g_sServerPort));
 }
 
 void GetColor(char[] sBuffer, int iMaxlin)
@@ -1212,22 +1212,23 @@ void LogOn()
 #endif
 }
 
-int GetFixedClientName(int iClient, char[] szBuffer, int iMaxLength) {
-  char sName[MAX_NAME_LENGTH * 2 + 1];
-  GetClientName(iClient, sName, sizeof(sName));
+int GetFixedClientName(int iClient, char[] szBuffer, int iMaxLength)
+{
+	char sName[MAX_NAME_LENGTH * 2 + 1];
+	GetClientName(iClient, sName, sizeof(sName));
 
-  for (int i = 0, len = strlen(sName), CharBytes; i < len;) {
-    if ((CharBytes = GetCharBytes(sName[i])) == 4){
-      len -= 4;
-      for (int u = i; u <= len; u++) {
-        sName[u] = sName[u+4];
-      }
-    } else {
-      i += CharBytes;
-    }
-  }
+	for (int i = 0, len = strlen(sName), CharBytes; i < len;) {
+		if ((CharBytes = GetCharBytes(sName[i])) == 4) {
+			len -= 4;
+			for (int u = i; u <= len; u++) {
+				sName[u] = sName[u+4];
+			}
+		} else {
+			i += CharBytes;
+		}
+	}
 
-  return strcopy(szBuffer, iMaxLength, sName);
+	return strcopy(szBuffer, iMaxLength, sName);
 }
 
 stock bool IsBanTypeAvailable(int iClient, int iType)
