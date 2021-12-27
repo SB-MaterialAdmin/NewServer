@@ -347,12 +347,12 @@ void BDGetInfoMute(int iClient, char[] sOption)
 
 	char sQuery[524];
 	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-				SELECT  c.`created`, c.`ends`, c.`length`, c.`reason`, a.`user` \
+				SELECT  c.`created`, c.`ends`, c.`length`, c.`type`, c.`reason`, a.`user` \
 				FROM `%!s_comms` AS c \
 				LEFT JOIN `%!s_admins` AS a ON a.`aid` = c.`aid` \
 				LEFT JOIN `%!s_srvgroups` AS g ON g.`name` = a.`srv_group` \
 				WHERE c.`authid` REGEXP '^STEAM_[0-9]:%s$' \
-				AND ((`RemoveType` IS NULL AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())) OR `length` = -1) ORDER BY `bid` DESC LIMIT 1", \
+				AND ((`RemoveType` IS NULL AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())) OR `length` = -1) ORDER BY `bid` DESC LIMIT 2", \
 					g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sSteamID[8]);
 
 	g_dDatabase.Query(SQL_Callback_GetInfoMute, sQuery, iClient, DBPrio_High);
@@ -370,25 +370,39 @@ public void SQL_Callback_GetInfoMute(Database db, DBResultSet dbRs, const char[]
 		return;
 	}
 
-	int iCreated, iEnds, iLength;
-	char sReason[256], sNameAdmin[MAX_NAME_LENGTH];
-
-	if (dbRs.HasResults && dbRs.FetchRow()) {
-		iCreated = dbRs.FetchInt(0);
-		iEnds = dbRs.FetchInt(1);
-		iLength = dbRs.FetchInt(2);
-		dbRs.FetchString(3, sReason, sizeof(sReason));
-		dbRs.FetchString(4, sNameAdmin, sizeof(sNameAdmin));
-	} else {
+	if (!dbRs.HasResults) {
 		PrintToChat2(iClient, "%T", "Failed to player", iClient);
 		return;
 	}
 
-#if MADEBUG
-	LogToFile(g_sLogDateBase, "GetInfoMute:%d, %d, %d, %s, %s", iCreated, iEnds, iLength, sReason, sNameAdmin);
-#endif
+	int iCreated, iEnds, iLength, iCount = 0, iType;
+	char sReason[256], sNameAdmin[MAX_NAME_LENGTH];
+	DataPack hDPSilence[2] = {null, null}; //mute and gag
 
-	ShowInfoMuteMenu(iClient, iCreated, iEnds, iLength, sReason, sNameAdmin);
+	while (dbRs.FetchRow()) {
+		iCreated = dbRs.FetchInt(0);
+		iEnds = dbRs.FetchInt(1);
+		iLength = dbRs.FetchInt(2);
+		iType = dbRs.FetchInt(3);
+		dbRs.FetchString(4, sReason, sizeof(sReason));
+		dbRs.FetchString(5, sNameAdmin, sizeof(sNameAdmin));
+
+		hDPSilence[iCount] = new DataPack();
+		hDPSilence[iCount].WriteCell(iCreated);
+		hDPSilence[iCount].WriteCell(iEnds);
+		hDPSilence[iCount].WriteCell(iLength);
+		hDPSilence[iCount].WriteCell(iType);
+		hDPSilence[iCount].WriteString(sReason);
+		hDPSilence[iCount].WriteString(sNameAdmin);
+
+		#if MADEBUG
+			LogToFile(g_sLogDateBase, "GetInfoMute:%d, %d, %d, %d, %s, %s", iCreated, iEnds, iLength, iType, sReason, sNameAdmin);
+		#endif
+
+		iCount++;
+	}
+
+	ShowInfoMuteMenu(iClient, hDPSilence, 2);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------

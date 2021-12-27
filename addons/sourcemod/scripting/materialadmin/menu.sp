@@ -998,56 +998,75 @@ public int MenuHandler_ListTipe(Menu Mmenu, MenuAction mAction, int iClient, int
 	return 0;
 }
 
-void ShowInfoMuteMenu(int iClient, int iCreated, int iEnds, int iLength, char[] sReason, char[] sNameAdmin)
+void ShowInfoMuteMenu(int iClient, DataPack[] hDPSilence, const int iSize)
 {
-	if (!iClient || !IsClientInGame(iClient)) {
-		return;
-	}
-
-	if (g_aUserId[iClient].Length < 0) {
+	if (!iClient || !IsClientInGame(iClient) || g_aUserId[iClient].Length < 0) {
+		UTIL_CloseHandle(hDPSilence[0]);
+		UTIL_CloseHandle(hDPSilence[1]);
 		return;
 	}
 
 	int iTarget = GetClientOfUserId(g_aUserId[iClient].Get(0));
 	char sTitle[256], sBuffer[64];
+	char sReason[256], sNameAdmin[MAX_NAME_LENGTH];
+	int iCreated, iEnds, iLength, iType;
 
-	Menu Mmenu = new Menu(MenuHandler_InfoMute);
+	Menu hMenu = new Menu(MenuHandler_InfoMute);
+	hMenu.Pagination = 6;
+
 	if (iTarget) {
-		Mmenu.SetTitle("%T: %N", "ListInfoTitle", iClient, iTarget);
+		hMenu.SetTitle("%T: %N", "ListInfoTitle", iClient, iTarget);
 	} else {
-		Mmenu.SetTitle("%T:", "ListInfoTitle", iClient);
+		hMenu.SetTitle("%T:", "ListInfoTitle", iClient);
 	}
 
-	FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Admin", iClient, sNameAdmin);
-	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	for (int i = 0; i < iSize; i++) {
+		hDPSilence[i].Reset();
 
-	FormatVrema(iClient, iLength, sBuffer, sizeof(sBuffer));
-	FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Time", iClient, sBuffer);
-	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+		iCreated = hDPSilence[i].ReadCell();
+		iEnds = hDPSilence[i].ReadCell();
+		iLength = hDPSilence[i].ReadCell();
+		iType = hDPSilence[i].ReadCell();
+		hDPSilence[i].ReadString(sReason, sizeof(sReason));
+		hDPSilence[i].ReadString(sNameAdmin, sizeof(sNameAdmin));
 
-	if (sReason[0]) {
-		FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Reason", iClient, sReason);
-	} else {
-		FormatEx(sTitle, sizeof(sTitle), "%T:\n%T", "Reason", iClient, "No reason", iClient);
-	}
+		FormatEx(sTitle, sizeof(sTitle), "Type:\n%s (%d)", g_sSilenceType[iType], iType);
+		hMenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
-	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+		FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Admin", iClient, sNameAdmin);
+		hMenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
-	FormatTime(sBuffer, sizeof(sBuffer), g_sOffFormatTime, iCreated);
-	FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "TimeCreated", iClient, sBuffer);
-	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
-
-	if (iLength > 0) {
-		FormatTime(sBuffer, sizeof(sBuffer), g_sOffFormatTime, iEnds);
-	} else {
 		FormatVrema(iClient, iLength, sBuffer, sizeof(sBuffer));
+		FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Time", iClient, sBuffer);
+		hMenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+
+		if (sReason[0]) {
+			FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Reason", iClient, sReason);
+		} else {
+			FormatEx(sTitle, sizeof(sTitle), "%T:\n%T", "Reason", iClient, "No reason", iClient);
+		}
+
+		hMenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+
+		FormatTime(sBuffer, sizeof(sBuffer), g_sOffFormatTime, iCreated);
+		FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "TimeCreated", iClient, sBuffer);
+		hMenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+
+		if (iLength > 0) {
+			FormatTime(sBuffer, sizeof(sBuffer), g_sOffFormatTime, iEnds);
+		} else {
+			FormatVrema(iClient, iLength, sBuffer, sizeof(sBuffer));
+		}
+
+		FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "TimeEnds", iClient, sBuffer);
+		hMenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 	}
 
-	FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "TimeEnds", iClient, sBuffer);
-	Mmenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
+	hMenu.ExitBackButton = true;
+	hMenu.Display(iClient, MENU_TIME_FOREVER);
 
-	Mmenu.ExitBackButton = true;
-	Mmenu.Display(iClient, MENU_TIME_FOREVER);
+	UTIL_CloseHandle(hDPSilence[0]);
+	UTIL_CloseHandle(hDPSilence[1]);
 }
 
 public int MenuHandler_InfoMute(Menu Mmenu, MenuAction mAction, int iClient, int iSlot)

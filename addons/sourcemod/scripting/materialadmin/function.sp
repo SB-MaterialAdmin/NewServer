@@ -1412,3 +1412,11 @@ bool UTIL_ReadFileString(File hFile, char[] szBuffer, int iBufferLength)
 	szBuffer[iReadBytes] = 0;
 	return (iReadBytes == iValueLength);
 }
+
+void UTIL_CloseHandle(Handle &hhdl)
+{
+	if (hhdl != null) {
+		delete hhdl;
+		hhdl = null;
+	}
+}
