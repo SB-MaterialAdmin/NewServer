@@ -90,6 +90,21 @@
 		"en"    		"Ip"
 		"ru"    		"По айпи"
 	}
+	"MuteTypeName"
+	{
+		"en"    		"Mute"
+		"ru"   			"Голосовой чат"
+	}
+	"GagTypeName"
+	{
+		"en"    		"Gag"
+		"ru"   			"Текстовый чат"
+	}
+	"SilenceTypeName"
+	{
+		"en"    		"Silence"
+		"ru"   			"Текстовый и голосовой чат"
+	}
 	"Mute"
 	{
 		"en"    		"Mute"

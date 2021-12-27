@@ -12,6 +12,8 @@
 
 #pragma newdecls required
 
+#define MAX_TYPE_NAME_LENGTH 32
+
 enum
 {
 	eNone			= 0,
@@ -22,7 +24,7 @@ enum
 	eSilence_Size
 };
 
-char g_sSilenceType[eSilence_Size][32] =
+char g_sSilenceType[eSilence_Size][MAX_TYPE_NAME_LENGTH] =
 {
 	"",
 	"Mute",
@@ -267,6 +269,11 @@ public void OnPluginStart()
 {
 	LoadTranslations("materialadmin.phrases");
 	LoadTranslations("common.phrases");
+
+	FormatEx(g_sSilenceType[eNone], MAX_TYPE_NAME_LENGTH, "");
+	FormatEx(g_sSilenceType[eTypeMute], MAX_TYPE_NAME_LENGTH, "%t", "MuteTypeName");
+	FormatEx(g_sSilenceType[eTypeGag], MAX_TYPE_NAME_LENGTH, "%t", "GagTypeName");
+	FormatEx(g_sSilenceType[eTypeSilence], MAX_TYPE_NAME_LENGTH, "%t", "SilenceTypeName");
 
 #if defined GIT_COMMIT_ABBREVIATEDHASH
 	PrintToServer(g_szStartDelimter);
