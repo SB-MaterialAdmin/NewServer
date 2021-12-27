@@ -869,13 +869,13 @@ public Action CommandWMute(int iArgc)
 		ReplyToCommand(0, "ok");
 
 		switch (iType) {
-			case TYPEMUTE: {
+			case eTypeMute: {
 				AddMute(iClient, iTime);
 			}
-			case TYPEGAG: {
+			case eTypeGag: {
 				AddGag(iClient, iTime);
 			}
-			case TYPESILENCE: {
+			case eTypeSilence: {
 				AddSilence(iClient, iTime);
 			}
 		}
@@ -908,13 +908,13 @@ public Action CommandWUnMute(int iArgc)
 		ReplyToCommand(0, "ok");
 
 		switch (iType) {
-			case TYPEMUTE: {
+			case eTypeMute: {
 				UnMute(iClient);
 			}
-			case TYPEGAG: {
+			case eTypeGag: {
 				UnGag(iClient);
 			}
-			case TYPESILENCE: {
+			case eTypeSilence: {
 				UnSilence(iClient);
 			}
 		}

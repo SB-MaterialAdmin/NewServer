@@ -12,6 +12,24 @@
 
 #pragma newdecls required
 
+enum
+{
+	eNone			= 0,
+	eTypeMute		= 1, // мут
+	eTypeGag		= 2, // чат
+	eTypeSilence	= 3, // мут и чат
+
+	eSilence_Size
+};
+
+char g_sSilenceType[eSilence_Size][32] =
+{
+	"",
+	"Mute",
+	"Gag",
+	"Silence"
+};
+
 #define MAX_STEAMID_LENGTH 	32
 #define MAX_IP_LENGTH 		64
 #define MAX_MUTE_REASON_LENGTH 256
@@ -60,9 +78,6 @@ char
 	g_sNameReples[2][MAX_NAME_LENGTH];
 
 int g_iTargetMuteType[MAXPLAYERS + 1];
-#define TYPEMUTE 		1	// мут
-#define TYPEGAG 		2  	// чат
-#define TYPESILENCE 	3	// мут и чат
 
 #if SETTINGADMIN
 	char g_sAddAdminInfo[MAXPLAYERS + 1][4][256];
@@ -473,7 +488,7 @@ public void OnClientPostAdminCheck(int iClient)
 		return;
 	}
 
-	if (g_iTargetMuteType[iClient] == TYPEMUTE || g_iTargetMuteType[iClient] == TYPESILENCE) {
+	if (g_iTargetMuteType[iClient] == eTypeMute || g_iTargetMuteType[iClient] == eTypeSilence) {
 		FunMute(iClient);
 	}
 }

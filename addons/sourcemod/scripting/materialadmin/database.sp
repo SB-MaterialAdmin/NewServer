@@ -506,9 +506,9 @@ void DoCreateDB(int iClient, int iTarget, int iTrax = 0, Transaction hTxn = null
 {
 	if (g_iTargetType[iClient] >= TYPE_GAG) {
 		if ((g_iTargetMuteType[iTarget] > 0 && g_iTargetType[iClient] >= TYPE_UNGAG) ||
-			(g_iTargetMuteType[iTarget] == TYPEMUTE && g_iTargetType[iClient] == TYPE_MUTE) ||
-			(g_iTargetMuteType[iTarget] == TYPEGAG && g_iTargetType[iClient] == TYPE_GAG) ||
-			(g_iTargetMuteType[iTarget] == TYPESILENCE && g_iTargetType[iClient] == TYPE_SILENCE)
+			(g_iTargetMuteType[iTarget] == eTypeMute && g_iTargetType[iClient] == TYPE_MUTE) ||
+			(g_iTargetMuteType[iTarget] == eTypeGag && g_iTargetType[iClient] == TYPE_GAG) ||
+			(g_iTargetMuteType[iTarget] == eTypeSilence && g_iTargetType[iClient] == TYPE_SILENCE)
 		) {
 			if (!IsUnMuteUnBan(iClient, g_sTargetMuteSteamAdmin[iTarget])) {
 				if (iTarget && IsClientInGame(iTarget)) {
@@ -715,9 +715,9 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 
 			switch (g_iTargetType[iClient]) {
 				case TYPE_GAG: {
-					iType = TYPEGAG;
+					iType = eTypeGag;
 					if (bSet) {
-						if (g_iTargetMuteType[iTarget] == TYPEMUTE) {
+						if (g_iTargetMuteType[iTarget] == eTypeMute) {
 							if (bUnMute) {
 								g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 										UPDATE `%s_comms` \
@@ -733,7 +733,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 							}
 
 							bSetQ = false;
-						} else if (g_iTargetMuteType[iTarget] == TYPEGAG) {
+						} else if (g_iTargetMuteType[iTarget] == eTypeGag) {
 							g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` \
 									SET `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
@@ -750,15 +750,15 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 						PrintToChat2(iTarget, "%T", "Target gag", iTarget, sLength, g_sTarget[iClient][TREASON]);
 					}
 
-					FireOnClientMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], TYPEGAG, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
+					FireOnClientMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], eTypeGag, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 					ShowAdminAction(iClient, "%t", "Gag show", "name", g_sTarget[iClient][TNAME], sLength, g_sTarget[iClient][TREASON]);
 					FormatEx(sLog, sizeof(sLog), "\"%L\" gag \"%s (%s IP_%s)\" (minutes \"%d\") (reason \"%s\")", iClient, \
 								g_sTarget[iClient][TNAME], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TIP], g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 				}
 				case TYPE_MUTE: {
-					iType = TYPEMUTE;
+					iType = eTypeMute;
 					if (bSet) {
-						if (g_iTargetMuteType[iTarget] == TYPEGAG) {
+						if (g_iTargetMuteType[iTarget] == eTypeGag) {
 							if (bUnMute) {
 								g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 										UPDATE `%s_comms` \
@@ -774,7 +774,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 							}
 
 							bSetQ = false;
-						} else if (g_iTargetMuteType[iTarget] == TYPEMUTE) {
+						} else if (g_iTargetMuteType[iTarget] == eTypeMute) {
 							g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` \
 									SET `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
@@ -791,15 +791,15 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 						PrintToChat2(iTarget, "%T", "Target mute", iTarget, sLength, g_sTarget[iClient][TREASON]);
 					}
 
-					FireOnClientMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], TYPEMUTE, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
+					FireOnClientMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], eTypeMute, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 					ShowAdminAction(iClient, "%t", "Mute show", "name", g_sTarget[iClient][TNAME], sLength, g_sTarget[iClient][TREASON]);
 					FormatEx(sLog, sizeof(sLog), "\"%L\" mute \"%s (%s IP_%s)\" (minutes \"%d\") (reason \"%s\")", iClient, \
 								g_sTarget[iClient][TNAME], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TIP], g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 				}
 				case TYPE_SILENCE: {
-					iType = TYPESILENCE;
+					iType = eTypeSilence;
 					if (bSet) {
-						if (g_iTargetMuteType[iTarget] == TYPEGAG) {
+						if (g_iTargetMuteType[iTarget] == eTypeGag) {
 							g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` \
 									SET `type` = 3, `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
@@ -808,7 +808,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 										g_sDatabasePrefix, g_sTarget[iClient][TREASON], iTime, iTime, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
 
 							bSetQ = false;
-						} else if (g_iTargetMuteType[iTarget] == TYPEMUTE) {
+						} else if (g_iTargetMuteType[iTarget] == eTypeMute) {
 							g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` \
 									SET `type` = 3, `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
@@ -817,7 +817,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 										g_sDatabasePrefix, g_sTarget[iClient][TREASON], iTime, iTime, sQueryAdmin, sAdmin_SteamID, sServer, g_sTarget[iClient][TSTEAMID][8], sQueryTime);
 
 							bSetQ = false;
-						} else if (g_iTargetMuteType[iTarget] == TYPESILENCE) {
+						} else if (g_iTargetMuteType[iTarget] == eTypeSilence) {
 							g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` \
 									SET `reason` = '%s', `created` = UNIX_TIMESTAMP(), `ends` = UNIX_TIMESTAMP() + %d, \
@@ -834,7 +834,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 						PrintToChat2(iTarget, "%T", "Target silence", iTarget, sLength, g_sTarget[iClient][TREASON]);
 					}
 
-					FireOnClientMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], TYPESILENCE, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
+					FireOnClientMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], eTypeSilence, g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 					ShowAdminAction(iClient, "%t", "Silence show", "name", g_sTarget[iClient][TNAME], sLength, g_sTarget[iClient][TREASON]);
 					FormatEx(sLog, sizeof(sLog), "\"%L\" silence \"%s (%s IP_%s)\" (minutes \"%d\") (reason \"%s\")", iClient, \
 								g_sTarget[iClient][TNAME], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TIP], g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
@@ -864,9 +864,9 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 
 			switch (g_iTargetType[iClient]) {
 				case TYPE_UNGAG: {
-					iType = TYPEGAG;
+					iType = eTypeGag;
 					if (bSet) {
-						if (g_iTargetMuteType[iTarget] == TYPESILENCE) {
+						if (g_iTargetMuteType[iTarget] == eTypeSilence) {
 							g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` SET `type` = 1, `aid` = %!s \
 									WHERE `type` = 3 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) AND `RemoveType` IS NULL", \
@@ -881,15 +881,15 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 						PrintToChat2(iTarget, "%T", "Target ungag", iTarget);
 					}
 
-					FireOnClientUnMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], TYPEGAG, g_sTarget[iClient][TREASON]);
+					FireOnClientUnMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], eTypeGag, g_sTarget[iClient][TREASON]);
 					ShowAdminAction(iClient, "%t", "UnGag show", "name", g_sTarget[iClient][TNAME]);
 					FormatEx(sLog, sizeof(sLog), "\"%L\" un gag \"%s (%s IP_%s)\" (reason \"%s\")", iClient, \
 								g_sTarget[iClient][TNAME], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TIP], g_sTarget[iClient][TREASON]);
 				}
 				case TYPE_UNMUTE: {
-					iType = TYPEMUTE;
+					iType = eTypeMute;
 					if (bSet) {
-						if (g_iTargetMuteType[iTarget] == TYPESILENCE) {
+						if (g_iTargetMuteType[iTarget] == eTypeSilence) {
 							g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` SET `type` = 2, `aid` = %!s  \
 									WHERE `type` = 3 AND `authid` REGEXP '^STEAM_[0-9]:%s$' AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) AND `RemoveType` IS NULL", \
@@ -904,15 +904,15 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 						PrintToChat2(iTarget, "%T", "Target unmute", iTarget);
 					}
 
-					FireOnClientUnMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], TYPEMUTE, g_sTarget[iClient][TREASON]);
+					FireOnClientUnMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], eTypeMute, g_sTarget[iClient][TREASON]);
 					ShowAdminAction(iClient, "%t", "UnMute show", "name", g_sTarget[iClient][TNAME]);
 					FormatEx(sLog, sizeof(sLog), "\"%L\" un mute \"%s (%s IP_%s)\" (reason \"%s\")", iClient, \
 							g_sTarget[iClient][TNAME], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TIP], g_sTarget[iClient][TREASON]);
 				}
 				case TYPE_UNSILENCE: {
-					iType = TYPESILENCE;
+					iType = eTypeSilence;
 					if (bSet) {
-						if (g_iTargetMuteType[iTarget] < TYPESILENCE) {
+						if (g_iTargetMuteType[iTarget] < eTypeSilence) {
 							g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 									UPDATE `%s_comms` \
 									SET `RemovedBy` = %s, `RemoveType` = 'U', `RemovedOn` = UNIX_TIMESTAMP(), `ureason` = '%s' \
@@ -928,7 +928,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 						PrintToChat2(iTarget, "%T", "Target unsilence", iTarget);
 					}
 
-					FireOnClientUnMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], TYPESILENCE, g_sTarget[iClient][TREASON]);
+					FireOnClientUnMuted(iClient, iTarget, g_sTarget[iClient][TIP], g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], eTypeSilence, g_sTarget[iClient][TREASON]);
 
 					ShowAdminAction(iClient, "%t", "UnSilence show", "name", g_sTarget[iClient][TNAME]);
 					FormatEx(sLog, sizeof(sLog), "\"%L\" un silence \"%s (%s IP_%s)\" (reason \"%s\")", iClient, \
@@ -1326,9 +1326,9 @@ public void VerifyMute(Database db, DBResultSet dbRs, const char[] sError, any i
 			iEndTime = iEndTempTime;
 		}
 
-		// If the record is of type TYPESILENCE we break the loop
-		if (iType >= TYPESILENCE) {
-			iType = TYPESILENCE;
+		// If the record is of type eTypeSilence we break the loop
+		if (iType >= eTypeSilence) {
+			iType = eTypeSilence;
 			break;
 		}
 	}
@@ -1347,13 +1347,13 @@ public void VerifyMute(Database db, DBResultSet dbRs, const char[] sError, any i
 	FireOnClientConnectGetMute(iClient, iType, g_iTargenMuteTime[iClient], g_sTargetMuteReason[iClient]);
 
 	switch (iType) {
-		case TYPEMUTE: {
+		case eTypeMute: {
 			AddMute(iClient, g_iTargenMuteTime[iClient]);
 		}
-		case TYPEGAG: {
+		case eTypeGag: {
 			AddGag(iClient, g_iTargenMuteTime[iClient]);
 		}
-		case TYPESILENCE: {
+		case eTypeSilence: {
 			AddSilence(iClient, g_iTargenMuteTime[iClient]);
 		}
 	}
