@@ -90,6 +90,11 @@
 		"en"    		"Ip"
 		"ru"    		"По айпи"
 	}
+	"MenuType"
+	{
+		"en"    		"Type"
+		"ru"    		"Тип"
+	}
 	"MuteTypeName"
 	{
 		"en"    		"Mute"
@@ -802,7 +807,6 @@
 		"en"			"{1} included voice and text chat {2}"
 		"ru"			"{1} включил голосовой и текстовый чат {2}"
 	}
-
 	"WarningCount"
 	{
 		"#format"		"{1:d}"

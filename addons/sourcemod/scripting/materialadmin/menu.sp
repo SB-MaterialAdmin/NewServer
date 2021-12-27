@@ -1030,7 +1030,7 @@ void ShowInfoMuteMenu(int iClient, DataPack[] hDPSilence, const int iSize)
 		hDPSilence[i].ReadString(sReason, sizeof(sReason));
 		hDPSilence[i].ReadString(sNameAdmin, sizeof(sNameAdmin));
 
-		FormatEx(sTitle, sizeof(sTitle), "Type:\n%s (%d)", g_sSilenceType[iType], iType);
+		FormatEx(sTitle, sizeof(sTitle), "%t:\n%s (%d)", "MenuType", g_sSilenceType[iType], iType);
 		hMenu.AddItem("", sTitle, ITEMDRAW_DISABLED);
 
 		FormatEx(sTitle, sizeof(sTitle), "%T:\n%s", "Admin", iClient, sNameAdmin);
