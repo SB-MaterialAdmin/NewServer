@@ -375,25 +375,23 @@ public void SQL_Callback_GetInfoMute(Database db, DBResultSet dbRs, const char[]
 		return;
 	}
 
-	int iCreated, iEnds, iLength, iCount = 0, iType;
+	int iCount = 0;
 	char sReason[256], sNameAdmin[MAX_NAME_LENGTH];
 	DataPack hDPSilence[2] = {null, null}; //mute and gag
 
 	while (dbRs.FetchRow()) {
-		iCreated = dbRs.FetchInt(0);
-		iEnds = dbRs.FetchInt(1);
-		iLength = dbRs.FetchInt(2);
-		iType = dbRs.FetchInt(3);
+		hDPSilence[iCount] = new DataPack();
+
+		hDPSilence[iCount].WriteCell(dbRs.FetchInt(0));	// created
+		hDPSilence[iCount].WriteCell(dbRs.FetchInt(1));	// end
+		hDPSilence[iCount].WriteCell(dbRs.FetchInt(2));	// length
+		hDPSilence[iCount].WriteCell(dbRs.FetchInt(3));	// type
+
 		dbRs.FetchString(4, sReason, sizeof(sReason));
 		dbRs.FetchString(5, sNameAdmin, sizeof(sNameAdmin));
-
-		hDPSilence[iCount] = new DataPack();
-		hDPSilence[iCount].WriteCell(iCreated);
-		hDPSilence[iCount].WriteCell(iEnds);
-		hDPSilence[iCount].WriteCell(iLength);
-		hDPSilence[iCount].WriteCell(iType);
-		hDPSilence[iCount].WriteString(sReason);
-		hDPSilence[iCount].WriteString(sNameAdmin);
+	
+		hDPSilence[iCount].WriteString(sReason);		// reason
+		hDPSilence[iCount].WriteString(sNameAdmin);		// admin name
 
 		#if MADEBUG
 			LogToFile(g_sLogDateBase, "GetInfoMute:%d, %d, %d, %d, %s, %s", iCreated, iEnds, iLength, iType, sReason, sNameAdmin);
