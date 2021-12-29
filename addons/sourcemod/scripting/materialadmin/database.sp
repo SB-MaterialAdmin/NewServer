@@ -290,7 +290,7 @@ void BdGetMuteType(int iClient, int iTarget)
 				LEFT JOIN `%!s_admins` AS a ON a.`aid` = c.`aid` \
 				LEFT JOIN `%!s_srvgroups` AS g ON g.`name` = a.`srv_group` \
 				WHERE `RemoveType` IS NULL  AND c.`authid` REGEXP '^STEAM_[0-9]:%s$' \
-				AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) LIMIT 1", \
+				AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP()) LIMIT 2", \
 					g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sTarget[iClient][TSTEAMID][8]);
 
 	g_dDatabase.Query(SQL_Callback_GetMuteType, sQuery, dPack, DBPrio_High);
@@ -306,28 +306,43 @@ public void SQL_Callback_GetMuteType(Database db, DBResultSet dbRs, const char[]
 	dPack.Reset();
 	int iClient = dPack.ReadCell();
 	int iTarget = dPack.ReadCell();
+	delete dPack;
+
+	g_iTargetMuteType[iTarget] = 0;
 
 	if (!dbRs || sError[0]) {
 		LogToFile(g_sLogDateBase, "SQL_Callback_GetMuteType Query Failed: %s", sError);
-		//g_iTargetMuteType[iTarget] = 0;
 		ShowTypeMuteMenu(iClient);
 		return;
 	}
 
-	if (dbRs.HasResults && dbRs.FetchRow()) {
-		g_iTargetMuteType[iTarget] = dbRs.FetchInt(0);
-		dbRs.FetchString(1, g_sTargetMuteSteamAdmin[iTarget], sizeof(g_sTargetMuteSteamAdmin[]));
-	} else {
-		g_iTargetMuteType[iTarget] = 0;
+	if (!dbRs.HasResults) {
+		ShowTypeMuteMenu(iClient);
+		return;
 	}
 
-#if MADEBUG
-	if (iTarget && IsClientInGame(iTarget)) {
-		LogToFile(g_sLogDateBase, "GetMuteType:%N: %d %s", iTarget, g_iTargetMuteType[iTarget], g_sTargetMuteSteamAdmin[iTarget]);
-	} else {
-		LogToFile(g_sLogDateBase, "GetMuteType:%d: %d %s", iTarget, g_iTargetMuteType[iTarget], g_sTargetMuteSteamAdmin[iTarget]);
+	int iTempType = 0;
+	while (dbRs.FetchRow()) {
+		iTempType += dbRs.FetchInt(0);
+
+		if (iTempType >= eTypeSilence) {
+			iTempType = eTypeSilence;
+		}
+
+		dbRs.FetchString(1, g_sTargetMuteSteamAdmin[iTarget], sizeof(g_sTargetMuteSteamAdmin[]));
+
+		#if MADEBUG
+			if (iTarget && IsClientInGame(iTarget)) {
+				LogToFile(g_sLogDateBase, "GetMuteType:%N: %d %s", iTarget, iTempType, g_sTargetMuteSteamAdmin[iTarget]);
+			} else {
+				LogToFile(g_sLogDateBase, "GetMuteType:%d: %d %s", iTarget, iTempType, g_sTargetMuteSteamAdmin[iTarget]);
+			}
+		#endif
 	}
-#endif
+
+	if (iTempType > eTypeNone) {
+		g_iTargetMuteType[iTarget] = iTempType;
+	}
 
 	ShowTypeMuteMenu(iClient);
 }

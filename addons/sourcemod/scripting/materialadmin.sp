@@ -16,7 +16,7 @@
 
 enum
 {
-	eNone			= 0,
+	eTypeNone		= 0,
 	eTypeMute		= 1, // мут
 	eTypeGag		= 2, // чат
 	eTypeSilence	= 3, // мут и чат
@@ -270,7 +270,7 @@ public void OnPluginStart()
 	LoadTranslations("materialadmin.phrases");
 	LoadTranslations("common.phrases");
 
-	FormatEx(g_sSilenceType[eNone], MAX_TYPE_NAME_LENGTH, "");
+	FormatEx(g_sSilenceType[eTypeNone], MAX_TYPE_NAME_LENGTH, "");
 	FormatEx(g_sSilenceType[eTypeMute], MAX_TYPE_NAME_LENGTH, "%t", "MuteTypeName");
 	FormatEx(g_sSilenceType[eTypeGag], MAX_TYPE_NAME_LENGTH, "%t", "GagTypeName");
 	FormatEx(g_sSilenceType[eTypeSilence], MAX_TYPE_NAME_LENGTH, "%t", "SilenceTypeName");
