@@ -1310,7 +1310,7 @@ stock bool IsBanAvailable(int iClient)
 
 stock bool IsAnyCommTypeAvailable(int iClient)
 {
-	return ( IsBanTypeAvailable(iClient, MA_GAG) || IsBanTypeAvailable(iClient, MA_MUTE) || IsBanTypeAvailable(iClient, MA_SILENCE));
+	return (IsBanTypeAvailable(iClient, MA_GAG) || IsBanTypeAvailable(iClient, MA_MUTE) || IsBanTypeAvailable(iClient, MA_SILENCE));
 }
 
 stock void VerifyServerID()

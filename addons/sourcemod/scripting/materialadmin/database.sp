@@ -256,14 +256,15 @@ public void SQL_Callback_GetInfoOffline(Database db, DBResultSet dbRs, const cha
 		PrintToChat2(iClient, "%T", "Failed to player", iClient);
 	}
 
-	if (dbRs.HasResults && dbRs.FetchRow()) {
-		dbRs.FetchString(0, g_sTarget[iClient][TSTEAMID], sizeof(g_sTarget[][]));
-		dbRs.FetchString(1, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
-		dbRs.FetchString(2, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
-		ShowTypeMenu(iClient);
-	} else {
+	if (!dbRs.HasResults || !dbRs.FetchRow()) {
 		PrintToChat2(iClient, "%T", "Failed to player", iClient);
+		return;
 	}
+
+	dbRs.FetchString(0, g_sTarget[iClient][TSTEAMID], sizeof(g_sTarget[][]));
+	dbRs.FetchString(1, g_sTarget[iClient][TIP], sizeof(g_sTarget[][]));
+	dbRs.FetchString(2, g_sTarget[iClient][TNAME], sizeof(g_sTarget[][]));
+	ShowTypeMenu(iClient);
 }
 
 //------------------------------------------------------------------------------------------
@@ -389,7 +390,7 @@ public void SQL_Callback_GetInfoMute(Database db, DBResultSet dbRs, const char[]
 
 		dbRs.FetchString(4, sReason, sizeof(sReason));
 		dbRs.FetchString(5, sNameAdmin, sizeof(sNameAdmin));
-	
+
 		hDPSilence[iCount].WriteString(sReason);		// reason
 		hDPSilence[iCount].WriteString(sNameAdmin);		// admin name
 
@@ -445,7 +446,7 @@ void CheckBanInBd(int iClient, int iTarget, int iType, char[] sSteamIp)
 			FROM `%!s_bans` AS c \
 			LEFT JOIN `%!s_admins` AS a ON a.`aid` = c.`aid` \
 			LEFT JOIN `%!s_srvgroups` AS g ON g.`name` = a.`srv_group` \
-			WHERE `RemoveType` IS NULL  AND (%!s) \
+			WHERE `RemoveType` IS NULL AND (%!s) \
 			AND (`length` = 0 OR `ends` > UNIX_TIMESTAMP())%!s", \
 				g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sWhele, sServer);
 
@@ -459,7 +460,7 @@ void CheckBanInBd(int iClient, int iTarget, int iType, char[] sSteamIp)
 	LogToFile(g_sLogDateBase, "Checking ban in bd: %s. QUERY: %s", sSteamIp, sQuery);
 #endif
 
-	g_dDatabase.Query(SQL_Callback_CheckBanInBd , sQuery, dPack, DBPrio_High);
+	g_dDatabase.Query(SQL_Callback_CheckBanInBd, sQuery, dPack, DBPrio_High);
 }
 
 public void SQL_Callback_CheckBanInBd(Database db, DBResultSet dbRs, const char[] sError, any data)
@@ -865,7 +866,8 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				g_dDatabase.Format(sQuery, sizeof(sQuery), "\
 						INSERT INTO `%s_comms` (`authid`, `name`, `created`, `ends`, `length`, `reason`, `aid`, `adminIp`, `sid`, `type`) \
 						VALUES ('%s', '%s', UNIX_TIMESTAMP(), UNIX_TIMESTAMP() + %d, %d, '%s', %!s, '%s', %!s, %d)", \
-							g_sDatabasePrefix, g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], iTime, iTime, g_sTarget[iClient][TREASON], sQueryAdmin, sAdmin_SteamID, sServer, iType);
+							g_sDatabasePrefix, g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TNAME], \
+								iTime, iTime, g_sTarget[iClient][TREASON], sQueryAdmin, sAdmin_SteamID, sServer, iType);
 			}
 		}
 		case TYPE_UNGAG, TYPE_UNMUTE, TYPE_UNSILENCE: {
@@ -1155,94 +1157,95 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 		return;
 	}
 
-	if (dbRs.HasResults && dbRs.RowCount && dbRs.FetchRow()) {
-		switch (FireOnClientConnectBan(iClient)) {
-			case Plugin_Handled, Plugin_Stop: {
-				g_bBanClientConnect[iClient] = false;
-				CheckClientAdmin(iClient, sSteamID);
-				CheckClientMute(iClient, sSteamID);
-				return;
-			}
-		}
-
-		char sReason[256], sLength[64], sCreated[128];
-		char sEnds[128], sName[MAX_NAME_LENGTH];
-		char sQuery[1512], sSourceSleuth[256], sServer[256];
-
-		int iLength = dbRs.FetchInt(1);
-		int iCreated = dbRs.FetchInt(2);
-		dbRs.FetchString(3, sReason, sizeof(sReason));
-
-		if (!iLength) {
-			FormatEx(sLength, sizeof(sLength), "%T", "Permanent", iClient);
-			if (g_bBanSayPanel) {
-				FormatEx(sEnds, sizeof(sEnds), "%T", "No ends", iClient);
-			}
-		} else {
-			FormatVrema(iClient, iLength, sLength, sizeof(sLength));
-
-			if (g_bBanSayPanel) {
-				FormatTime(sEnds, sizeof(sEnds), FORMAT_TIME, iCreated + iLength);
-			}
-		}
-
-		FormatTime(sCreated, sizeof(sCreated), FORMAT_TIME, iCreated);
-		GetFixedClientName(iClient, sName, sizeof(sName));
-
-		if (g_iServerID == -1) {
-			FormatEx(sServer, sizeof(sServer), \
-				"IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", \
-					g_sDatabasePrefix, g_sServerIP, g_sServerPort);
-		} else {
-			IntToString(g_iServerID, sServer, sizeof(sServer));
-		}
-
-		if (!g_bSourceSleuth) {
-			sSourceSleuth[0] = '\0';
-		} else {
-			FormatEx(sSourceSleuth, sizeof(sSourceSleuth), " OR (`type` = 0 AND `ip` = '%s')", sIP);
-		}
-
-		g_dDatabase.Format(sQuery, sizeof(sQuery), "\
-				INSERT INTO `%s_banlog` (`sid`, `time`, `name`, `bid`) \
-				VALUES (%!s, UNIX_TIMESTAMP(), '%s', %d)", \
-					g_sDatabasePrefix, sServer, sName, SQL_FetchInt(dbRs, 0));
-
-		#if MADEBUG
-			LogToFile(g_sLogDateBase, "Ban log: QUERY: %s", sQuery);
-		#endif
-
-		FixDatabaseCharset();
-		g_dDatabase.Query(SQL_Callback_BanLog, sQuery, _, DBPrio_High);
-
-		g_bBanClientConnect[iClient] = true;
-
- 		if (!dbRs.IsFieldNull(0)) {
-			char sAdmin[64];
-			dbRs.FetchString(4, sAdmin, sizeof(sAdmin));
-
-			if (g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO) {
-				CreateTeaxtDialog(iClient, "%T", "Banned Admin panel", iClient, sAdmin, sReason, sCreated, sEnds, sLength, g_sWebsite);
-			} else {
-				KickClient(iClient, "%T", "Banned Admin", iClient, sAdmin, sReason, sCreated, sLength, g_sWebsite);
-			}
-		} else {
-			if (g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO) {
-				CreateTeaxtDialog(iClient, "%T", "Banned panel", iClient, sReason, sCreated, sEnds, sLength, g_sWebsite);
-			} else {
-				KickClient(iClient, "%T", "Banned", iClient, sReason, sCreated, sLength, g_sWebsite);
-			}
-		}
-
-		if (g_iServerBanTime > 0) {
-			DataPack dPack2 = new DataPack();
-			dPack2.WriteString((g_bServerBanTyp) ? sSteamID : sIP);
-			CreateTimer(0.5, TimerBan, dPack2);
-		}
-	} else {
+	if (!dbRs.HasResults || !dbRs.RowCount || !dbRs.FetchRow()) {
 		g_bBanClientConnect[iClient] = false;
 		CheckClientAdmin(iClient, sSteamID);
 		CheckClientMute(iClient, sSteamID);
+		return;
+	}
+
+	switch (FireOnClientConnectBan(iClient)) {
+		case Plugin_Handled, Plugin_Stop: {
+			g_bBanClientConnect[iClient] = false;
+			CheckClientAdmin(iClient, sSteamID);
+			CheckClientMute(iClient, sSteamID);
+			return;
+		}
+	}
+
+	char sReason[256], sLength[64], sCreated[128];
+	char sEnds[128], sName[MAX_NAME_LENGTH];
+	char sQuery[1512], sSourceSleuth[256], sServer[256];
+
+	int iLength = dbRs.FetchInt(1);
+	int iCreated = dbRs.FetchInt(2);
+	dbRs.FetchString(3, sReason, sizeof(sReason));
+
+	if (!iLength) {
+		FormatEx(sLength, sizeof(sLength), "%T", "Permanent", iClient);
+		if (g_bBanSayPanel) {
+			FormatEx(sEnds, sizeof(sEnds), "%T", "No ends", iClient);
+		}
+	} else {
+		FormatVrema(iClient, iLength, sLength, sizeof(sLength));
+
+		if (g_bBanSayPanel) {
+			FormatTime(sEnds, sizeof(sEnds), FORMAT_TIME, iCreated + iLength);
+		}
+	}
+
+	FormatTime(sCreated, sizeof(sCreated), FORMAT_TIME, iCreated);
+	GetFixedClientName(iClient, sName, sizeof(sName));
+
+	if (g_iServerID == -1) {
+		FormatEx(sServer, sizeof(sServer), \
+			"IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0)", \
+				g_sDatabasePrefix, g_sServerIP, g_sServerPort);
+	} else {
+		IntToString(g_iServerID, sServer, sizeof(sServer));
+	}
+
+	if (!g_bSourceSleuth) {
+		sSourceSleuth[0] = '\0';
+	} else {
+		FormatEx(sSourceSleuth, sizeof(sSourceSleuth), " OR (`type` = 0 AND `ip` = '%s')", sIP);
+	}
+
+	g_dDatabase.Format(sQuery, sizeof(sQuery), "\
+			INSERT INTO `%s_banlog` (`sid`, `time`, `name`, `bid`) \
+			VALUES (%!s, UNIX_TIMESTAMP(), '%s', %d)", \
+				g_sDatabasePrefix, sServer, sName, SQL_FetchInt(dbRs, 0));
+
+#if MADEBUG
+	LogToFile(g_sLogDateBase, "Ban log: QUERY: %s", sQuery);
+#endif
+
+	FixDatabaseCharset();
+	g_dDatabase.Query(SQL_Callback_BanLog, sQuery, _, DBPrio_High);
+
+	g_bBanClientConnect[iClient] = true;
+
+	if (!dbRs.IsFieldNull(0)) {
+		char sAdmin[64];
+		dbRs.FetchString(4, sAdmin, sizeof(sAdmin));
+
+		if (g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO) {
+			CreateTeaxtDialog(iClient, "%T", "Banned Admin panel", iClient, sAdmin, sReason, sCreated, sEnds, sLength, g_sWebsite);
+		} else {
+			KickClient(iClient, "%T", "Banned Admin", iClient, sAdmin, sReason, sCreated, sLength, g_sWebsite);
+		}
+	} else {
+		if (g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO) {
+			CreateTeaxtDialog(iClient, "%T", "Banned panel", iClient, sReason, sCreated, sEnds, sLength, g_sWebsite);
+		} else {
+			KickClient(iClient, "%T", "Banned", iClient, sReason, sCreated, sLength, g_sWebsite);
+		}
+	}
+
+	if (g_iServerBanTime > 0) {
+		DataPack dPack2 = new DataPack();
+		dPack2.WriteString((g_bServerBanTyp) ? sSteamID : sIP);
+		CreateTimer(0.5, TimerBan, dPack2);
 	}
 }
 
@@ -1381,9 +1384,9 @@ void ResetMute(int iClient)
 	g_iTargetMuteType[iClient] = 0;
 	FireOnClientConnectGetMute(iClient, 0, -1, "");
 
-	#if MADEBUG
-		LogToFile(g_sLogDateBase, "CheckClientMute: set %N type 0", iClient);
-	#endif
+#if MADEBUG
+	LogToFile(g_sLogDateBase, "CheckClientMute: set %N type 0", iClient);
+#endif
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------
@@ -1407,14 +1410,15 @@ void AdminHash()
 
 		FixDatabaseCharset();
 		g_dDatabase.Query(OverridesDone, sQuery, _, DBPrio_High);
-	} else {
-		DumpAdminCache(AdminCache_Groups, true);
-		DumpAdminCache(AdminCache_Overrides, true);
-		DumpAdminCache(AdminCache_Admins, true);
-		ReadOverrides();
-		ReadGroups();
-		ReadUsers();
+		return;
 	}
+
+	DumpAdminCache(AdminCache_Groups, true);
+	DumpAdminCache(AdminCache_Overrides, true);
+	DumpAdminCache(AdminCache_Admins, true);
+	ReadOverrides();
+	ReadGroups();
+	ReadUsers();
 }
 
 public void OverridesDone(Database db, DBResultSet dbRs, const char[] sError, any iData)
@@ -1704,25 +1708,27 @@ public void SQL_Callback_QueryBekap(Database db, DBResultSet dbRs, const char[] 
 		LogToFile(g_sLogDateBase, "SQL_Callback_QueryBekap Query Failed: %s", sError);
 	}
 
-	if (dbRs.HasResults && dbRs.RowCount) {
-		char sQuery[1024];
-		int iId;
+	if (!dbRs.HasResults || !dbRs.RowCount) {
+		return;
+	}
 
-		while (dbRs.MoreRows) {
-			if (!dbRs.FetchRow()) {
-				continue;
-			}
+	char sQuery[1024];
+	int iId;
 
-			iId = dbRs.FetchInt(0);
-			dbRs.FetchString(1, sQuery, sizeof(sQuery));
-
-			#if MADEBUG
-				LogToFile(g_sLogDateBase, "QueryBekap:QUERY: %s", sQuery);
-			#endif
-
-			FixDatabaseCharset();
-			g_dDatabase.Query(CheckCallbackBekap, sQuery, iId, DBPrio_Low); // байда с зависанием скрипта
+	while (dbRs.MoreRows) {
+		if (!dbRs.FetchRow()) {
+			continue;
 		}
+
+		iId = dbRs.FetchInt(0);
+		dbRs.FetchString(1, sQuery, sizeof(sQuery));
+
+		#if MADEBUG
+			LogToFile(g_sLogDateBase, "QueryBekap:QUERY: %s", sQuery);
+		#endif
+
+		FixDatabaseCharset();
+		g_dDatabase.Query(CheckCallbackBekap, sQuery, iId, DBPrio_Low); // байда с зависанием скрипта
 	}
 }
 
@@ -1734,9 +1740,10 @@ public void CheckCallbackBekap(Database db, DBResultSet dbRs, const char[] sErro
 		}
 
 		LogToFile(g_sLogDateBase, "CheckCallbackBekap Query Failed: %s", sError);
-	} else {
-		DeleteBekap(iId);
+		return;
 	}
+
+	DeleteBekap(iId);
 }
 
 void DeleteBekap(int iId)
@@ -1770,21 +1777,23 @@ public void SQL_Callback_CheckBekapTime(Database db, DBResultSet dbRs, const cha
 		LogToFile(g_sLogDateBase, "SQL_Callback_CheckBekapTime Query Failed: %s", sError);
 	}
 
-	if (dbRs.HasResults && dbRs.RowCount) {
-		int iId, iTimeBekap;
+	if (!dbRs.HasResults || !dbRs.RowCount) {
+		return;
+	}
 
-		int iTime = GetTime();
-		while (dbRs.MoreRows) {
-			if (!dbRs.FetchRow()) {
-				continue;
-			}
+	int iId, iTimeBekap;
 
-			iId = dbRs.FetchInt(0);
-			iTimeBekap = dbRs.FetchInt(1);
+	int iTime = GetTime();
+	while (dbRs.MoreRows) {
+		if (!dbRs.FetchRow()) {
+			continue;
+		}
 
-			if (iTimeBekap + 604800 > iTime) {
-				DeleteBekap(iId);
-			}
+		iId = dbRs.FetchInt(0);
+		iTimeBekap = dbRs.FetchInt(1);
+
+		if ((iTimeBekap + 604800) > iTime) {
+			DeleteBekap(iId);
 		}
 	}
 }
