@@ -7,7 +7,7 @@
 	*/
 	"AdminMenu_Main"
 	{
-		"en"    		"Settings block"
+		"en"    		"Locks Management"
 		"ru"    		"Управление блокировками"
 	}
 	"OnlineTitle"
@@ -17,47 +17,47 @@
 	}
 	"OfflineTitle"
 	{
-		"en"    		"The left players"
+		"en"    		"Exited players"
 		"ru"    		"Вышедшие игроки"
 	}
 	"ListTitle"
 	{
-		"en"    		"The punished players on the server"
+		"en"    		"Punished players on the server"
 		"ru"    		"Наказанные игроки на сервере"
 	}
 	"SettingTitle"
 	{
-		"en"    		"Settings"
+		"en"    		"Management"
 		"ru"    		"Управление"
 	}
 	"SelectPlayerTitle"
 	{
-		"en"    		"Select Player"
+		"en"    		"Choose a player"
 		"ru"    		"Выберите игрока"
 	}
 	"SelectTimeTitle"
 	{
-		"en"    		"Select Time"
+		"en"    		"Choose a time"
 		"ru"    		"Выберите время"
 	}
 	"SelectReasonTitle"
 	{
-		"en"    		"Select Reason"
+		"en"    		"Choose a reason"
 		"ru"    		"Выберите причину"
 	}
 	"SetTitle"
 	{
-		"en"    		"Select"
+		"en"    		"Choose"
 		"ru"    		"Выберите"
 	}
 	"ReheshAdmin"
 	{
-		"en"    		"Refresh the list of Admins"
+		"en"    		"Update the admin list"
 		"ru"    		"Обновить список админов"
 	}
 	"ClearHistory"
 	{
-		"en"    		"Clear off history"
+		"en"    		"Clear offline history"
 		"ru"    		"Очистить оффлайн историю"
 	}
 	"ReloadConfig"
@@ -67,7 +67,7 @@
 	}
 	"ReloadConnect"
 	{
-		"en"    		"Reload connect"
+		"en"    		"Reconnect to the database"
 		"ru"    		"Переподключиться к бд"
 	}
 	"SetMute"
@@ -82,42 +82,42 @@
 	}
 	"Steam"
 	{
-		"en"    		"Steam"
+		"en"    		"By steam"
 		"ru"    		"По стиму"
 	}
 	"Ip"
 	{
-		"en"    		"Ip"
+		"en"    		"By ip"
 		"ru"    		"По айпи"
 	}
 	"Mute"
 	{
-		"en"    		"Mute"
+		"en"    		"Disable voice chat"
 		"ru"   			"Отключить голосовой чат"
 	}
 	"Gag"
 	{
-		"en"    		"Gag"
+		"en"    		"Disable Text chat"
 		"ru"    		"Отключить текстовый чат"
 	}
 	"Silence"
 	{
-		"en"   		 	"Silence"
+		"en"   		 	"Disable the entire chat"
 		"ru"    		"Отключить весь чат"
 	}
 	"unMute"
 	{
-		"en"    		"Un Mute"
+		"en"    		"Enable voice chat"
 		"ru"    		"Включить голосовой чат"
 	}
 	"unGag"
 	{
-		"en"    		"Un Gag"
+		"en"    		"Enable text chat"
 		"ru"    		"Включить текстовый чат"
 	}
 	"unSilence"
 	{
-		"en"    		"Un Silence"
+		"en"    		"Enable the entire chat"
 		"ru"    		"Включить весь чат"
 	}
 	"No players history"
@@ -152,17 +152,17 @@
 	}
 	"Clients"
 	{
-		"en"			"Clients"
+		"en"			"Execute on selected"
 		"ru"			"Выполнить на выделенных"
 	}
 	"no target"
 	{
-		"en"			"No target"
+		"en"			"No players"
 		"ru"			"Нет игроков"
 	}
 	"No time"
 	{
-		"en"			"No time"
+		"en"			"Nothing is available for you"
 		"ru"			"Для вас ничего не доступно"
 	}
 	"Show"
@@ -212,7 +212,7 @@
 	}
 	"del admin"
 	{
-		"en"			"Delete admin"
+		"en"			"Remove admin"
 		"ru"			"Удалить админа"
 	}
 	"No Access setting admin"
@@ -222,7 +222,7 @@
 	}
 	"AddFlagAdminTitle"
 	{
-		"en"			"Select the flag"
+		"en"			"Select a flag"
 		"ru"			"Выберите флаг"
 	}
 	"z flag"
@@ -332,12 +332,12 @@
 	}
 	"set flags"
 	{
-		"en"			"I chose the flags, onward"
-		"ru"			"я выбрал флаги, далее"
+		"en"			"I have selected the flags, next"
+		"ru"			"Я выбрал флаги, далее"
 	}
 	"DelAdminTitle"
 	{
-		"en"			"View to remove"
+		"en"			"View to delete"
 		"ru"			"Вид для удаления"
 	}
 	"del all"
@@ -347,8 +347,8 @@
 	}
 	"del server"
 	{
-		"en"			"Only in this server"
-		"ru"			"Только с этого с сервера"
+		"en"			"Only from this server"
+		"ru"			"Только с этого сервера"
 	}
 	//------------------------------------------------
 	/*******RU******
@@ -449,27 +449,27 @@
 	"Admin Expire"
 	{
 		"#format"		"{1:s}"
-		"en"			"Validity privileges expire {1}"
+		"en"			"Privileges expire after {1}"
 		"ru"			"Срок действия привилегий истекает через {1}"
 	}
 	"Clear history"
 	{
-		"en"    		"Clear history"
+		"en"    		"History cleared"
 		"ru"    		"История очищена"
 	}
 	"Reload config"
 	{
-		"en"    		"Reload config ok"
+		"en"    		"The config has been reloaded"
 		"ru"    		"Конфиг перезагружен"
 	}
 	"Reload connect ok"
 	{
-		"en"    		"Reload connect ok"
+		"en"    		"Connection to the database is established"
 		"ru"    		"Соединение с бд установлено"
 	}
 	"Reload connect no"
 	{
-		"en"    		"Reload connect no"
+		"en"    		"Connection to the database is not established"
 		"ru"    		"Соединение с бд не установлено"
 	}
 	"Failed to bd"
@@ -507,7 +507,7 @@
 	}
 	"No Client Game"
 	{
-		"en"    		"The player left"
+		"en"    		"The player out"
 		"ru"    		"Игрок вышел"
 	}
 	"Yes report"
@@ -518,18 +518,18 @@
 	}
 	"No admin"
 	{
-		"en"    		"This Admin immunity"
+		"en"    		"The command is prohibited for execution over the admin"
 		"ru"    		"Команда запрещена на исполнение над админом"
 	
 	}
 	"No Access unban time 0"
 	{
-		"en"    		"Permanent time allowed Admins with flag UNBAN"
+		"en"    		"Time is permanent allowed to admins with the UNBAN flag"
 		"ru"    		"Время навсегда разрешено админам с флагом UNBAN"
 	}
 	"No Access time 0"
 	{
-		"en" 			"You have no access permanent ban/mute"
+		"en" 			"You don't have access to ban/mute permanent"
 		"ru" 			"У вас нет доступа к бану/муту навсегда"
 	}
 	"No Access max time"
@@ -540,25 +540,25 @@
 	}
 	"No Access all"
 	{
-		"en"    		"Select all players allowed Admins with flag ROOT"
+		"en"    		"Admins with the ROOT flag are allowed to select all"
 		"ru"    		"Выбрать всех разрешено админам с флагом ROOT"
 	}
 	"Invalid time"
 	{
 		"#format"		"{1:d}"
-		"en"    		"Invalid time"
+		"en"    		"Time less than {1} is prohibited"
 		"ru"    		"Время меньше {1} запрещено"
 	}
 	"No active bans"
 	{
 		"#format"		"{1:s}"
-		"en"    		"No active bans found for that filter {1}"
+		"en"    		"There is no active ban for this filter {1}"
 		"ru"    		"Нет активного бана по данному фильтру {1}"
 	}
 	"Is already banned"
 	{
 		"#format"		"{1:s}"
-		"en"    		"{1} is already banned"
+		"en"    		"{1} already in the ban"
 		"ru"    		"{1} уже находится в бане"
 	}
 	"No access mute"
@@ -587,40 +587,40 @@
 	"Target gag"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"You have disabled text chat on {1} because ({2})"
+		"en"			"You have been disabled text chat on {1} because of ({2})"
 		"ru"			"Вам отключили текстовый чат на {1} по причине ({2})"
 	}
 	"Target mute"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"You have disabled the voice chat on {1} because ({2})"
+		"en"			"You have been disabled the voice chat on {1} because of ({2})"
 		"ru"			"Вам отключили голосовой чат на {1} по причине ({2})"
 	}
 	"Target silence"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"You have disabled the voice and text chat to {1} because ({2})"
+		"en"			"You have been disabled the voice and text chat to {1} because of ({2})"
 		"ru"			"Вам отключили голосовой и текстовый чат на {1} по причине ({2})"
 	}
 	"Target ungag"
 	{
-		"en"			"You have included a text chat"
+		"en"			"You have text chat enabled"
 		"ru"			"Вам включили текстовый чат"
 	}
 	"Target unmute"
 	{
-		"en"			"You have enabled voice chat"
+		"en"			"You have voice chat enabled"
 		"ru"			"Вам включили голосовой чат"
 	}
 	"Target unsilence"
 	{
-		"en"			"You have enabled voice and text chat"
+		"en"			"You have voice and text chat enabled"
 		"ru"			"Вам включили голосовой и текстовый чат"
 	}
 	"Target no text chat"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"You have turned off text chat on {1} because ({2})"
+		"en"			"You have turned off text chat on {1} because of ({2})"
 		"ru"			"У вас выключен текстовый чат на {1} по причине ({2})"
 	}
 	"prifix"
@@ -630,18 +630,18 @@
 	}
 	"say imune"
 	{
-		"en"			"Write numbers from 0 to 100 immunity for admin"
+		"en"			"Write numbers from 0 to 100 immunity for the admin"
 		"ru"			"Напиши цифрами от 0 до 100 иммунитет для админа"
 	}
 	"say set imune next pass"
 	{
 		"#format"		"{1:s}"
-		"en"			"Immunity {1} is accepted, now write the password for the administrator"
+		"en"			"Immunity {1} accepted, now write the password for the admin"
 		"ru"			"Иммунитет {1} принят, теперь напишите пароль для админа"
 	}
 	"Failed imune"
 	{
-		"en"			"Immunity has to consist only of figures from 0 to 100"
+		"en"			"Immunity should consist only of digits from 0 to 100"
 		"ru"			"Иммунитет должен состоять только из цифр от 0 до 100"
 	}
 	"say set pass next expire"
@@ -652,7 +652,7 @@
 	}
 	"Failed expire"
 	{
-		"en"			"Time should not be less than 0" 
+		"en"			"The time must be at least 0" 
 		"ru"			"Время должно быть не меньше 0"
 	}
 	"say set expire"
@@ -664,7 +664,7 @@
 	"Failed add admin"
 	{
 		"#format"		"{1:s}"
-		"en"			"Failed to add admin to {1}"
+		"en"			"Couldn't add admin {1}"
 		"ru"			"Не получилось добавить админа {1}"
 	}
 	"Ok add admin bd"
@@ -676,19 +676,19 @@
 	"No admin sb"
 	{
 		"#format"		"{1:s}"
-		"en"			"{1} is not the administrator of the system"
+		"en"			"{1} is not the administrator of this system"
 		"ru"			"{1} не является админом данной системы"
 	}
 	"Ok add admin server"
 	{
 		"#format"		"{1:s}"
-		"en"			"Admin {1} has been added to the server"
+		"en"			"Admin {1} added to the server"
 		"ru"			"Админ {1} добавлен на сервер"
 	}
 	"Failed del admin"
 	{
 		"#format"		"{1:s}"
-		"en"			"Failed to delete admin {1}"
+		"en"			"Couldn't delete admin {1}"
 		"ru"			"Не получилось удалить админа {1}"
 	}
 	"Ok del admin"
@@ -699,7 +699,7 @@
 	}
 	"Failed to player admin"
 	{
-		"en"			"The player is already Admin"
+		"en"			"The player is already an admin"
 		"ru"			"Игрок уже админ"
 	}
 	"Failed flag pust"
@@ -709,17 +709,17 @@
 	}
 	"Failed flag"
 	{
-		"en"			"Incorrectly specified flags (list of flags [zbacdefghijklmnopqrst])"
+		"en"			"Flags are specified incorrectly (list of flags [zbacdefghijklmnopqrst])"
 		"ru"			"Неверно указаны флаги(список флагов [zbacdefghijklmnopqrst])"
 	}
 	"Failed steam"
 	{
-		"en"			"Invalid Steam"
+		"en"			"The steam is specified incorrectly"
 		"ru"			"Неверно указан стим"
 	}
 	"Failed ip"
 	{
-		"en"			"Invalid ip"
+		"en"			"The IP address is specified incorrectly"
 		"ru"			"Неверно указан айпи"
 	}
 	"Failed to player no admin"
@@ -742,7 +742,7 @@
 	"Banned show"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s}"
-		"en"			"{1} banned {2} to {3} because ({4})"
+		"en"			"{1} banned {2} to {3} because of ({4})"
 		"ru"			"{1} забанил {2} на {3} по причине ({4})"
 	}
 	"UnBanned show"
@@ -772,19 +772,19 @@
 	"UnGag show"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"{1} included text chat {2}"
+		"en"			"{1} turned on a text chat {2}"
 		"ru"			"{1} включил текстовый чат {2}"
 	}
 	"UnMute show"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"{1} included voice chat {2}"
+		"en"			"{1} turned on a voice chat {2}"
 		"ru"			"{1} включил голосовой чат {2}"
 	}
 	"UnSilence show"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"{1} included voice and text chat {2}"
+		"en"			"{1} turned on text chat and voice chat {2}"
 		"ru"			"{1} включил голосовой и текстовый чат {2}"
 	}
 
