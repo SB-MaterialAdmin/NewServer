@@ -303,32 +303,32 @@
 	"o flag"
 	{
 		"en"			"First custom flag type"
-		"ru"			"специальный флаг"
+		"ru"			"специальный флаг(1)"
 	}
 	"p flag"
 	{
 		"en"			"Second custom flag type"
-		"ru"			"специальный флаг"
+		"ru"			"специальный флаг(2)"
 	}
 	"q flag"
 	{
 		"en"			"Third custom flag type"
-		"ru"			"специальный флаг"
+		"ru"			"специальный флаг(3)"
 	}
 	"r flag"
 	{
 		"en"			"Fourth custom flag type"
-		"ru"			"специальный флаг"
+		"ru"			"специальный флаг(4)"
 	}
 	"s flag"
 	{
 		"en"			"Fifth custom flag type"
-		"ru"			"специальный флаг"
+		"ru"			"специальный флаг(5)"
 	}
 	"t flag"
 	{
 		"en"			"Sixth custom flag type"
-		"ru"			"специальный флаг"
+		"ru"			"специальный флаг(6)"
 	}
 	"set flags"
 	{
