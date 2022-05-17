@@ -204,7 +204,7 @@ public Plugin myinfo =
 {
 	name = "Material Admin",
 	author = "Material Admin Dev Team",
-	description = "For to sm 1.9",
+	description = "Improve work with admins, bans, mutes, add offline bans, massbans",
 	version = MAVERSION,
 	url = "https://github.com/SB-MaterialAdmin/NewServer"
 };
