@@ -1428,6 +1428,7 @@ void AdminHash()
 		return;
 	}
 
+	g_bReshashAdmin = false;
 	DumpAdminCache(AdminCache_Groups, true);
 	DumpAdminCache(AdminCache_Overrides, true);
 	DumpAdminCache(AdminCache_Admins, true);

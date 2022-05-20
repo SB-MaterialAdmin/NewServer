@@ -8,25 +8,25 @@
 	}
 	"Database not ready"
 	{
-		"en"    		"Error: Database not ready."
+		"en"    		"Error: The database is not ready."
 		"ru"    		"Ошибка: База данных не готова."
 	}
 	"DB error while retrieving bans"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"    		"DB error while retrieving bans for {1}:\n{2}"
+		"en"    		"DB error when getting bans for {1}:\n{2}"
 		"ru"    		"Ошибка БД при получении банов для {1}:\n {2}"
 	}
 	"No bans found"
 	{
 		"#format"		"{1:s}"
-		"en"    		"No bans found for {1}."
+		"en"    		"Bans for {1} were not found."
 		"ru"    		"Баны для {1} не найдены."
 	}
 	"Listing bans"
 	{
 		"#format"		"{1:s}"
-		"en"    		"Listing bans for {1}."
+		"en"    		"List of bans for {1}."
 		"ru"    		"Список банов для {1}."
 	}
 }
