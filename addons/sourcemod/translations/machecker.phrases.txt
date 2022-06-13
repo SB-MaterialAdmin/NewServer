@@ -1,5 +1,29 @@
 "Phrases"
 {
+	"Player connect comm"
+	{
+		"#format"		"{1:s},{2:d}"
+		"en"			"Player \"{1}\" has {2} previous comms"
+		"ru"			"Игрок \"{1}\" имеет {2} мут(а)"
+	}
+	"Listing comms"
+	{
+		"#format"		"{1:s}"
+		"en"    		"List of comms for {1}."
+		"ru"    		"Список мутов для {1}."
+	}
+	"No comms found"
+	{
+		"#format"		"{1:s}"
+		"en"    		"Comms for {1} were not found."
+		"ru"    		"Муты для {1} не найдены."
+	}
+	"DB error while retrieving comms"
+	{
+		"#format"		"{1:s},{2:s}"
+		"en"    		"DB error when getting comms for {1}:\n{2}"
+		"ru"    		"Ошибка БД при получении мутов для {1}:\n {2}"
+	}
 	"Player connect"
 	{
 		"#format"		"{1:s},{2:d}"

@@ -28,6 +28,7 @@
 #include <materialadmin>
 
 #define LISTBANS_USAGE "ma_listbans <#userid|name> - Lists a user's prior bans from Material Admin"
+#define LISTCOMMS_USAGE "ma_listcomms <#userid|name> - Lists a user's prior blocked comms from Material Admin"
 #define MAX_STEAMID_LENGTH 	32
 #define MAX_IP_LENGTH 		64
 
@@ -36,12 +37,13 @@ char g_sDatabasePrefix[12] = "sb",
 Database g_dDatabase = null;
 
 bool	g_bCheckBans = true;
+bool	g_bCheckComms = true;
 
 public Plugin myinfo = 
 {
 	name = "Material Admin Checker", 
-	author = "psychonic, Ca$h Munny, Sarabveer(VEER™)", 
-	description = "Notifies admins of prior bans from Material Admin upon player connect.", 
+	author = "psychonic, Ca$h Munny, Sarabveer(VEER™), Bloomstorm", 
+	description = "Notifies admins of prior bans and blocked comms from Material Admin upon player connect.", 
 	version = MAVERSION, 
 	url = "https://github.com/CrazyHackGUT/SB_Material_Design/"
 };
@@ -52,6 +54,7 @@ public void OnPluginStart()
 	LoadTranslations("materialadmin.phrases");
 	LoadTranslations("machecker.phrases");
 	RegAdminCmd("ma_listbans", OnListSourceBansCmd, ADMFLAG_BAN, LISTBANS_USAGE);
+	RegAdminCmd("ma_listcomms", OnListSourceCommsCmd, ADMFLAG_CHAT, LISTCOMMS_USAGE);
 }
 
 public void MAOnConfigSetting()
@@ -63,6 +66,10 @@ public void MAOnConfigSetting()
 	if (MAGetConfigSetting("CheckBans", szEnableState))
 	{
 		g_bCheckBans = (szEnableState[0] != '0');
+	}
+	if (MAGetConfigSetting("CheckComms", szEnableState))
+	{
+		g_bCheckComms = (szEnableState[0] != '0');
 	}
 }
 
@@ -79,23 +86,36 @@ public void OnClientAuthorized(int iClient, const char[] sAuth)
 
 	if (!g_dDatabase)
 		return;
-	
-	if (!g_bCheckBans)
-		return;
-
 	char sQuery[512], 
-		sIp[MAX_IP_LENGTH];
+			sIp[MAX_IP_LENGTH];
 	GetClientIP(iClient, sIp, sizeof(sIp));
-	FormatEx(sQuery, sizeof(sQuery), "\
-			SELECT COUNT(bid) FROM `%s_bans` \
-			WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')) LIMIT 1", 
-		g_sDatabasePrefix, sAuth[8], sIp);
 		
-#if MADEBUG
-	MALog(MA_LogDateBase, "ma_checker: OnClientAuthorized Query %s", sQuery);
-#endif
-	
-	g_dDatabase.Query(OnConnectBanCheck, sQuery, GetClientUserId(iClient), DBPrio_Low);
+	if (g_bCheckBans)
+	{
+		FormatEx(sQuery, sizeof(sQuery), "\
+				SELECT COUNT(bid) FROM `%s_bans` \
+				WHERE ((`type` = 0 AND `authid` REGEXP '^STEAM_[0-9]:%s$') OR (`type` = 1 AND `ip` = '%s')) LIMIT 1", 
+			g_sDatabasePrefix, sAuth[8], sIp);
+			
+	#if MADEBUG
+		MALog(MA_LogDateBase, "ma_checker: OnClientAuthorized Query %s", sQuery);
+	#endif
+
+		g_dDatabase.Query(OnConnectBanCheck, sQuery, GetClientUserId(iClient), DBPrio_Low);
+	}
+	if (g_bCheckComms)
+	{
+		FormatEx(sQuery, sizeof(sQuery), "\
+				SELECT COUNT(bid) FROM `%s_comms` \
+				WHERE (`authid` REGEXP '^STEAM_[0-9]:%s$') LIMIT 1",
+			g_sDatabasePrefix, sAuth[8]);
+			
+	#if MADEBUG
+		MALog(MA_LogDateBase, "ma_checker: OnClientAuthorized Query %s", sQuery);
+	#endif
+
+		g_dDatabase.Query(OnConnectCommCheck, sQuery, GetClientUserId(iClient), DBPrio_Low);
+	}
 }
 
 public OnConnectBanCheck(Database db, DBResultSet dbRs, const char[] sError, any iUserId)
@@ -177,6 +197,7 @@ public Action OnListSourceBansCmd(int iClient, int iArgs)
 #if MADEBUG
 	MALog(MA_LogDateBase, "ma_checker: OnListSourceBansCmd Query %s", sQuery);
 #endif
+
 	g_dDatabase.Query(OnListBans, sQuery, dPack, DBPrio_Low);
 	
 	return Plugin_Handled;
@@ -281,6 +302,188 @@ public OnListBans(Database db, DBResultSet dbRs, const char[] sError, any data)
 	}
 }
 
+public OnConnectCommCheck(Database db, DBResultSet dbRs, const char[] sError, any iUserId)
+{
+	if (!dbRs || sError[0])
+	{
+		MALog(MA_LogDateBase, "ma_checker: OnConnectCommCheck Query Failed: %s", sError);
+		return;
+	}
+	
+	int iClient = GetClientOfUserId(iUserId);
+	
+	if (!iClient)
+		return;
+	
+	if (dbRs.HasResults && dbRs.FetchRow())
+	{
+		int iCommCount = dbRs.FetchInt(0);
+		if (iCommCount > 0)
+		{
+			GetClientName(iClient, g_sNameReples, sizeof(g_sNameReples));
+			PrintToChatAdmins("%t", "Player connect comm", g_sNameReples, iCommCount);
+		}
+	}
+}
+
+public Action OnListSourceCommsCmd(int iClient, int iArgs)
+{
+	if (!iArgs)
+	{
+		ReplyToCommand(iClient, LISTBANS_USAGE);
+		return Plugin_Handled;
+	}
+	
+	if (!g_dDatabase)
+	{
+		if (iClient)
+			ReplyToCommand(iClient, "%s%T", MAPREFIX, "Database not ready", iClient);
+		else
+			ReplyToCommand(iClient, "%sError: Database not ready.", MAPREFIX);
+		return Plugin_Handled;
+	}
+	
+	char sArg[MAX_NAME_LENGTH],
+		 sSteamID[MAX_STEAMID_LENGTH],
+		 sName[MAX_NAME_LENGTH],
+		 sQuery[1024];
+
+	GetCmdArg(1, sArg, sizeof(sArg));
+	
+	int iTarget = FindTarget(iClient, sArg, true, true);
+	if (iTarget == -1)
+		return Plugin_Handled;
+
+	GetClientAuthId(iTarget, AuthId_Steam2, sSteamID, sizeof(sSteamID));
+	GetClientName(iTarget, sName, sizeof(sName));
+	
+	if (!iClient)
+		ReplyToCommand(iClient, "Note: if you are using this command through an rcon tool, you will not see results.");
+	
+	char sText[126];
+	FormatEx(sText, sizeof(sText), "%10.10s  %10.10s  %10.10s  %1.1s  %8.10s %21.21s", "Ban Date", "Muted By", "End Date", "R", "Length", "Reason");
+	if (!iClient)
+		PrintToServer("%sListing bans for %s\n%s\n-------------------------------------------------------------------------------", MAPREFIX, sName, sText);
+	else
+		ReplyToCommand(iClient, "%s%T\n%s\n-------------------------------------------------------------------------------", MAPREFIX, "Listing comms", iClient, sName, sText);
+	
+	DataPack dPack = new DataPack();
+	dPack.WriteCell((!iClient)?0:GetClientUserId(iClient));
+	dPack.WriteString(sName);
+	
+	FormatEx(sQuery, sizeof(sQuery), "\
+			SELECT `created`, `%s_admins`.`user`, `ends`, `length`, `reason`, `RemoveType` FROM `%s_comms` LEFT JOIN `%s_admins` ON `%s_comms`.`aid` = `%s_admins`.`aid` \
+			WHERE (`%s_comms`.`authid` REGEXP '^STEAM_[0-9]:%s$') \
+			AND ((`length` > 0 AND `ends` > UNIX_TIMESTAMP()) OR `RemoveType` IS NOT NULL) ORDER BY `created`;", 
+		g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, g_sDatabasePrefix, sSteamID[8]);
+#if MADEBUG
+	MALog(MA_LogDateBase, "ma_checker: OnListSourceCommsCmd Query %s", sQuery);
+#endif
+
+	g_dDatabase.Query(OnListComms, sQuery, dPack, DBPrio_Low);
+	
+	return Plugin_Handled;
+}
+
+public OnListComms(Database db, DBResultSet dbRs, const char[] sError, any data)
+{
+	DataPack dPack = view_as<DataPack>(data);
+	dPack.Reset();
+	int iUserId = dPack.ReadCell();
+	new iClient = GetClientOfUserId(iUserId);
+	char sName[MAX_NAME_LENGTH];
+	dPack.ReadString(sName, sizeof(sName));
+	delete dPack;
+	
+	if (iUserId > 0 && !iClient)
+		return;
+	
+	if (!dbRs || sError[0])
+	{
+		MALog(MA_LogDateBase, "ma_checker: OnListComms Query Failed: %s", sError);
+		if (!iUserId)
+			PrintToServer("%sDB error while retrieving comms for %s:\n%s", MAPREFIX, sName, sError);
+		else
+			ReplyToCommand(iClient, "%s%T", MAPREFIX, "DB error while retrieving comms", iClient, sName, sError);
+		return;
+	}
+	
+	if (!dbRs.RowCount)
+	{
+		if (!iUserId)
+			PrintToServer("%sNo comms found for %s.", MAPREFIX, sName);
+		else
+			ReplyToCommand(iClient, "%s%T", MAPREFIX, "No comms found", iClient, sName);
+		return;
+	}
+	
+	char sCreatedDate[11] = "<Unknown> ",
+		 sMutedby[32] = "<Unknown> ",
+		 sLenstring[32] = "N/A       ",
+		 sEndDate[11] = "N/A       ",
+		 sReason[126],
+		 sRemoveType[2] = " ";
+
+	int iLength;
+
+	while (dbRs.FetchRow())
+	{
+	#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
+		if (!SQL_IsFieldNull(dbRs, 0))
+	#else
+		if (!dbRs.IsFieldNull(0))
+	#endif
+		{
+			FormatTime(sCreatedDate, sizeof(sCreatedDate), "%Y-%m-%d", dbRs.FetchInt(0));
+		}
+		
+	#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
+		if (!SQL_IsFieldNull(dbRs, 1))
+	#else
+		if (!dbRs.IsFieldNull(1))
+	#endif
+		{
+			dbRs.FetchString(1, sMutedby, sizeof(sMutedby));
+		}
+
+		iLength = dbRs.FetchInt(3);
+		if (!iLength)
+		{
+			if (!iUserId)
+				strcopy(sLenstring, sizeof(sLenstring), "Permanent");
+			else
+				FormatEx(sLenstring, sizeof(sLenstring), "%T  ", "Permanent", iClient);
+		}
+		else
+			IntToString(iLength, sLenstring, sizeof(sLenstring));
+		
+	#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
+		if (!SQL_IsFieldNull(dbRs, 2))
+	#else
+		if (!dbRs.IsFieldNull(2))
+	#endif
+		{
+			FormatTime(sEndDate, sizeof(sEndDate), "%Y-%m-%d", dbRs.FetchInt(2));
+		}
+
+		dbRs.FetchString(4, sReason, sizeof(sReason));
+		
+	#if SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 7
+		if (!SQL_IsFieldNull(dbRs, 5))
+	#else
+		if (!dbRs.IsFieldNull(5))
+	#endif
+		{
+			dbRs.FetchString(5, sRemoveType, sizeof(sRemoveType));
+		}
+
+		if (!iUserId)
+			PrintToServer("%10.10s  %10.32s  %10.10s  %1.1s  %8.32s %21.32s", sCreatedDate, sMutedby, sEndDate, sRemoveType, sLenstring, sReason);
+		else
+			ReplyToCommand(iClient, "%10.10s  %10.32s  %10.10s  %1.1s  %8.32s %21.32s", sCreatedDate, sMutedby, sEndDate, sRemoveType, sLenstring, sReason);
+	}
+}
+
 void PrintToBanAdmins(const char[] sBuffer, any ...)
 {
 	char sText[128];
@@ -288,6 +491,21 @@ void PrintToBanAdmins(const char[] sBuffer, any ...)
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientInGame(i) && !IsFakeClient(i) && CheckCommandAccess(i, "sm_ban", ADMFLAG_BAN))
+		{
+			SetGlobalTransTarget(i);
+			VFormat(sText, sizeof(sText), sBuffer, 2);
+			PrintToChat2(i, "%s", sText);
+		}
+	}
+}
+
+void PrintToChatAdmins(const char[] sBuffer, any ...)
+{
+	char sText[128];
+	
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientInGame(i) && !IsFakeClient(i) && CheckCommandAccess(i, "sm_csay", ADMFLAG_CHAT))
 		{
 			SetGlobalTransTarget(i);
 			VFormat(sText, sizeof(sText), sBuffer, 2);
