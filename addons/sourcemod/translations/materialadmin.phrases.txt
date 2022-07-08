@@ -90,6 +90,26 @@
 		"en"    		"By ip"
 		"ru"    		"По айпи"
 	}
+	"MenuType"
+	{
+		"en"    		"Type"
+		"ru"    		"Тип"
+	}
+	"MuteTypeName"
+	{
+		"en"    		"Mute"
+		"ru"   			"Голосовой чат"
+	}
+	"GagTypeName"
+	{
+		"en"    		"Gag"
+		"ru"   			"Текстовый чат"
+	}
+	"SilenceTypeName"
+	{
+		"en"    		"Silence"
+		"ru"   			"Текстовый и голосовой чат"
+	}
 	"Mute"
 	{
 		"en"    		"Disable voice chat"
@@ -787,7 +807,6 @@
 		"en"			"{1} turned on text chat and voice chat {2}"
 		"ru"			"{1} включил голосовой и текстовый чат {2}"
 	}
-
 	"WarningCount"
 	{
 		"#format"		"{1:d}"
