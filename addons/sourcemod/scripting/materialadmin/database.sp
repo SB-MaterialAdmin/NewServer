@@ -1803,7 +1803,10 @@ void SetBdReport(int iClient, const char[] sReason)
 	if (ChekBD(g_dDatabase, "SetBdReport"))
 	{
 		DataPack dPack = new DataPack();
-		dPack.WriteCell(GetClientUserId(iClient));
+		// dPack.WriteCell(GetClientUserId(iClient));
+		dPack.WriteCell(iClient);
+		dPack.WriteCell(iTarget);
+		dPack.WriteString(sReason);
 		dPack.WriteString(sReportName);
 		dPack.WriteString(sQuery);
 		
@@ -1821,7 +1824,13 @@ public void CheckCallbackReport(Database db, DBResultSet dbRs, const char[] sErr
 {
 	DataPack dPack = view_as<DataPack>(data);
 	dPack.Reset();
-	int iClient = GetClientOfUserId(dPack.ReadCell());
+	int iClient = dPack.ReadCell();
+	int iTarget = dPack.ReadCell();
+
+	char sReason[1024];
+
+	dPack.ReadString(sReason, sizeof(sReason));
+
 	char sReportName[MAX_NAME_LENGTH];
 	dPack.ReadString(sReportName, sizeof(sReportName));
 	if (!dbRs || sError[0])
@@ -1836,7 +1845,10 @@ public void CheckCallbackReport(Database db, DBResultSet dbRs, const char[] sErr
 	}
 
 	if (iClient)
+	{
+		FireOnClientReport(iClient, iTarget, sReason);
 		PrintToChat2(iClient, "%T", "Yes report", iClient, sReportName);
+	}
 
 	delete dPack;
 }
