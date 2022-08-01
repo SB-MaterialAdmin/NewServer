@@ -433,3 +433,13 @@ forward void MAOnFindLoadingAdmin(AdminCachePart acPart);
 * @return			true, false
 *********************************************************/
 native bool MALog(int iType, const char[] sLog, any ...);
+
+/*********************************************************
+ * Called when a new report is inserted
+ *
+ * @param iReporter	The client index of the reporter
+ * @param iTarget	The client index of the player to report
+ * @param sReason	The reason to report the player
+ * @noreturn
+ *********************************************************/
+forward void MAOnClientReport(int iClient, int iTarget, char[] sReason);

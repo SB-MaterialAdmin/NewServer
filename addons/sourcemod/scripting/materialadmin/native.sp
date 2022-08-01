@@ -571,3 +571,17 @@ public void BaseComm_OnClientGag(int iClient, bool bState)
 		}
 	}
 }
+
+void FireOnClientReport(int iClient, int iTarget, char[] sReason)
+{
+	static Handle hForward;
+	
+	if(hForward == null)
+		hForward = CreateGlobalForward("MAOnClientReport", ET_Ignore, Param_Cell, Param_Cell, Param_String);
+
+	Call_StartForward(hForward);
+	Call_PushCell(iClient);
+	Call_PushCell(iTarget);
+	Call_PushString(sReason);
+	Call_Finish();
+}
