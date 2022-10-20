@@ -672,7 +672,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				ShowAdminAction(iClient, "%t", "Banned show", "name", g_sTarget[iClient][TNAME], sLength, g_sTarget[iClient][TREASON]);
 				if (iTarget)
 					CreateSayBanned(sAdminName, iTarget, iCreated, iTime, sLength, g_sTarget[iClient][TREASON]);
-				FormatEx(sLog, sizeof(sLog), "\"%L\" %s banned \"%s (%s IP_%s)\" (minutes \"%d\") (reason \"%s\")", (g_iTargetType[iClient] == TYPE_ADDBAN)?"add":"", iClient, g_sTarget[iClient][TNAME], 
+				FormatEx(sLog, sizeof(sLog), "\"%L\" %s banned \"%s (%s IP_%s)\" (minutes \"%d\") (reason \"%s\")", iClient, (g_iTargetType[iClient] == TYPE_ADDBAN)?"add":"", g_sTarget[iClient][TNAME], 
 											g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TIP], g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 			}
 			else if (g_iTargetType[iClient] == TYPE_ADDBAN)
