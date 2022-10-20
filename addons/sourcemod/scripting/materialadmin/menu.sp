@@ -846,7 +846,7 @@ int RedisplayBanTextItem(Menu hMenu, int iClient, int iSlot)
 	hMenu.GetItem(iSlot, szDummy, sizeof(szDummy),
 		_, szItem, sizeof(szItem));
 
-	if (szItem[0] == '#' && TranslationPhraseExists(szItem[1]))
+	if (UTIL_IsTranslatable(szItem))
 	{
 		Format(szItem, sizeof(szItem), "%T", szItem[1], iClient);
 		return RedrawMenuItem(szItem);

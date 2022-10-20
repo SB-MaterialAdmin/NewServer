@@ -142,6 +142,7 @@ TopMenu g_tmAdminMenu;
 Menu g_mReasonBMenu,
 	g_mReasonMMenu;
 
+ArrayList g_hReasonsPhrases;
 StringMap g_hReasonsSubmenus;
 ArrayStack g_hMenuHistory[MAXPLAYERS+1];
 
@@ -229,6 +230,7 @@ public void OnPluginStart()
 	LoadTranslations("materialadmin.phrases");
 	LoadTranslations("common.phrases");
 
+	g_hReasonsPhrases = new ArrayList(ByteCountToCells(128));
 	g_hReasonsSubmenus = new StringMap();
 	UTIL_SafeLoadTranslations("materialadmin_reasons.phrases");
 

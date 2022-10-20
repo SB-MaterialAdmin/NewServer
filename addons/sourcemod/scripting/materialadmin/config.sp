@@ -30,6 +30,9 @@ void ReadConfig()
 	g_mReasonMMenu.RemoveAllItems();
 	g_mReasonBMenu.RemoveAllItems();
 
+	// Clean cached phrase list.
+	g_hReasonsPhrases.Clear();
+
 	// And close non-built-in handles.
 	char szKey[SUBMENU_MAX_ALLOWED_NAME_LENGTH];
 	StringMapSnapshot hShot = From(UTIL_LazyCloseHandle(g_hReasonsSubmenus.Snapshot()), StringMapSnapshot);
@@ -249,6 +252,15 @@ public SMCResult KeyValueReason(SMCParser Smc, const char[] sKey, const char[] s
 		case ConfigState_Reason:
 		{
 			s_hCurrentParseMenu.AddItem(sKey, sValue);
+			if (UTIL_IsTranslatable(sValue[1]) && g_hReasonsPhrases.FindString(sValue[1]) == -1)
+			{
+				#if MADEBUG
+					LogToFile(g_sLogConfig, "Loaded reason phrase. Phrase key \"%s\"", sValue[1]);
+				#endif
+
+				g_hReasonsPhrases.PushString(sValue[1]);
+			}
+
 		#if MADEBUG
 			LogToFile(g_sLogConfig,"Loaded reason. key \"%s\", display_text \"%s\"", sKey, sValue);
 		#endif

@@ -1442,6 +1442,11 @@ void UTIL_ClearStack(ArrayStack hStack)
 	}
 }
 
+bool UTIL_IsTranslatable(const char[] szValue)
+{
+	return (szValue[0] == '#' && TranslationPhraseExists(szValue[1]));
+}
+
 /**
  * Requests the closing handle in next frame and returns passed handle.
  *
