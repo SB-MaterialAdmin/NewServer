@@ -8,10 +8,10 @@ on:
 jobs:
   compile:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.sm-version == '1.11.x' }}
+    continue-on-error: ${{ matrix.sm-version == '1.12.x' }}
     strategy:
       matrix:
-        sm-version: [ '1.9.x', '1.10.x', '1.11.x' ]
+        sm-version: [ '1.10.x', '1.11.x', '1.12.x' ]
         compiler-options: [ '', '__MADEBUG=1' ]
     
     env:
