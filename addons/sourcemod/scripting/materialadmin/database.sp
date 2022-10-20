@@ -1,3 +1,9 @@
+#if SOURCEMOD_V_MINOR > 9
+#define charset "utf8mb4"
+#else
+#define charset "utf8"
+#endif
+
 void MAConnectDB()
 {
 	char sError[256];
@@ -45,6 +51,7 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 		LogToFile(g_sLogDateBase, "ConnectBd Query Failed: %s", sError);
 	
 	g_dDatabase = db;
+	g_dDatabase.SetCharset(charset);
 	
 	FireOnConnectDatabase(g_dDatabase);
 	
@@ -665,7 +672,7 @@ void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Tr
 				ShowAdminAction(iClient, "%t", "Banned show", "name", g_sTarget[iClient][TNAME], sLength, g_sTarget[iClient][TREASON]);
 				if (iTarget)
 					CreateSayBanned(sAdminName, iTarget, iCreated, iTime, sLength, g_sTarget[iClient][TREASON]);
-				FormatEx(sLog, sizeof(sLog), "\"%L\" %s banned \"%s (%s IP_%s)\" (minutes \"%d\") (reason \"%s\")", (g_iTargetType[iClient] == TYPE_ADDBAN)?"add":"", iClient, g_sTarget[iClient][TNAME], 
+				FormatEx(sLog, sizeof(sLog), "\"%L\" %s banned \"%s (%s IP_%s)\" (minutes \"%d\") (reason \"%s\")", iClient, (g_iTargetType[iClient] == TYPE_ADDBAN)?"add":"", g_sTarget[iClient][TNAME], 
 											g_sTarget[iClient][TSTEAMID], g_sTarget[iClient][TIP], g_iTarget[iClient][TTIME], g_sTarget[iClient][TREASON]);
 			}
 			else if (g_iTargetType[iClient] == TYPE_ADDBAN)
@@ -1375,6 +1382,7 @@ void AdminHash()
 	}
 	else
 	{
+		g_bReshashAdmin = false;
 		DumpAdminCache(AdminCache_Groups, true);
 		DumpAdminCache(AdminCache_Overrides, true);
 		DumpAdminCache(AdminCache_Admins, true);
@@ -1806,7 +1814,10 @@ void SetBdReport(int iClient, const char[] sReason)
 	if (ChekBD(g_dDatabase, "SetBdReport"))
 	{
 		DataPack dPack = new DataPack();
-		dPack.WriteCell(GetClientUserId(iClient));
+		// dPack.WriteCell(GetClientUserId(iClient));
+		dPack.WriteCell(iClient);
+		dPack.WriteCell(iTarget);
+		dPack.WriteString(sReason);
 		dPack.WriteString(sReportName);
 		dPack.WriteString(sQuery);
 		
@@ -1824,7 +1835,13 @@ public void CheckCallbackReport(Database db, DBResultSet dbRs, const char[] sErr
 {
 	DataPack dPack = view_as<DataPack>(data);
 	dPack.Reset();
-	int iClient = GetClientOfUserId(dPack.ReadCell());
+	int iClient = dPack.ReadCell();
+	int iTarget = dPack.ReadCell();
+
+	char sReason[1024];
+
+	dPack.ReadString(sReason, sizeof(sReason));
+
 	char sReportName[MAX_NAME_LENGTH];
 	dPack.ReadString(sReportName, sizeof(sReportName));
 	if (!dbRs || sError[0])
@@ -1839,7 +1856,10 @@ public void CheckCallbackReport(Database db, DBResultSet dbRs, const char[] sErr
 	}
 
 	if (iClient)
+	{
+		FireOnClientReport(iClient, iTarget, sReason);
 		PrintToChat2(iClient, "%T", "Yes report", iClient, sReportName);
+	}
 
 	delete dPack;
 }
@@ -2134,21 +2154,10 @@ void FixDatabaseCharset(bool bIgnoreConfigurationValue = false)
 		return;
 	}
 
-	char szCharset[24];
-
-#if SOURCEMOD_V_MINOR > 9
-	strcopy(szCharset, sizeof(szCharset), "utf8mb4");
-#else
-	strcopy(szCharset, sizeof(szCharset), "utf8");
-#endif
-
-	SQL_SetCharset(g_dDatabase, szCharset);
-	SQL_LockDatabase(g_dDatabase);
-
-	Format(szCharset, sizeof(szCharset), "SET NAMES '%s'", szCharset);
-	SQL_FastQuery(g_dDatabase, szCharset);
-
-	SQL_UnlockDatabase(g_dDatabase);
+	g_dDatabase.SetCharset(charset);
+	char szCharset[20];
+	FormatEx(szCharset, sizeof(szCharset), "SET NAMES '%s';", charset);
+	g_dDatabase.Query(CallbackFixDatabaseCharset, szCharset, _, DBPrio_High);
 }
 
 void FetchServerIdDynamically()
@@ -2156,6 +2165,14 @@ void FetchServerIdDynamically()
 	char szQuery[256];
 	g_dDatabase.Format(szQuery, sizeof(szQuery), "SELECT IFNULL ((SELECT `sid` FROM `%s_servers` WHERE `ip` = '%s' AND `port` = '%s' LIMIT 1), 0) AS `ServerID`", g_sDatabasePrefix, g_sServerIP, g_sServerPort);
 	g_dDatabase.Query(CallbackFetchServerId, szQuery, _, DBPrio_High);
+}
+
+public void CallbackFixDatabaseCharset(Database hDB, DBResultSet hResults, const char[] szError, any data)
+{
+	if (!hResults || szError[0])
+	{
+		LogToFile(g_sLogDateBase, "CallbackFixDatabaseCharset Query Failed: %s", szError);
+	}
 }
 
 public void CallbackFetchServerId(Database hDB, DBResultSet hResults, const char[] szError, any data)

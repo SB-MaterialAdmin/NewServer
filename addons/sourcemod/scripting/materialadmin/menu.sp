@@ -160,6 +160,8 @@ public int MenuHandler_Setting(Menu Mmenu, MenuAction mAction, int iClient, int 
 			ShowSetting(iClient);
 		}
 	}
+	
+	return 0;
 }
 
 //меню выбора игрока офлайн
@@ -239,6 +241,8 @@ public int MenuHandler_OfflineList(Menu Mmenu, MenuAction mAction, int iClient, 
 			BdGetInfoOffline(iClient, StringToInt(sID));
 		}
 	}
+	
+	return 0;
 }
 // online
 void ShowTargetOnline(int iClient)
@@ -394,6 +398,8 @@ public int MenuHandler_OnlineList(Menu Mmenu, MenuAction mAction, int iClient, i
 			}
 		}
 	}
+	
+	return 0;
 }
 
 void ShowTypeMenu(int iClient)
@@ -447,6 +453,8 @@ public int MenuHandler_MenuType(Menu Mmenu, MenuAction mAction, int iClient, int
 			}
 		}
 	}
+	
+	return 0;
 }
 
 void ShowTypeBanMenu(int iClient)
@@ -486,6 +494,8 @@ public int MenuHandler_MenuTypeBan(Menu Mmenu, MenuAction mAction, int iClient, 
 			ShowTimeMenu(iClient);
 		}
 	}
+	
+	return 0;
 }
 
 void ShowTypeMuteMenu(int iClient)
@@ -632,6 +642,8 @@ public int MenuHandler_MenuTypeMute(Menu Mmenu, MenuAction mAction, int iClient,
 		#endif
 		}
 	}
+	
+	return 0;
 }
 
 //меню выбора времени
@@ -724,6 +736,8 @@ public int MenuHandler_MenuTime(Menu Mmenu, MenuAction mAction, int iClient, int
 				ShowMuteReasonMenu(iClient);
 		}
 	}
+	
+	return 0;
 }
 
 void ShowMuteReasonMenu(int iClient)
@@ -982,6 +996,8 @@ public int MenuHandler_MenuHacking(Menu Mmenu, MenuAction mAction, int iClient, 
 			}
 		}
 	}
+	
+	return 0;
 }
 
 void OnlineClientSet(int iClient)
@@ -1046,6 +1062,8 @@ public int MenuHandler_TargetList(Menu Mmenu, MenuAction mAction, int iClient, i
 			ShowListTipe(iClient, sOption);
 		}
 	}
+	
+	return 0;
 }
 
 void ShowListTipe(int iClient, char[] sOption)
@@ -1095,6 +1113,8 @@ public int MenuHandler_ListTipe(Menu Mmenu, MenuAction mAction, int iClient, int
 			}
 		}
 	}
+	
+	return 0;
 }
 
 void ShowInfoMuteMenu(int iClient, int iCreated, int iEnds, int iLength, char[] sReason, char[] sNameAdmin)
@@ -1155,6 +1175,8 @@ public int MenuHandler_InfoMute(Menu Mmenu, MenuAction mAction, int iClient, int
 			}
 		}
 	}
+	
+	return 0;
 }
 //--------------------------------------------------------------------------------------------------
 // репорт меню
@@ -1200,6 +1222,8 @@ public int MenuHandler_ReportMenu(Menu Mmenu, MenuAction mAction, int iClient, i
 			ShowBanReasonMenu(iClient);
 		}
 	}
+	
+	return 0;
 }
 //---------------------------------------------------------------------------------------------------
 // управление админами
@@ -1260,6 +1284,8 @@ public int MenuHandler_SettingAdminMenu(Menu Mmenu, MenuAction mAction, int iCli
 			}
 		}
 	}
+	
+	return 0;
 }
 
 void MenuAddAdmin(int iClient)
@@ -1317,6 +1343,8 @@ public int MenuHandler_AddAdminMenu(Menu Mmenu, MenuAction mAction, int iClient,
 				PrintToChat2(iClient, "%T", "Failed to player", iClient);
 		}
 	}
+	
+	return 0;
 }
 
 void MenuAddAdninFlag(int iClient)
@@ -1492,6 +1520,8 @@ public int MenuHandler_AddAdninFlagMenu(Menu Mmenu, MenuAction mAction, int iCli
 			}
 		}
 	}
+	
+	return 0;
 }
 
 void MenuDelAdmin(int iClient)
@@ -1549,6 +1579,8 @@ public int MenuHandler_DelAdminMenu(Menu Mmenu, MenuAction mAction, int iClient,
 				PrintToChat2(iClient, "%T", "Failed to player", iClient);
 		}
 	}
+	
+	return 0;
 }
 	
 void MenuDelAdminTyp(int iClient)
@@ -1585,5 +1617,7 @@ public int MenuHandler_DelAdminTypMenu(Menu Mmenu, MenuAction mAction, int iClie
 				BDCheckAdmins(iClient, 1);
 		}
 	}
+	
+	return 0;
 }
 #endif

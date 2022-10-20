@@ -19,7 +19,7 @@ void GetColor(char[] sBuffer, int iMaxlin)
 	static const char sColorT[][] =  {"#1",   "#2",   "#3",   "#4",   "#5",   "#6",   "#7",   "#8",   "#9",   "#10", "#OB",   "#OC",  "#OE",  "#0A"},
 					  sColorC[][] =  {"\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07", "\x08", "\x09", "\x10", "\x0B", "\x0C", "\x0E", "\x0A"};
 					  
-	for(int i = 0; i < 13; i++)
+	for(int i = 13; i != -1; --i)
 		ReplaceString(sBuffer, iMaxlin, sColorT[i], sColorC[i]);
 }
 
@@ -1156,6 +1156,8 @@ public Action TimerKick(Handle timer, any iUserId)
 	int iClient = GetClientOfUserId(iUserId);
 	if (iClient)
 		KickClient(iClient, "%T", "Banneds", iClient);
+		
+	return Plugin_Continue;
 }
 
 public Action TimerBan(Handle timer, any data)
@@ -1180,6 +1182,8 @@ public Action TimerBan(Handle timer, any data)
 			LogToFile(g_sLogAction, "addip %d %s", g_iServerBanTime, sBuffer);
 #endif
 	}
+
+	return Plugin_Continue;
 }
 //-------------------------------------------------------------------------------------------------------------
 void LogOn()

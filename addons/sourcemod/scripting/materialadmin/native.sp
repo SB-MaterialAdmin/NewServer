@@ -11,6 +11,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MAGetConfigSetting", Native_GetConfigSetting);
 	CreateNative("MAGetDatabase", Native_GetDatabase);
 	CreateNative("MALog", Native_Log);
+	
+	return APLRes_Success;
 }
 
 public int Native_GetDatabase(Handle plugin, int numParams)
@@ -568,4 +570,18 @@ public void BaseComm_OnClientGag(int iClient, bool bState)
 			CreateDB(0, iClient);
 		}
 	}
+}
+
+void FireOnClientReport(int iClient, int iTarget, char[] sReason)
+{
+	static Handle hForward;
+	
+	if(hForward == null)
+		hForward = CreateGlobalForward("MAOnClientReport", ET_Ignore, Param_Cell, Param_Cell, Param_String);
+
+	Call_StartForward(hForward);
+	Call_PushCell(iClient);
+	Call_PushCell(iTarget);
+	Call_PushString(sReason);
+	Call_Finish();
 }

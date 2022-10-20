@@ -132,9 +132,9 @@ bool g_bCvar_Alltalk;
 int g_iCvar_ImmunityMode,
 	g_iCvar_Deadtalk;
 	
-Handle g_hTimerMute[MAXPLAYERS+1] = null,
-	g_hTimerGag[MAXPLAYERS+1] = null,
-	g_hTimerBekap = null;
+Handle g_hTimerMute[MAXPLAYERS+1],
+	g_hTimerGag[MAXPLAYERS+1],
+	g_hTimerBekap;
 	
 float g_fRetryTime = 60.0;
 
@@ -210,7 +210,7 @@ public Plugin myinfo =
 {
 	name = "Material Admin",
 	author = "Material Admin Dev Team",
-	description = "For to sm 1.9",
+	description = "Improve work with admins, bans, mutes, add offline bans, massbans",
 	version = MAVERSION,
 	url = "https://github.com/SB-MaterialAdmin/NewServer"
 };
