@@ -1218,6 +1218,17 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 		FixDatabaseCharset();
 		g_dDatabase.Query(SQL_Callback_BanLog, sQuery, _, DBPrio_High);
 
+		// Translatable reasons.
+		char szReason[256];
+		if (g_hReasonsPhrases.FindString(sReason) == -1)
+		{
+			strcopy(szReason, sizeof(szReason), sReason);
+		}
+		else
+		{
+			FormatEx(szReason, sizeof(szReason), "%T", sReason, iClient);
+		}
+
 		g_bBanClientConnect[iClient] = true;
 		
  		if (!dbRs.IsFieldNull(0))
@@ -1225,16 +1236,16 @@ public void VerifyBan(Database db, DBResultSet dbRs, const char[] sError, any da
 			char sAdmin[64];
 			dbRs.FetchString(4, sAdmin, sizeof(sAdmin));
 			if(g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO)
-				CreateTeaxtDialog(iClient, "%T", "Banned Admin panel", iClient, sAdmin, sReason, sCreated, sEnds, sLength, g_sWebsite);
+				CreateTeaxtDialog(iClient, "%T", "Banned Admin panel", iClient, sAdmin, szReason, sCreated, sEnds, sLength, g_sWebsite);
 			else
-				KickClient(iClient, "%T", "Banned Admin", iClient, sAdmin, sReason, sCreated, sLength, g_sWebsite);
+				KickClient(iClient, "%T", "Banned Admin", iClient, sAdmin, szReason, sCreated, sLength, g_sWebsite);
 		}
 		else
 		{
 			if(g_bBanSayPanel && g_iGameTyp != GAMETYP_CSGO)
-				CreateTeaxtDialog(iClient, "%T", "Banned panel", iClient, sReason, sCreated, sEnds, sLength, g_sWebsite);
+				CreateTeaxtDialog(iClient, "%T", "Banned panel", iClient, szReason, sCreated, sEnds, sLength, g_sWebsite);
 			else
-				KickClient(iClient, "%T", "Banned", iClient, sReason, sCreated, sLength, g_sWebsite);
+				KickClient(iClient, "%T", "Banned", iClient, szReason, sCreated, sLength, g_sWebsite);
 		}
 
 		if (g_iServerBanTime > 0)

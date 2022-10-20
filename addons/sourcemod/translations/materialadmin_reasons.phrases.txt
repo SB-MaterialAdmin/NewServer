@@ -1,0 +1,22 @@
+/**
+ * This file is a part of "Material Admin" server plug-in for SourceMod.
+ * All rights reserved.
+ *
+ * Developed by Material Admin Team.
+ */
+
+"Phrases"
+{
+    // In this file you can place own reasons texts for translating on different languages.
+    // Used phrases from this file can be later used for displaying in reasons menu and when
+    // player is kicked from server.
+    //
+    // Note: this function may not work properly in games like CS:GO or Blade Symphony, because
+    // in this games engine don't send language in connection process, so user language is
+    // becomes known for server too late.
+    "Hacking"
+    {
+        "ru"        "Читерство"
+        "en"        "Hacking"
+    }
+}

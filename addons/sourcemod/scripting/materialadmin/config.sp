@@ -4,11 +4,12 @@ enum ConfigState
 {
 	ConfigState_Non,
 	ConfigState_Time,
-	ConfigState_Reason_Ban,
-	ConfigState_Reason_Hacking,
-	ConfigState_Reason_Mute,
+	ConfigState_Reason
 }
+
 ConfigState g_iConfigState = ConfigState_Non;
+
+static Menu s_hCurrentParseMenu;
 
 //получение значений конфига
 void ReadConfig()
@@ -25,12 +26,22 @@ void ReadConfig()
 	char sConfigFile[PLATFORM_MAX_PATH];
 	BuildPath(Path_SM, sConfigFile, sizeof(sConfigFile), "configs/materialadmin/time_reason.cfg");
 
-	if (g_mReasonMMenu)
-		g_mReasonMMenu.RemoveAllItems();
-	if (g_mReasonBMenu)
-		g_mReasonBMenu.RemoveAllItems();
-	if (g_mHackingMenu)
-		g_mHackingMenu.RemoveAllItems();
+	// Clean built-in menus.
+	g_mReasonMMenu.RemoveAllItems();
+	g_mReasonBMenu.RemoveAllItems();
+
+	// Clean cached phrase list.
+	g_hReasonsPhrases.Clear();
+
+	// And close non-built-in handles.
+	char szKey[SUBMENU_MAX_ALLOWED_NAME_LENGTH];
+	StringMapSnapshot hShot = From(UTIL_LazyCloseHandle(g_hReasonsSubmenus.Snapshot()), StringMapSnapshot);
+	for (int i = 0, iSubmenuCount = hShot.Length; i < iSubmenuCount; ++i)
+	{
+		hShot.GetKey(i, szKey, sizeof(szKey));
+		CloseHandle(UTIL_GetHandleFromSnapshot(g_hReasonsSubmenus, szKey));
+	}
+
 	g_tMenuTime.Clear();
 	g_aTimeMenuSorting.Clear();
 
@@ -52,8 +63,6 @@ void ReadConfig()
 			SetFailState("%sFor file \"%s\" no reason \"MuteReasons\"", MAPREFIX, sConfigFile);
 		if (!g_mReasonBMenu.ItemCount)
 			SetFailState("%sFor file \"%s\" no reason \"BanReasons\"", MAPREFIX, sConfigFile);
-		if (!g_mHackingMenu.ItemCount)
-			SetFailState("%sFor file \"%s\" no reason \"HackingReasons\"", MAPREFIX, sConfigFile);
 		if (!g_tMenuTime.Size)
 			SetFailState("%sFor file \"%s\" no time \"Time\"", MAPREFIX, sConfigFile);
 	}
@@ -216,13 +225,13 @@ public SMCResult NewSectionReason(SMCParser Smc, const char[] sName, bool bOpt_q
 	if(sName[0])
 	{
 		if(!strcmp("MuteReasons", sName, false))
-			g_iConfigState = ConfigState_Reason_Mute;
+			SetupMenuForReasons(g_mReasonMMenu);
 		else if(!strcmp("BanReasons", sName, false))
-			g_iConfigState = ConfigState_Reason_Ban;
-		else if(!strcmp("HackingReasons", sName, false))
-			g_iConfigState = ConfigState_Reason_Hacking;
+			SetupMenuForReasons(g_mReasonBMenu);
 		else if(!strcmp("Time", sName, false))
 			g_iConfigState = ConfigState_Time;
+		else if(strlen(sName) < SUBMENU_MAX_ALLOWED_NAME_LENGTH)
+			SetupCustomMenuForReasons(sName);
 		else
 			g_iConfigState = ConfigState_Non;
 	#if MADEBUG
@@ -240,27 +249,23 @@ public SMCResult KeyValueReason(SMCParser Smc, const char[] sKey, const char[] s
 
 	switch(g_iConfigState)
 	{
-		case ConfigState_Reason_Mute:
+		case ConfigState_Reason:
 		{
-			g_mReasonMMenu.AddItem(sKey, sValue);
+			s_hCurrentParseMenu.AddItem(sKey, sValue);
+			if (UTIL_IsTranslatable(sValue[1]) && g_hReasonsPhrases.FindString(sValue[1]) == -1)
+			{
+				#if MADEBUG
+					LogToFile(g_sLogConfig, "Loaded reason phrase. Phrase key \"%s\"", sValue[1]);
+				#endif
+
+				g_hReasonsPhrases.PushString(sValue[1]);
+			}
+
 		#if MADEBUG
-			LogToFile(g_sLogConfig,"Loaded mute reason. key \"%s\", display_text \"%s\"", sKey, sValue);
+			LogToFile(g_sLogConfig,"Loaded reason. key \"%s\", display_text \"%s\"", sKey, sValue);
 		#endif
 		}
-		case ConfigState_Reason_Ban:
-		{
-			g_mReasonBMenu.AddItem(sKey, sValue);
-		#if MADEBUG
-			LogToFile(g_sLogConfig,"Loaded ban reason. key \"%s\", display_text \"%s\"", sKey, sValue);
-		#endif
-		}
-		case ConfigState_Reason_Hacking:
-		{
-			g_mHackingMenu.AddItem(sKey, sValue);
-		#if MADEBUG
-			LogToFile(g_sLogConfig,"Loaded hacking reason. key \"%s\", display_text \"%s\"", sKey, sValue);
-		#endif
-		}
+
 		case ConfigState_Time:
 		{
 			g_aTimeMenuSorting.Push(StringToInt(sKey));
@@ -276,4 +281,29 @@ public SMCResult KeyValueReason(SMCParser Smc, const char[] sKey, const char[] s
 public SMCResult EndSection(SMCParser Smc)
 {
 	return SMCParse_Continue;
+}
+
+stock void SetupMenuForReasons(Menu hMenu)
+{
+	if (!hMenu)
+	{
+		return;
+	}
+
+	s_hCurrentParseMenu = hMenu;
+	g_iConfigState = ConfigState_Reason;
+}
+
+stock void SetupCustomMenuForReasons(const char[] szName)
+{
+	Menu hMenu;
+	if (g_hReasonsSubmenus.GetValue(szName, hMenu))
+	{
+		hMenu.Close();
+	}
+
+	hMenu = MACreateBanMenu();
+	SetupMenuForReasons(hMenu);
+
+	g_hReasonsSubmenus.SetValue(szName, hMenu, true);
 }

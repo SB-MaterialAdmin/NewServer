@@ -1379,3 +1379,95 @@ bool UTIL_ReadFileString(File hFile, char[] szBuffer, int iBufferLength)
 	szBuffer[iReadBytes] = 0;
 	return (iReadBytes == iValueLength);
 }
+
+static const char szForbiddenTranslationExtensions[][] = {".cfg", ".txt"};
+
+int UTIL_GetTranslationFilePath(const char[] szFileName, char[] szBuffer, int iBufferLength)
+{
+	// https://github.com/alliedmodders/sourcemod/blob/1fbe5e1daaee9ba44164078fe7f59d862786e612/core/logic/smn_lang.cpp#L73-L82
+	// https://github.com/alliedmodders/sourcemod/blob/1fbe5e1daaee9ba44164078fe7f59d862786e612/core/logic/PhraseCollection.cpp#L58-L59
+	// SourceMod devs strips automatically from filename extension (only ".txt" and ".cfg"). Then appends ".txt".
+	int iFileNameLength = strlen(szFileName);
+
+	// If our filename longer than 4 symbols - then file extension is not
+	// persist in file name and stripping is not required.
+	if (iFileNameLength > sizeof(szForbiddenTranslationExtensions[]))
+	{
+		int iExtensionLength = 0;
+		for (int i; i < sizeof(szForbiddenTranslationExtensions); ++i)
+		{
+			iExtensionLength = strlen(szForbiddenTranslationExtensions[i]);
+			if (strncmp(szFileName[iFileNameLength - iExtensionLength], szForbiddenTranslationExtensions[i], iExtensionLength) == 0)
+			{
+				// Our filename - constant, so we copy filename without extension and perform "recursive call".
+				char[] szFixedFileName = new char[iFileNameLength - 4];
+				strcopy(szFixedFileName, iFileNameLength - 4, szFileName);
+
+				return UTIL_GetTranslationFilePath(szFixedFileName, szBuffer, iBufferLength);
+			}
+		}
+	}
+
+	// Now we can build file path.
+	return BuildPath(Path_SM, szBuffer, iBufferLength, "translations/%s.txt", szFileName);
+}
+
+bool UTIL_IsTranslationFileExists(const char[] szFileName)
+{
+	char szFilePath[PLATFORM_MAX_PATH];
+	UTIL_GetTranslationFilePath(szFileName, szFilePath, sizeof(szFilePath));
+
+	return FileExists(szFilePath);
+}
+
+void UTIL_SafeLoadTranslations(const char[] szFileName)
+{
+	if (!UTIL_IsTranslationFileExists(szFileName))
+	{
+		return;
+	}
+
+	LoadTranslations(szFileName);
+}
+
+Handle UTIL_GetHandleFromSnapshot(StringMap hMap, const char[] szName, Handle hDefaultHandle = null)
+{
+	Handle hData = hDefaultHandle;
+	hMap.GetValue(szName, hData);
+
+	return hData;
+}
+
+void UTIL_ClearStack(ArrayStack hStack)
+{
+	while (!hStack.Empty)
+	{
+		hStack.Pop();
+	}
+}
+
+bool UTIL_IsTranslatable(const char[] szValue)
+{
+	return (szValue[0] == '#' && TranslationPhraseExists(szValue[1]));
+}
+
+/**
+ * Requests the closing handle in next frame and returns passed handle.
+ *
+ * @param     hHandle   Handle for lazy closing.
+ * @return              Passed handle.
+ */
+stock Handle UTIL_LazyCloseHandle(Handle hHandle)
+{
+  	if (hHandle)
+  	{
+    	RequestFrame(OnHandleShouldBeClosed, hHandle);
+  	}
+
+  	return hHandle;
+}
+
+static void OnHandleShouldBeClosed(Handle hHndl)
+{
+  	hHndl.Close();
+}
