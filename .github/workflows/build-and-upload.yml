@@ -36,12 +36,19 @@ jobs:
           curl -O https://raw.githubusercontent.com/CrazyHackGUT/sm-plugins/master/git.sh
           chmod +x git.sh
           ./git.sh > materialadmin.git.sp
-          spcomp __GITHUB=1 materialadmin.git.sp materialadmin.sp -E -o ../plugins/materialadmin -iinclude ${{ matrix.compiler-options }}
-          spcomp __GITHUB=1 materialadmin.git.sp ma_adminmenu.sp -E -o ../plugins/ma_adminmenu -iinclude -i${includePath}/.. ${{ matrix.compiler-options }}
-          spcomp __GITHUB=1 materialadmin.git.sp ma_basecomm.sp -E -o ../plugins/ma_basecomm -iinclude ${{ matrix.compiler-options }}
-          spcomp __GITHUB=1 materialadmin.git.sp ma_basevotes.sp -E -o ../plugins/ma_basevotes -iinclude ${{ matrix.compiler-options }}
-          spcomp __GITHUB=1 materialadmin.git.sp ma_checker.sp -E -o ../plugins/ma_checker -iinclude ${{ matrix.compiler-options }}
-      
+          cat ./../../ci_sm11.sp >> materialadmin.git.sp
+          spcomp __GITHUB=1 _MATERIALADMIN=1 materialadmin.git.sp -E -o ../plugins/materialadmin -iinclude ${{ matrix.compiler-options }}
+          spcomp __GITHUB=1 _MATERIALADMIN_ADMINMENU=1 materialadmin.git.sp -E -o ../plugins/ma_adminmenu -iinclude -i${includePath}/.. ${{ matrix.compiler-options }}
+          spcomp __GITHUB=1 _MATERIALADMIN_BASECOMMS=1 materialadmin.git.sp -E -o ../plugins/ma_basecomm -iinclude ${{ matrix.compiler-options }}
+          spcomp __GITHUB=1 _MATERIALADMIN_BASEVOTES=1 materialadmin.git.sp -E -o ../plugins/ma_basevotes -iinclude ${{ matrix.compiler-options }}
+          spcomp __GITHUB=1 _MATERIALADMIN_CHECKER=1 materialadmin.git.sp -E -o ../plugins/ma_checker -iinclude ${{ matrix.compiler-options }}
+
+      - name: Cleanup
+        if: github.ref == 'refs/heads/master'
+        run: |
+          cd addons/sourcemod/scripting
+          rm git.sh materialadmin.git.sp
+
       - name: Make artifact archive
         if: github.ref == 'refs/heads/master'
         run: |         

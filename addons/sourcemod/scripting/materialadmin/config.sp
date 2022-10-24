@@ -41,6 +41,7 @@ void ReadConfig()
 		hShot.GetKey(i, szKey, sizeof(szKey));
 		CloseHandle(UTIL_GetHandleFromSnapshot(g_hReasonsSubmenus, szKey));
 	}
+	g_hReasonsSubmenus.Clear();
 
 	g_tMenuTime.Clear();
 	g_aTimeMenuSorting.Clear();
@@ -299,6 +300,8 @@ stock void SetupCustomMenuForReasons(const char[] szName)
 	Menu hMenu;
 	if (g_hReasonsSubmenus.GetValue(szName, hMenu))
 	{
+		// Вообще, я подумал, это какая-то дичь, что у нас меню может уже существовать. Ненормальная.
+		// Добавить лог на такие случаи? Хм.
 		hMenu.Close();
 	}
 
