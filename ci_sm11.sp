@@ -3,21 +3,21 @@
 // This file - scratch for SourceMod 1.11 compiler features when passing multiple sources. Required only for CI.
 
 #if defined _MATERIALADMIN
-    #require "materialadmin.sp"
+    #include "materialadmin.sp"
 #endif
 
 #if defined _MATERIALADMIN_ADMINMENU
-    #require "ma_adminmenu.sp"
+    #include "ma_adminmenu.sp"
 #endif
 
 #if defined _MATERIALADMIN_BASECOMMS
-    #require "ma_basecomm.sp"
+    #include "ma_basecomm.sp"
 #endif
 
 #if defined _MATERIALADMIN_BASEVOTES
-    #require "ma_basevotes.sp"
+    #include "ma_basevotes.sp"
 #endif
 
 #if defined _MATERIALADMIN_CHECKER
-    #require "ma_checker.sp"
+    #include "ma_checker.sp"
 #endif
