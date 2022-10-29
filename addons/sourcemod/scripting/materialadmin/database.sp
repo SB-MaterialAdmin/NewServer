@@ -380,7 +380,7 @@ public void SQL_Callback_GetInfoMute(Database db, DBResultSet dbRs, const char[]
 	ShowInfoMuteMenu(iClient, iCreated, iEnds, iLength, sReason, sNameAdmin);
 }
 //-----------------------------------------------------------------------------------------------------------------------------
-void CheckBanInBd(int iClient, int iTarget, int iType, char[] sSteamIp)
+void CheckBanInBd(int iClient, int iTarget, int iType, const char[] sSteamIp)
 {
 	if (ChekBD(g_dDatabase, "CheckBanInBd"))
 	{
@@ -542,7 +542,7 @@ void DoCreateDB(int iClient, int iTarget, int iTrax = 0, Transaction hTxn = null
 
 //------------------------------------------------------------------------------------------------------------------------------
 //занесение в бд
-void CreateDB(int iClient, int iTarget, char[] sSteamIp = "", int iTrax = 0,  Transaction hTxn = null)
+void CreateDB(int iClient, int iTarget, const char[] sSteamIp = "", int iTrax = 0,  Transaction hTxn = null)
 {
 	if (iTrax == 2)
 	{
@@ -1896,6 +1896,8 @@ public Action OnBanClient(int iClient, int iTime, int iFlags, const char[] sReas
 
 public Action OnBanIdentity(const char[] sIdentity, int iTime, int flags, const char[] sReason, const char[] command, any source)
 {
+	int iTarget = UTIL_FindTargetByIdentity(sIdentity);
+
 	char sBuffer[MAX_IP_LENGTH];
 	strcopy(sBuffer, sizeof(sBuffer), sIdentity);
 	strcopy(g_sTarget[0][TREASON], sizeof(g_sTarget[][]), sReason);
@@ -1909,7 +1911,7 @@ public Action OnBanIdentity(const char[] sIdentity, int iTime, int flags, const 
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "OnBanIdentity: set CheckBanInBd");
 #endif
-	CheckBanInBd(0, 0, 1, sBuffer);
+	CheckBanInBd(0, iTarget, 1, sBuffer);
 	
 	return Plugin_Continue;
 }
@@ -1927,7 +1929,7 @@ public Action OnRemoveBan(const char[] sIdentity, int flags, const char[] comman
 #if MADEBUG
 	LogToFile(g_sLogDateBase, "OnRemoveBan: set CheckBanInBd");
 #endif	
-	CheckBanInBd(0, 0, 0, sBuffer);
+	CheckBanInBd(0, 0, 0, sIdentity);
 
 	return Plugin_Continue;
 }

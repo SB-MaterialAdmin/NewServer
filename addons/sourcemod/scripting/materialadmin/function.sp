@@ -631,22 +631,43 @@ void GetClientToBd(int iClient, int iTyp, const char[] sArg = "")
 	}
 }
 
-int FindTargetSteam(char[] sSteamID)
+int FindTargetSteam(const char[] sSteamID)
 {
 	char sSteamIDs[MAX_STEAMID_LENGTH];
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientInGame(i))
 		{
+			// It's okay only for v2 (current mainstream SteamID type).
 			GetClientAuthId(i, TYPE_STEAM, sSteamIDs, sizeof(sSteamIDs));
 			if(StrEqual(sSteamID[8], sSteamIDs[8]))
+			{
 				return i;
+			}
+
+			// Check also another SteamID formats.
+			for (int iType = 3; iType != -1; --iType)
+			{
+				AuthIdType eType = From(iType, AuthIdType);
+
+				// Skip type equaled for mainstream SteamID type.
+				if (TYPE_STEAM == eType)
+				{
+					continue;
+				}
+
+				GetClientAuthId(i, eType, sSteamIDs, sizeof(sSteamIDs));
+				if (StrEqual(sSteamIDs, sSteamID))
+				{
+					return i;
+				}
+			}
 		}
 	}
 	return 0;
 }
 
-int FindTargetIp(char[] sIp)
+int FindTargetIp(const char[] sIp)
 {
 	char sIps[MAX_IP_LENGTH];
 	for (int i = 1; i <= MaxClients; i++)
@@ -660,6 +681,18 @@ int FindTargetIp(char[] sIp)
 	}
 	return 0;
 }
+
+int UTIL_FindTargetByIdentity(const char[] szIdentity)
+{
+	int iTarget = FindTargetIp(szIdentity);
+	if (!iTarget)
+	{
+		iTarget = FindTargetSteam(szIdentity);
+	}
+
+	return iTarget;
+}
+
 //---------------------------------------------------------------------------------------------
 public void ConVarChange_Alltalk(ConVar convar, const char[] oldValue, const char[] newValue)
 {
