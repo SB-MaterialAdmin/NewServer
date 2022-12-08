@@ -7,348 +7,417 @@
 	*/
 	"AdminMenu_Main"
 	{
-		"en"    		"Locks Management"
+		"en"    		"Player block"
+		"lv"    		"Spēlētāju Bloķēšana"
 		"ru"    		"Управление блокировками"
 	}
 	"OnlineTitle"
 	{
-		"en"   		 	"Players on the server"
+		"en"   		 	"Current Online Players"
+		"lv"   		 	"Spēlētāji Online"
 		"ru"    		"Игроки на сервере"
 	}
 	"OfflineTitle"
 	{
-		"en"    		"Exited players"
+		"en"    		"Recent Offline Players"
+		"lv"   		 	"Spēlētāji nesen izgājuši ārā no server"
 		"ru"    		"Вышедшие игроки"
 	}
 	"ListTitle"
 	{
-		"en"    		"Punished players on the server"
+		"en"    		"List of punished players"
+		"lv"    		"Saraksts ar jau sodītiem spēlētājiem"
 		"ru"    		"Наказанные игроки на сервере"
 	}
 	"SettingTitle"
 	{
-		"en"    		"Management"
+		"en"    		"Settings"
+		"lv"    		"Iestatījumi"
 		"ru"    		"Управление"
 	}
 	"SelectPlayerTitle"
 	{
-		"en"    		"Choose a player"
+		"en"    		"Select Player"
+		"lv"    		"Izvēlies Spēlētāju"
 		"ru"    		"Выберите игрока"
 	}
 	"SelectTimeTitle"
 	{
-		"en"    		"Choose a time"
+		"en"    		"Select Time"
+		"lv"    		"Izvēlies laiku"
 		"ru"    		"Выберите время"
 	}
 	"SelectReasonTitle"
 	{
-		"en"    		"Choose a reason"
+		"en"    		"Select Reason"
+		"lv"    		"Izvēlies iemeslu"
 		"ru"    		"Выберите причину"
 	}
 	"SetTitle"
 	{
-		"en"    		"Choose"
+		"en"    		"Select"
+		"lv"    		"Izvēlies"
 		"ru"    		"Выберите"
 	}
 	"ReheshAdmin"
 	{
-		"en"    		"Update the admin list"
+		"en"    		"Refresh the list of Admins"
+		"lv"    		"Atjaunot sarakstu ar adminiem"
 		"ru"    		"Обновить список админов"
 	}
 	"ClearHistory"
 	{
-		"en"    		"Clear offline history"
+		"en"    		"Clear history"
+		"lv"    		"Dzēst vēsturi"
 		"ru"    		"Очистить оффлайн историю"
 	}
 	"ReloadConfig"
 	{
 		"en"    		"Reload config"
+		"lv"    		"Pārlādēt config"
 		"ru"    		"Перезагрузить конфиг"
 	}
 	"ReloadConnect"
 	{
-		"en"    		"Reconnect to the database"
+		"en"    		"Reload connect"
+		"lv"    		"Pārlādēt connect"
 		"ru"    		"Переподключиться к бд"
 	}
 	"SetMute"
 	{
 		"en"    		"Mute"
+		"lv"    		"Mute"
 		"ru"    		"Мут"
 	}
 	"SetBan"
 	{
 		"en"    		"Ban"
+		"lv"    		"Ban"
 		"ru"    		"Бан"
 	}
 	"Steam"
 	{
-		"en"    		"By steam"
+		"en"    		"Steam"
+		"lv"    		"Steam"
 		"ru"    		"По стиму"
 	}
 	"Ip"
 	{
-		"en"    		"By ip"
+		"en"    		"IP"
+		"lv"    		"IP"
 		"ru"    		"По айпи"
 	}
 	"Mute"
 	{
-		"en"    		"Disable voice chat"
+		"en"    		"Mute"
+		"lv"    		"Mute"
 		"ru"   			"Отключить голосовой чат"
 	}
 	"Gag"
 	{
-		"en"    		"Disable Text chat"
+		"en"    		"Gag"
+		"lv"    		"Gag"
 		"ru"    		"Отключить текстовый чат"
 	}
 	"Silence"
 	{
-		"en"   		 	"Disable the entire chat"
+		"en"   		 	"Silence"
+		"lv"   		 	"Gag un Mute"
 		"ru"    		"Отключить весь чат"
 	}
 	"unMute"
 	{
-		"en"    		"Enable voice chat"
+		"en"    		"Remove Mute"
+		"lv"    		"Noņemt Mute"
 		"ru"    		"Включить голосовой чат"
 	}
 	"unGag"
 	{
-		"en"    		"Enable text chat"
+		"en"    		"Remove Gag"
+		"lv"    		"Noņemt Gag"
 		"ru"    		"Включить текстовый чат"
 	}
 	"unSilence"
 	{
-		"en"    		"Enable the entire chat"
+		"en"    		"Remove Silence"
+		"lv"    		"Noņemt Mute un Gag"
 		"ru"    		"Включить весь чат"
 	}
 	"No players history"
 	{
 		"en"    		"No players in history."
+		"lv"    		"Nav spēlētāju vēsturē."
 		"ru"    		"Нет игроков в истории."
 	}
 	"All"
 	{
 		"en"			"All"
+		"lv"			"Visi"
 		"ru"			"Все"
 	}
 	"CT"
 	{
 		"en"			"CT"
+		"lv"			"CT"
 		"ru"			"Контры"
 	}
 	"T"
 	{
 		"en"			"T"
+		"lv"			"T"
 		"ru"			"Теры"
 	}
 	"Blue"
 	{
 		"en"			"Blue"
+		"lv"			"Zilie"
 		"ru"			"Синие"
 	}
 	"Red"
 	{
 		"en"			"Red"
+		"lv"			"Sarkanie"
 		"ru"			"Красные"
 	}
 	"Clients"
 	{
-		"en"			"Execute on selected"
+		"en"			"Clients"
+		"lv"			"Klients"
 		"ru"			"Выполнить на выделенных"
 	}
 	"no target"
 	{
 		"en"			"No players"
+		"lv"			"Nav spēlētāju"
 		"ru"			"Нет игроков"
 	}
 	"No time"
 	{
-		"en"			"Nothing is available for you"
+		"en"			"No time"
+		"lv"			"Nav laika"
 		"ru"			"Для вас ничего не доступно"
 	}
 	"Show"
 	{
-		"en"			"Show"
+		"en"			"Show Reason"
+		"lv"			"Parādīt Iemeslus"
 		"ru"			"Показать"
 	}
 	"Run"
 	{
-		"en"			"Execute"
+		"en"			"Manage Player"
+		"lv"			"Pārvaldīt spēlētāju"
 		"ru"			"Выполнить"
 	}
 	"ListInfoTitle"
 	{
 		"en"			"Information about"
+		"lv"			"Informācija par"
 		"ru"			"Информация о"
 	}
 	"Time"
 	{
 		"en"			"Time"
+		"lv"			"Laiks"
 		"ru"			"Время"
 	}
 	"Reason"
 	{
 		"en"			"Reason"
+		"lv"			"Iemesls"
 		"ru"			"Причина"
 	}
 	"TimeCreated"
 	{
-		"en"			"Was issued"
+		"en"			"When was issued"
+		"lv"			"Kad tika izveidots"
 		"ru"			"Был выдан"
 	}
 	"TimeEnds"
 	{
 		"en"			"Will be removed"
+		"lv"			"Kad tiks noņemts"
 		"ru"			"Будет снят"
 	}
 	"SettingAdminTitle"
 	{
 		"en"			"Аdmins management"
+		"lv"			"Adminu pārvaldīšana"
 		"ru"			"Управление админами"
 	}
 	"add admin"
 	{
 		"en"			"Add admin"
+		"lv"			"Pievienot adminu"
 		"ru"			"Добавить админа"
 	}
 	"del admin"
 	{
-		"en"			"Remove admin"
+		"en"			"Delete admin"
+		"lv"			"Dzēst adminu"
 		"ru"			"Удалить админа"
 	}
 	"No Access setting admin"
 	{
-		"en"			"You do not have permission for this functional"
+		"en"			"You do not have permission for this function!"
+		"lv"			"Tev nav pieejas šai funkcijai"
 		"ru"			"У вас нет прав для этого функционала"
 	}
 	"AddFlagAdminTitle"
 	{
-		"en"			"Select a flag"
+		"en"			"Select the flag"
+		"lv"			"Izvēlies Flagus"
 		"ru"			"Выберите флаг"
 	}
 	"z flag"
 	{
 		"en"			"root (All access by default)"
+		"lv"			"root (Pieeja visam)"
 		"ru"			"root (обладает всеми флагами)"
 	}
 	"b flag"
 	{
-		"en"			"Generic admin abilities"
+		"en"			"Generic admin features"
+		"lv"			"Vispārīgas admina pieejas"
 		"ru"			"администратор, флаг требуется для админов"
 	}
 	"a flag"
 	{
 		"en"			"Reserved slot"
+		"lv"			"Rezervēts slots"
 		"ru"			"резервный слот"
 	}
 	"c flag"
 	{
-		"en"			"Kick another user"
+		"en"			"Kick player"
+		"lv"			"Izmest spēlētāju"
 		"ru"			"использование команды kick"
 	}
 	"d flag"
 	{
-		"en"			"Ban another user"
+		"en"			"Ban player"
+		"lv"			"Banot spēlētāju"
 		"ru"			"использование команды ban (бан)"
 	}
 	"e flag"
 	{
-		"en"			"Unban another user"
+		"en"			"Unban player"
+		"lv"			"Unbanot spēlētāju"
 		"ru"			"использование команды unban (разбан)"
 	}
 	"f flag"
 	{
-		"en"			"Slay/kill/damage another user"
+		"en"			"Slay/kill/damage player"
+		"lv"			"Slay/kill/damage spēlētāju"
 		"ru"			"использование команды slay (шлёпнуть, убить)"
 	}
 	"g flag"
 	{
 		"en"			"Change the map"
+		"lv"			"Mainīt karti"
 		"ru"			"разрешение менять карты"
 	}
 	"h flag"
 	{
 		"en"			"Change basic convars"
+		"lv"			"Mainīt convarus"
 		"ru"			"разрешение менять настройки сервера (cvar's)"
 	}
 	"i flag"
 	{
 		"en"			"Change configuration"
+		"lv"			"Mainīt konfigurācijas"
 		"ru"			"смена используемого конфига"
 	}
 	"j flag"
 	{
 		"en"			"Special chat privileges"
+		"lv"			"Speciālās čata pieejas"
 		"ru"			"специальные привилегии в чате"
 	}
 	"k flag"
 	{
 		"en"			"Special vote privileges"
+		"lv"			"Balsošanas tiesības"
 		"ru"			"доступ к запуску голосования"
 	}
 	"l flag"
 	{
 		"en"			"Set a server password"
+		"lv"			"UZlikt paroli serverim"
 		"ru"			"разрешение устанавливать пароль на сервере"
 	}
 	"m flag"
 	{
 		"en"			"Use RCON"
+		"lv"			"Izmantot RCON"
 		"ru"			"разрешение использовать удаленную консоль для управления сервером"
 	}
 	"n flag"
 	{
 		"en"			"Change sv_cheats and use its commands"
+		"lv"			"Mainīt sv_cheats un tā komandas"
 		"ru"			"разрешение менять параметр sv_cheats и связанные с ним параметры"
 	}
 	"o flag"
 	{
-		"en"			"First custom flag type"
-		"ru"			"специальный флаг(1)"
+		"en"			"Custom flag (1)"
+		"lv"			"Custom flag (1)"
+		"ru"			"специальный флаг (1)"
 	}
 	"p flag"
 	{
-		"en"			"Second custom flag type"
-		"ru"			"специальный флаг(2)"
+		"en"			"Custom flag (2)"
+		"lv"			"Custom flag (2)"
+		"ru"			"специальный флаг (2)"
 	}
 	"q flag"
 	{
-		"en"			"Third custom flag type"
-		"ru"			"специальный флаг(3)"
+		"en"			"Custom flag (3)"
+		"lv"			"Custom flag (3)"
+		"ru"			"специальный флаг (3)"
 	}
 	"r flag"
 	{
-		"en"			"Fourth custom flag type"
-		"ru"			"специальный флаг(4)"
+		"en"			"Custom flag (4)"
+		"lv"			"Custom flag (4)"
+		"ru"			"специальный флаг (4)"
 	}
 	"s flag"
 	{
-		"en"			"Fifth custom flag type"
-		"ru"			"специальный флаг(5)"
+		"en"			"Custom flag (5)"
+		"lv"			"Custom flag (5)"
+		"ru"			"специальный флаг (5)"
 	}
 	"t flag"
 	{
-		"en"			"Sixth custom flag type"
-		"ru"			"специальный флаг(6)"
+		"en"			"Custom flag (6)"
+		"lv"			"Custom flag (6)"
+		"ru"			"специальный флаг (6)"
 	}
 	"set flags"
 	{
-		"en"			"I have selected the flags, next"
-		"ru"			"Я выбрал флаги, далее"
+		"en"			"Choose flags"
+		"lv"			"Izvēlies flagus"
+		"ru"			"я выбрал флаги, далее"
 	}
 	"DelAdminTitle"
 	{
-		"en"			"View to delete"
+		"en"			"View to remove"
+		"lv"			"Apskatīt lai noņemtu"
 		"ru"			"Вид для удаления"
 	}
 	"del all"
 	{
 		"en"			"Fully"
+		"lv"			"Pilnībā"
 		"ru"			"Полностью"
 	}
 	"del server"
 	{
-		"en"			"Only from this server"
-		"ru"			"Только с этого сервера"
+		"en"			"Only in this server"
+		"lv"			"Tikai Šajā serverī"
+		"ru"			"Только с этого с сервера"
 	}
 	//------------------------------------------------
 	/*******RU******
@@ -359,60 +428,71 @@
 	"Permanent"
 	{
 		"en"			"Permanent"
+		"lv"			"Mūža bans"
 		"ru"			"Навсегда"
 	}
 	"Banned Admin panel"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s},{5:s},{6:s}"
-		"en"			"You was banned by admin: {1}\nReason: {2}\nBan date: {3}\nBan ends: {4}\nBan length: {5}\nRead more on the website: {6}"
+		"en"			"You have been banned by this server Admin: {1}\nReason: {2}\nBan date: {3}\nBan ends: {4}\nBan length: {5}\nYou can appeal ban at: {6}"
+		"lv"			"Tevi nobanoja šī servera Admins: {1}\nIemesls: {2}\nBana datums: {3}\nBans beidzas: {4}\nBana Ilgums: {5}\nBana apelāciju vari veikt: {6}"
 		"ru"			"Забанен админом: {1}\nПричина: {2}\nБан выдан: {3}\nБан будет снят: {4}\nЗабанен на: {5}\nПодробнее на сайте: {6}"
 	}
 	"Banned panel"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s},{5:s}"
-		"en"			"You was banned on this server\nReason: {1}\nBan date: {2}\nBan ends: {3}\nBan length: {4}\nRead more on the website: {5}"
+		"en"			"You have been banned by this server!\nReason: {1}\nBan date: {2}\nBan ends: {3}\nBan length: {4}\nYou can appeal ban at: {5}"
+		"lv"			"Tu tiki banots šajā serverī!\nIemesls: {1}\nBana datums: {2}\nBans beidzas: {3}\nBana Ilgums: {4}\nBana apelāciju vari veikt: {5}"
 		"ru"			"Вы  были забанены на этом сервере\nПричина: {1}\nБан выдан: {2}\nБан будет снят: {3}\nЗабанен на: {4}\nПодробнее на сайте: {5}"
 	}
 	"Banned Admin"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s},{5:s}"
-		"en"			"You was banned by admin: {1}\nReason: {2}\nBan date: {3}\nBan length: {4}\nRead more on the website: {5}"
+		"en"			"You have been banned by this server Admin: {1}\nReason: {2}\nBan date: {3}\nBan length: {4}\nYou can appeal ban at: {5}"
+		"lv"			"Tevi nobanoja šī servera Admins: {1}\nIemesls: {2}\nBana datums: {3}\nBana ilgums: {4}\nBana apelāciju vari veikt: {5}"
 		"ru"			"Забанен админом: {1}\nПричина: {2}\nБан выдан: {3}\nЗабанен на: {4}\nПодробнее на сайте: {5}"
 	}
 	"Banned"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s}"
-		"en"			"You was banned on this server\nReason: {1}\nBan date: {2}\nBan length: {3}\nRead more on the website: {4}"
+		"en"			"You have been banned by this server\nReason: {1}\nBan date: {2}\nBan length: {3}\nYou can appeal ban at: {4}"
+		"lv"			"Tu tiki banots šajā serverī\nIemesls: {1}\nBana datums {2}\nBana Ilgums: {3}\nBana apelāciju vari veikt: {4}"
 		"ru"			"Вы  были забанены на этом сервере\nПричина: {1}\nБан выдан: {2}\nЗабанен на: {3}\nПодробнее на сайте: {4}"
 	}
 	"Banneds"
 	{
-		"en"			"You was banned"
+		"en"			"You have been banned"
+		"lv"			"Tu tiki banots
 		"ru"			"Вас забанили"
 	}
 	"Title Banned"
 	{
-		"en"			"You banned"
+		"en"			"You Still have a active ban"
+		"lv"			"Tev vēl projām ir aktīvs bans"
 		"ru"			"Вы забанены"
 	}
 	"No ends"
 	{
-		"en"			"Ban permanent"
+		"en"			"Permanent ban"
+		"lv"			"Mūža bans"
 		"ru"			"Бан навсегда"
 	}
 	"Server"
 	{
-		"en"			"Server"
+		"en"			"Server Console"
+		"lv"			"Servera Konsole"
 		"ru"			"Сервер"
 	}
 	"Admin"
 	{
 		"en"			"Admin"
+		"lv"			"Admins"
 		"ru"			"Админ"
 	}
 	"No reason"
 	{
-		"en"			"No reason"
+		"en"			"No reason specified"
+		"lv"			"Iemesls nav norādīts"
 		"ru"			"Нет причины"
 	}
 	//----------------------------------------------------------------
@@ -424,313 +504,370 @@
 	"temporarily"
 	{
 		"en"			"temporarily"
+		"lv"			"pagaidu"
 		"ru"			"временно"
 	}
 	"Days"
 	{
-		"en"			"days"
+		"en"			"day/s"
+		"lv"			"diena/as"
 		"ru"			"дн."
 	}
 	"Hours"
 	{
-		"en"			"hours"
+		"en"			"hour/s"
+		"lv"			"stunda/s"
 		"ru"			"час."
 	}
 	"Minutes"
 	{
-		"en"			"minutes"
+		"en"			"minute/s"
+		"lv"			"minūte/s"
 		"ru"			"мин."
 	}
 	"Sec"
 	{
 		"en"			"sec."
+		"lv"			"sek."
 		"ru"			"сек."
 	}
 	"Admin Expire"
 	{
 		"#format"		"{1:s}"
-		"en"			"Privileges expire after {1}"
+		"en"			"Admin privileges expires in {1}"
+		"lv"			"Admina privilēģijas beigsies {1}"
 		"ru"			"Срок действия привилегий истекает через {1}"
 	}
 	"Clear history"
 	{
-		"en"    		"History cleared"
+		"en"    		"Clear history"
+		"lv"    		"Dzēst vēsturi"
 		"ru"    		"История очищена"
 	}
 	"Reload config"
 	{
-		"en"    		"The config has been reloaded"
+		"en"    		"Config reloaded successfully"
+		"lv"    		"Konfigs pārlādēts veiksmīgi"
 		"ru"    		"Конфиг перезагружен"
 	}
 	"Reload connect ok"
 	{
-		"en"    		"Connection to the database is established"
+		"en"    		"Successfully connected to DB"
+		"lv"    		"Savienošanās ar DB veiksmīga"
 		"ru"    		"Соединение с бд установлено"
 	}
 	"Reload connect no"
 	{
-		"en"    		"Connection to the database is not established"
+		"en"    		"There is no connection to the DB"
+		"lv"    		"Nav savienojuma ar DB"
 		"ru"    		"Соединение с бд не установлено"
 	}
 	"Failed to bd"
 	{
 		"#format"		"{1:s}"
 		"en"    		"Failed to add to the database {1}. Operation is written to the backup, when you resume connections, data will send into the database"
+		"lv"    		"Failed to add to the database {1}. Operation is written to the backup, when you resume connections, data will send into the database"
 		"ru"    		"Не получилось добавить в бд {1}, операция записана в бэкап, при возобновления соединения данные занесутся в бд"
 	}
 	"Added to bd"
 	{
 		"#format"		"{1:s}"
 		"en"    		"Added to the database {1}"
+		"lv"    		"Pievienots datubāzei {1}"
 		"ru"    		"Добавлен в бд {1}"
 	}
 	"Failed to player"
 	{
 		"en"    		"Player not found"
+		"lv"    		"Spēlētājs nav atrasts"
 		"ru"    		"Игрок не найден"
 	}
 	"Own reason"
 	{
 		"#format"		"{1:s}"
 		"en"    		"Own reason:({1}). Add"
+		"lv"    		"Manis izvēlēts iemesls:({1}). Pievienot"
 		"ru"    		"Другая причина:({1}). Добавлена"
 	}
 	"Say reason"
 	{
-		"en"    		"Write the reason to a chat"
+		"en"    		"Write reason in the chat"
+		"lv"    		"Ievieto iemeslu čatā"
 		"ru"    		"Напишите в чат свою причину"
 	}
 	"ReheshAdminOk"
 	{
-		"en"    		"List administrators updated"
+		"en"    		"List of admins updated"
+		"lv"    		"Adminu saraksts atjaunots"
 		"ru"    		"Cписок админов обновлён"
 	}
 	"No Client Game"
 	{
-		"en"    		"The player out"
+		"en"    		"Player left the game"
+		"lv"    		"Spēlētājs pameta spēli"
 		"ru"    		"Игрок вышел"
 	}
 	"Yes report"
 	{
 		"#format"		"{1:s}"
-		"en"    		"Report on {1} sent"
+		"en"    		"Player {1} has been reported"
+		"lv"    		"Par spēlētāju {1} tika ziņots"
 		"ru"    		"Репорт на {1} отправлен"
 	}
 	"No admin"
 	{
-		"en"    		"The command is prohibited for execution over the admin"
+		"en"    		"You do not have permissions to use this command or admin has immunity bigger than yours!"
+		"lv"    		"Tev nav pieejas izmantot šo komandu vai adminam ir lielāka imunitāte pret tevi!"
 		"ru"    		"Команда запрещена на исполнение над админом"
 	
 	}
 	"No Access unban time 0"
 	{
-		"en"    		"Time is permanent allowed to admins with the UNBAN flag"
+		"en"    		"Perm bans allowed only if you have UNBAN flag"
+		"lv"    		"Mūža banus var tikai uzlikt ar UNBAN flag pieeju"
 		"ru"    		"Время навсегда разрешено админам с флагом UNBAN"
 	}
 	"No Access time 0"
 	{
-		"en" 			"You don't have access to ban/mute permanent"
+		"en" 			"You have no access to the permanent bans & mutes"
+		"lv" 			"Tev nav pieejas izmantot mūžā banus un mutes"
 		"ru" 			"У вас нет доступа к бану/муту навсегда"
 	}
 	"No Access max time"
 	{
 		"#format"		"{1:d}"
 		"en" 			"Maximum ban/mute time {1}" 
+		"lv" 			"Limits ban/mute laikam {1}" 
 		"ru" 			"Вам не разрешено время выше {1}"
 	}
 	"No Access all"
 	{
-		"en"    		"Admins with the ROOT flag are allowed to select all"
+		"en"    		"Select all allowed only with ROOT flag"
+		"lv"    		"Izvēlēties visus  pieeja ir tikai ar ROOT flagu"
 		"ru"    		"Выбрать всех разрешено админам с флагом ROOT"
 	}
 	"Invalid time"
 	{
 		"#format"		"{1:d}"
-		"en"    		"Time less than {1} is prohibited"
+		"en"    		"Invalid time"
+		"lv"    		"nepareizi norādīts laiks"
 		"ru"    		"Время меньше {1} запрещено"
 	}
 	"No active bans"
 	{
 		"#format"		"{1:s}"
-		"en"    		"There is no active ban for this filter {1}"
+		"en"    		"Player {1} has no active bans"
+		"lv"    		"Spēlētājam {1} nav aktīvu banu"
 		"ru"    		"Нет активного бана по данному фильтру {1}"
 	}
 	"Is already banned"
 	{
 		"#format"		"{1:s}"
-		"en"    		"{1} already in the ban"
+		"en"    		"{1} is already banned"
+		"lv"    		"{1} jau ir banots"
 		"ru"    		"{1} уже находится в бане"
 	}
 	"No access mute"
 	{
 		"#format"		"{1:s}"
 		"en"    		"You don't have permissions to mute {1}"
+		"lv"    		"Tev nav piekļuves mute opcijai {1}"
 		"ru"    		"У вас недостаточно прав для мута {1}"
 	}
 	"No access un mute"
 	{
 		"#format"		"{1:s}"
 		"en"    		"You don't have permissions to unmute {1}"
+		"lv"    		"Tev nav piekļuves unmute opcijai {1}"
 		"ru"    		"У вас недостаточно прав для размута {1}"
 	}
 	"No access un ban"
 	{
 		"#format"		"{1:s}"
 		"en"    		"You don't have permissions to unban {1}"
+		"lv"    		"Tev nav piekļuves unban opcijai {1}"
 		"ru"    		"У вас недостаточно прав для разбана {1}"
 	}
 	"No matching client"
 	{
 		"en"			"No matching client was found"
+		"lv"			"Netika atrasts atbilstošs klients"
 		"ru"			"Не найден подходящий игрок"
 	}
 	"Target gag"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"You have been disabled text chat on {1} because of ({2})"
+		"en"			"You have been gagged | Length: {1} | Reason: {2}"
+		"lv"			"Tev tika liegta pieeja čatam | Ilgums: {1} | Iemesls: {2}"
 		"ru"			"Вам отключили текстовый чат на {1} по причине ({2})"
 	}
 	"Target mute"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"You have been disabled the voice chat on {1} because of ({2})"
+		"en"			"You have been muted | Length: {1} | Reason: {2}"
+		"lv"			"Tev tika liegta pieeja Voice čatam | Ilgums: {1} | Iemesls: {2}"
 		"ru"			"Вам отключили голосовой чат на {1} по причине ({2})"
 	}
 	"Target silence"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"You have been disabled the voice and text chat to {1} because of ({2})"
+		"en"			"You have been gagged & muted | Length: {1} | Reason: {2}"
+		"lv"			"Tev tika liegta pieeja čatam un voice čatam | Ilgums: {1} | Iemesls: {2}"
 		"ru"			"Вам отключили голосовой и текстовый чат на {1} по причине ({2})"
 	}
 	"Target ungag"
 	{
-		"en"			"You have text chat enabled"
+		"en"			"Your gag has been removed!"
+		"lv"			"Tavs čata liegums tika noņemts!"
 		"ru"			"Вам включили текстовый чат"
 	}
 	"Target unmute"
 	{
-		"en"			"You have voice chat enabled"
+		"en"			"Your mute has been removed!"
+		"lv"			"Tavs Voice čata liegums tika noņemts!"
 		"ru"			"Вам включили голосовой чат"
 	}
 	"Target unsilence"
 	{
-		"en"			"You have voice and text chat enabled"
+		"en"			"Your mute & gag has been removed!"
+		"lv"			"Tavs čata un Voice čata liegums tika noņemts!"
 		"ru"			"Вам включили голосовой и текстовый чат"
 	}
 	"Target no text chat"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"You have turned off text chat on {1} because of ({2})"
+		"en"			"You have active gag & mute! | Length: {1} | Reason: {2}"
+		"lv"			"Tev ir aktīvs čata un voice čata liegums! | Ilgums: {1} | Iemesls: {2}"
 		"ru"			"У вас выключен текстовый чат на {1} по причине ({2})"
 	}
 	"prifix"
 	{
 		"en"			"[MA]"
+		"lv"			"[MA]"
 		"ru"			"[MA]"
 	}
 	"say imune"
 	{
-		"en"			"Write numbers from 0 to 100 immunity for the admin"
+		"en"			"Write any number from 0 to 100 for the admin immunity level"
+		"lv"			"Raksti jebkādu ciparu no 0 līdz 100 lai pievienotu admina imunitātes līmeni"
 		"ru"			"Напиши цифрами от 0 до 100 иммунитет для админа"
 	}
 	"say set imune next pass"
 	{
 		"#format"		"{1:s}"
-		"en"			"Immunity {1} accepted, now write the password for the admin"
+		"en"			"Immunity {1} level added! Now write admin password!"
+		"lv"			"Immunitātes {1} līmenis pievienots! Tagad ievadi admina paroli!"
 		"ru"			"Иммунитет {1} принят, теперь напишите пароль для админа"
 	}
 	"Failed imune"
 	{
-		"en"			"Immunity should consist only of digits from 0 to 100"
+		"en"			"You can choose only immunity level from  0 to 100!"
+		"lv"			"Tu vari izvēlēties imunitātes līmeni no  0 līdz 100!"
 		"ru"			"Иммунитет должен состоять только из цифр от 0 до 100"
 	}
 	"say set pass next expire"
 	{
 		"#format"		"{1:s}"
-		"en"			"The password {1} is accepted, now write admin time (min.)"
+		"en"			"Password: {1} added! Now provide the lengh of the admin access in minutes (0 perm)"
+		"lv"			"Parole: {1} pievienota! Tagad norādi admina pieejas garumu (0 uz mūžu)"
 		"ru"			"Пароль {1} принят, теперь напишите на сколько админка в минутах"
 	}
 	"Failed expire"
 	{
-		"en"			"The time must be at least 0" 
+		"en"			"Time should not be less than 0" 
+		"lv"			"Laikam nevajadzētu būt mazākam par 0" 
 		"ru"			"Время должно быть не меньше 0"
 	}
 	"say set expire"
 	{
 		"#format"		"{1:s}"
-		"en"			"Admin time ({1}) accepted" 
+		"en"			"Admin time ({1}) added!" 
+		"lv"			"Admins ({1}) ar laika limitu pievienots!" 
 		"ru"			"Время админки ({1}) принято"
 	}
 	"Failed add admin"
 	{
 		"#format"		"{1:s}"
-		"en"			"Couldn't add admin {1}"
+		"en"			"Failed to add admin to {1}"
+		"lv"			"Neizdevās pievienot adminu {1}"
 		"ru"			"Не получилось добавить админа {1}"
 	}
 	"Ok add admin bd"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Admin added (login - '{1}', a password - '{2}')"
+		"lv"			"Admins pievienots (login - '{1}', parole - '{2}')"
 		"ru"			"Админ добавлен (логин - '{1}', пароль - '{2}')"
 	}
 	"No admin sb"
 	{
 		"#format"		"{1:s}"
-		"en"			"{1} is not the administrator of this system"
+		"en"			"{1} is not the web admin"
+		"lv"			"{1} nav web admins"
 		"ru"			"{1} не является админом данной системы"
 	}
 	"Ok add admin server"
 	{
 		"#format"		"{1:s}"
-		"en"			"Admin {1} added to the server"
+		"en"			"Admin {1} has been added to the server"
+		"lv"			"Admins {1} tika pievienots serverim"
 		"ru"			"Админ {1} добавлен на сервер"
 	}
 	"Failed del admin"
 	{
 		"#format"		"{1:s}"
-		"en"			"Couldn't delete admin {1}"
+		"en"			"Failed to delete admin {1}"
+		"lv"			"Neizdevās izdzēst adminu {1}"
 		"ru"			"Не получилось удалить админа {1}"
 	}
 	"Ok del admin"
 	{
 		"#format"		"{1:s}"
 		"en"			"Admin {1} successfully removed"
+		"lv"			"Admins {1} veiksmīgi noņemts"
 		"ru"			"Админ {1} успешно удалён"
 	}
 	"Failed to player admin"
 	{
-		"en"			"The player is already an admin"
+		"en"			"The player is already Admin"
+		"lv"			"Spēlētājs jau ir admins"
 		"ru"			"Игрок уже админ"
 	}
 	"Failed flag pust"
 	{
 		"en"			"Flags must be specified"
+		"lv"			"Flagam jābūt norādītam"
 		"ru"			"Флаги должны быть указаны"
 	}
 	"Failed flag"
 	{
-		"en"			"Flags are specified incorrectly (list of flags [zbacdefghijklmnopqrst])"
+		"en"			"Incorrectly specified flags (list of flags [zbacdefghijklmnopqrst])"
+		"lv"			"Nepareizi norādīti flagi (flagu saraksts [zbacdefghijklmnopqrst])"
 		"ru"			"Неверно указаны флаги(список флагов [zbacdefghijklmnopqrst])"
 	}
 	"Failed steam"
 	{
-		"en"			"The steam is specified incorrectly"
+		"en"			"Invalid Steam"
+		"lv"			"Nepareizs Steam"
 		"ru"			"Неверно указан стим"
 	}
 	"Failed ip"
 	{
-		"en"			"The IP address is specified incorrectly"
+		"en"			"Invalid ip"
+		"lv"			"Nepareizs IP"
 		"ru"			"Неверно указан айпи"
 	}
 	"Failed to player no admin"
 	{
 		"en"			"The player is not an admin"
+		"lv"			"Spēlētajs nav admins"
 		"ru"			"Игрок не админ"
 	}
 	"Update Version"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"Update the materialadmin plug-in, the latest version of {1} here {2}"
+		"lv"			"Atjauno materialadmin pluginu, ar jaunāko versiju {1} šeit {2}"
 		"ru"			"Обновите плагин materialadmin, последняя версия {1} тут {2}"
 	}
 	//------------------------------------------------
@@ -742,49 +879,57 @@
 	"Banned show"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s}"
-		"en"			"{1} banned {2} to {3} because of ({4})"
+		"en"			"{1} Banned {2} | Length: {3} | Reason: {4}"
+		"lv"			"{1} Nobanoja {2} | Ilgums: {3} | Iemesls: {4}"
 		"ru"			"{1} забанил {2} на {3} по причине ({4})"
 	}
 	"UnBanned show"
 	{
 		"#format"		"{1:s},{2:s}"
 		"en"			"{1} unbanned {2}"
+		"lv"			"{1} noņēma banu {2}"
 		"ru"			"{1} разбанил {2}"
 	}
 	"Gag show"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s}"
-		"en"			"{1} disabled text chat {2} on {3} for a reason ({4})"
+		"en"			"{1} Issued an gag on {2} | Length: {3} | Reason: {4}"
+		"lv"			"{1} Uzlika gag spēlētājam {2} | Ilgums: {3} | Iemesls: {4}"
 		"ru"			"{1} отключил текстовый чат {2} на {3} по причине ({4})"
 	}
 	"Mute show"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s}"
-		"en"			"{1} disabled the voice chat {2} on {3} for a reason ({4})"
+		"en"			"{1} Issued an mute on {2} | Length: {3} | Reason: {4}"
+		"lv"			"{1} Uzlika mute spēlētājam {2} | Ilgums: {3} | Iemesls: {4}"
 		"ru"			"{1} отключил голосовой чат {2} на {3} по причине ({4})"
 	}
 	"Silence show"
 	{
 		"#format"		"{1:s},{2:s},{3:s},{4:s}"
-		"en"			"{1} disabled the voice and text chat to {3} {2} because ({4})"
+		"en"			"{1} Issued an mute & gag on {2} | Length: {3} | Reason: {4}"
+		"lv"			"{1} Uzlika mute un gag spēlētājam {2} | Ilgums: {3} | Iemesls: {4}"
 		"ru"			"{1} отключил голосовой и текстовый чат {2} на {3} по причине ({4})"
 	}
 	"UnGag show"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"{1} turned on a text chat {2}"
+		"en"			"{1} Removed gag from {2}"
+		"lv"			"{1} Noņēma gag spēlētājam {2}"
 		"ru"			"{1} включил текстовый чат {2}"
 	}
 	"UnMute show"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"{1} turned on a voice chat {2}"
+		"en"			"{1} Removed mute from {2}"
+		"lv"			"{1} Noņēma mute spēlētājam {2}"
 		"ru"			"{1} включил голосовой чат {2}"
 	}
 	"UnSilence show"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"			"{1} turned on text chat and voice chat {2}"
+		"en"			"{1} Removed mute & gag from {2}"
+		"lv"			"{1} Noņēma mute un gag spēlētājam {2}"
 		"ru"			"{1} включил голосовой и текстовый чат {2}"
 	}
 
@@ -792,6 +937,7 @@
 	{
 		"#format"		"{1:d}"
 		"en"			"Warnings: {1}"
+		"lv"			"Brīdinājumi: {1}"
 		"ru"			"Предупреждений: {1}"
 	}
 }
