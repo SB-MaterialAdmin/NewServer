@@ -1,56 +1,66 @@
-"Phrases"
+Phrases"
 {
+
 	"Player connect comm"
 	{
 		"#format"		"{1:s},{2:d}"
-		"en"			"Player \"{1}\" has {2} previous comms"
+		"en"			"Player \"{1}\" has {2} previous communication blocks..."
+		"lv"			"Spēlētājam \"{1}\" ir bijis {2} mute/gag..."
 		"ru"			"Игрок \"{1}\" имеет {2} мут(а)"
 	}
 	"Listing comms"
 	{
 		"#format"		"{1:s}"
-		"en"    		"List of comms for {1}."
+		"en"    		"List of comms blocks for {1}."
+		"lv"    		"Saraksts ar comms blocks spēlētājam {1}."
 		"ru"    		"Список мутов для {1}."
 	}
 	"No comms found"
 	{
 		"#format"		"{1:s}"
-		"en"    		"Comms for {1} were not found."
+		"en"    		"Comms blocks for {1} not found."
+		"lv"    		"Comms blocks spēlētājam {1} nav atrasti."
 		"ru"    		"Муты для {1} не найдены."
 	}
 	"DB error while retrieving comms"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"    		"DB error when getting comms for {1}:\n{2}"
+		"en"    		"DB error when getting comms blocks for {1}:\n{2}"
+		"lv"    		"DB ķļūda mēģinot iegūstot datus no {1}:\n{2}"
 		"ru"    		"Ошибка БД при получении мутов для {1}:\n {2}"
 	}
 	"Player connect"
 	{
 		"#format"		"{1:s},{2:d}"
-		"en"    		"Player \"{1}\" has {2} previous ban"
+		"en"    		"Player \"{1}\" has {2} previous ban/s"
+		"lv"    		"Spēlētājam \"{1}\" iepriekš ir bijis {2} ban/i"
 		"ru"    		"Игрок \"{1}\" имеет {2} бан(а)"
 	}
 	"Database not ready"
 	{
-		"en"    		"Error: The database is not ready."
+		"en"    		"Error: Database not ready."
+		"lv"    		"Kļūda. Datubāze nav gatava"
 		"ru"    		"Ошибка: База данных не готова."
 	}
 	"DB error while retrieving bans"
 	{
 		"#format"		"{1:s},{2:s}"
-		"en"    		"DB error when getting bans for {1}:\n{2}"
+		"en"    		"DB error while retrieving bans for {1}:\n{2}"
+		"lv"    		"DB kļūda mēģinot iegūt datus no {1}:\n{2}"
 		"ru"    		"Ошибка БД при получении банов для {1}:\n {2}"
 	}
 	"No bans found"
 	{
 		"#format"		"{1:s}"
-		"en"    		"Bans for {1} were not found."
+		"en"    		"Player {1} has no previous bans."
+		"lv"    		"Spēlētājam {1} nav bijis neviens bans"
 		"ru"    		"Баны для {1} не найдены."
 	}
 	"Listing bans"
 	{
 		"#format"		"{1:s}"
-		"en"    		"List of bans for {1}."
+		"en"    		"{1} Ban History"
+		"lv"    		"{1} Banu Vēsture"
 		"ru"    		"Список банов для {1}."
 	}
 }
