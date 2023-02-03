@@ -47,11 +47,12 @@ void ConnectBd(int iType, int iClient)
 
 public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 {
-	if (sError[0])
+	if (db == null)
+	{
 		LogToFile(g_sLogDateBase, "ConnectBd Query Failed: %s", sError);
+	}
 	
 	g_dDatabase = db;
-	g_dDatabase.SetCharset(charset);
 	
 	FireOnConnectDatabase(g_dDatabase);
 	
