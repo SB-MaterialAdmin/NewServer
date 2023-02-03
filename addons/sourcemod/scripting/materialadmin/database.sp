@@ -47,11 +47,7 @@ void ConnectBd(int iType, int iClient)
 
 public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 {
-	if (sError[0])
-		LogToFile(g_sLogDateBase, "ConnectBd Query Failed: %s", sError);
-	
 	g_dDatabase = db;
-	g_dDatabase.SetCharset(charset);
 	
 	FireOnConnectDatabase(g_dDatabase);
 	
@@ -80,6 +76,7 @@ public void SQL_Callback_ConnectBd(Database db, const char[] sError, any data)
 	}
 	else
 	{
+		LogToFile(g_sLogDateBase, "ConnectBd Query Failed: %s", sError);
 		switch(iType)
 		{
 			case BDCONNECT_COM:		ReplyToCommand(iClient, "%sNo connect bd", MAPREFIX);
