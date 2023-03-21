@@ -883,10 +883,7 @@ public Action CommandWMute(int iArgc)
 	
 	if(iClient)
 	{
-		if (iTime > 0)
-			g_iTargenMuteTime[iClient] = GetTime() + iTime;
-		else
-			g_iTargenMuteTime[iClient] = iTime;
+		g_iTargenMuteTime[iClient] = iTime;
 		strcopy(g_sTargetMuteReason[iClient], sizeof(g_sTargetMuteReason[]), sArg[3]);
 		ReplyToCommand(0, "ok");
 		switch(iType)
