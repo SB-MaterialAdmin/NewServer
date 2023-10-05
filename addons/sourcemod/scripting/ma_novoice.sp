@@ -14,6 +14,12 @@ public Plugin myinfo =
 	url = "https://github.com/CrazyHackGUT/SB_Material_Design/"
 };
 
+public void OnPluginStart()
+{
+	LoadTranslations("common.phrases");
+	LoadTranslations("manovoice.phrases");
+}
+
 public OnClientPutInServer(int client)
 {
 	g_bShowText[client] = false;
@@ -28,7 +34,7 @@ public void OnClientSpeaking(int client)
 		
 		SetHudTextParams(-1.0, -1.0, SHOW_AMOUNT, 0, 255, 127, 255, 1);
 		
-		ShowHudText(client, -1, "У вас выключен голосовой чат!");
+		ShowHudText(client, -1, "%T", "No voice");
 	}
 }
 

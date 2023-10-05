@@ -1,0 +1,8 @@
+"Phrases"
+{
+	"No voice"
+	{
+		"en"    		"Your voice chat is turned off!"
+		"ru"    		"У вас выключен голосовой чат!"
+	}
+}
