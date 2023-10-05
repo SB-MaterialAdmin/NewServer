@@ -21,3 +21,7 @@
 #if defined _MATERIALADMIN_CHECKER
     #include "ma_checker.sp"
 #endif
+
+#if defined _MATERIALADMIN_NOVOICE
+    #include "ma_novoice.sp"
+#endif

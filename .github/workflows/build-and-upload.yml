@@ -42,6 +42,7 @@ jobs:
           spcomp __GITHUB=1 _MATERIALADMIN_BASECOMMS=1 materialadmin.git.sp -E -o ../plugins/ma_basecomm -iinclude ${{ matrix.compiler-options }}
           spcomp __GITHUB=1 _MATERIALADMIN_BASEVOTES=1 materialadmin.git.sp -E -o ../plugins/ma_basevotes -iinclude ${{ matrix.compiler-options }}
           spcomp __GITHUB=1 _MATERIALADMIN_CHECKER=1 materialadmin.git.sp -E -o ../plugins/ma_checker -iinclude ${{ matrix.compiler-options }}
+	spcomp __GITHUB=1 _MATERIALADMIN_NOVOICE=1 materialadmin.git.sp -E -o ../plugins/ma_novoice -iinclude ${{ matrix.compiler-options }}
 
       - name: Cleanup
         if: github.ref == 'refs/heads/master'
